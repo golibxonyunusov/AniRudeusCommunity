@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VOLTA — Original elektronika do'koni</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%A1%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#12151a;
+  --surface:#1a2029;
+  --surface-2:#202833;
+  --surface-3:#262f3b;
+  --border:#2a323d;
+  --border-soft:#222a33;
+  --text:#eef1f4;
+  --text-muted:#99a3b0;
+  --text-faint:#5c6673;
+  --amber:#ffb347;
+  --amber-dim:#cc8a2e;
+  --amber-glow:rgba(255,179,71,.38);
+  --teal:#5ec8c3;
+  --teal-dim:#3d9b97;
+  --danger:#ff6b6b;
+  --radius:12px;
+  --radius-sm:8px;
+  --mono:'JetBrains Mono',monospace;
+  --sans:'Inter',sans-serif;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;background-color:var(--bg);color:var(--text);font-family:var(--sans);
+  background-image:radial-gradient(circle at 1px 1px, rgba(255,255,255,.035) 1px, transparent 0);
+  background-size:22px 22px;
+  -webkit-font-smoothing:antialiased;
+}
+img,svg{display:block;}
+button{font-family:inherit;cursor:pointer;}
+a{color:inherit;text-decoration:none;}
+input,select,textarea{font-family:inherit;}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+.wrap{max-width:1280px;margin:0 auto;padding:0 24px;}
+.mono{font-family:var(--mono);}
+.led{
+  font-family:var(--mono);font-weight:800;color:var(--amber);
+  text-shadow:0 0 14px var(--amber-glow);font-variant-numeric:tabular-nums;letter-spacing:.3px;
+}
+.led-sm{font-family:var(--mono);font-weight:700;color:var(--amber);font-variant-numeric:tabular-nums;}
+.muted{color:var(--text-muted);}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:999px;border:1px solid transparent;font-weight:700;font-size:14px;
+  transition:transform .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  white-space:nowrap;
+}
+.btn:active{transform:scale(.97);}
+.btn-amber{background:var(--amber);color:#1a1206;box-shadow:0 0 0 0 transparent;}
+.btn-amber:hover{box-shadow:0 6px 22px var(--amber-glow);}
+.btn-amber:disabled{background:var(--surface-3);color:var(--text-faint);cursor:not-allowed;box-shadow:none;}
+.btn-outline{background:transparent;border-color:var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--amber);color:var(--amber);}
+.btn-ghost{background:transparent;color:var(--text-muted);padding:8px 12px;}
+.btn-ghost:hover{color:var(--text);}
+.btn-danger{background:transparent;border-color:var(--border);color:var(--danger);}
+.btn-danger:hover{border-color:var(--danger);background:rgba(255,107,107,.08);}
+.icon-btn{
+  width:40px;height:40px;border-radius:50%;border:1px solid var(--border);background:var(--surface);
+  display:inline-flex;align-items:center;justify-content:center;color:var(--text);position:relative;
+  transition:border-color .2s, color .2s;
+}
+.icon-btn:hover{border-color:var(--amber);color:var(--amber);}
+.badge{
+  position:absolute;top:-6px;right:-6px;background:var(--amber);color:#1a1206;font-family:var(--mono);
+  font-weight:800;font-size:11px;min-width:18px;height:18px;border-radius:999px;display:flex;
+  align-items:center;justify-content:center;padding:0 4px;
+}
+
+/* ============ TICKER ============ */
+.ticker{background:var(--surface-2);border-bottom:1px solid var(--border);overflow:hidden;white-space:nowrap;}
+.ticker-track{display:inline-flex;animation:scroll-left 28s linear infinite;padding:9px 0;}
+.ticker-track span{
+  font-family:var(--mono);font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--teal);
+  padding:0 28px;border-right:1px solid var(--border-soft);
+}
+@keyframes scroll-left{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+
+/* ============ HEADER ============ */
+header.site{
+  position:sticky;top:0;z-index:40;background:rgba(18,21,26,.88);backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border);
+}
+.header-row{display:flex;align-items:center;gap:24px;padding:14px 24px;}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-weight:800;font-size:20px;letter-spacing:.5px;}
+.logo .bolt{color:var(--amber);text-shadow:0 0 14px var(--amber-glow);}
+.nav-links{display:flex;gap:22px;font-size:14px;font-weight:600;color:var(--text-muted);}
+.nav-links a:hover{color:var(--text);}
+.search-box{
+  flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--surface);
+  border:1px solid var(--border);border-radius:999px;padding:9px 16px;color:var(--text-muted);
+}
+.search-box input{background:none;border:none;color:var(--text);width:100%;font-size:14px;}
+.search-box input:focus{outline:none;}
+.search-box svg{flex-shrink:0;}
+.header-actions{display:flex;align-items:center;gap:10px;margin-left:auto;}
+
+/* ============ HERO ============ */
+.hero{padding:64px 0 56px;position:relative;overflow:hidden;}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;}
+.eyebrow{
+  font-family:var(--mono);font-size:12px;font-weight:700;letter-spacing:.12em;color:var(--teal);
+  text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;
+}
+.eyebrow .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);}
+.hero h1{
+  font-family:var(--mono);font-size:clamp(34px,5vw,56px);line-height:1.04;font-weight:800;margin:0 0 18px;
+  letter-spacing:-.5px;
+}
+.hero h1 .hl{color:var(--amber);text-shadow:0 0 18px var(--amber-glow);}
+.hero p.lead{font-size:16px;color:var(--text-muted);max-width:480px;line-height:1.6;margin-bottom:28px;}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;}
+.hero-visual{position:relative;display:flex;justify-content:center;}
+.hero-panel{
+  width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  padding:28px;position:relative;box-shadow:0 30px 80px -30px rgba(0,0,0,.6);
+}
+.hero-panel::before{
+  content:'';position:absolute;inset:-1px;border-radius:20px;padding:1px;
+  background:linear-gradient(135deg, var(--amber-dim), transparent 40%, var(--teal-dim) 100%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:.5;pointer-events:none;
+}
+.hero-panel-icon{width:90px;height:90px;margin:0 auto 18px;color:var(--amber);}
+.hero-readout{display:flex;justify-content:space-between;border-top:1px dashed var(--border);margin-top:18px;padding-top:14px;}
+.hero-readout div{text-align:center;flex:1;}
+.hero-readout .num{font-family:var(--mono);font-weight:800;font-size:18px;color:var(--text);}
+.hero-readout .lbl{font-family:var(--mono);font-size:10px;color:var(--text-faint);letter-spacing:.06em;margin-top:2px;}
+
+/* ============ STATS ============ */
+.stats{border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface);}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);}
+.stat{padding:26px 20px;text-align:center;border-right:1px solid var(--border-soft);}
+.stat:last-child{border-right:none;}
+.stat .led{font-size:30px;}
+.stat .unit{font-size:14px;color:var(--text-faint);}
+.stat .cap{font-size:11px;color:var(--text-muted);letter-spacing:.08em;text-transform:uppercase;margin-top:6px;font-family:var(--mono);}
+
+/* ============ CATALOG LAYOUT ============ */
+.catalog{padding:56px 0 80px;}
+.catalog-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:28px;}
+.catalog-head h2{font-family:var(--mono);font-size:26px;margin:0;}
+.catalog-head h2 span{color:var(--amber);}
+.catalog-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:start;}
+
+/* sidebar */
+.sidebar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;position:sticky;top:84px;}
+.sidebar h3{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--text-faint);text-transform:uppercase;margin:22px 0 10px;}
+.sidebar h3:first-child{margin-top:0;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;font-size:13.5px;}
+.toggle-row .lbl{display:flex;align-items:center;gap:9px;color:var(--text);}
+.toggle-row .cnt{color:var(--text-faint);font-family:var(--mono);font-size:11px;}
+.switch{position:relative;width:34px;height:18px;border-radius:999px;background:var(--surface-3);border:1px solid var(--border);flex-shrink:0;transition:background .2s, border-color .2s;}
+.switch::after{content:'';position:absolute;top:1px;left:1px;width:14px;height:14px;border-radius:50%;background:var(--text-faint);transition:transform .2s, background .2s;}
+.switch.on{background:rgba(255,179,71,.18);border-color:var(--amber-dim);}
+.switch.on::after{transform:translateX(16px);background:var(--amber);box-shadow:0 0 8px var(--amber-glow);}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{
+  font-size:12px;font-family:var(--mono);padding:6px 11px;border-radius:999px;border:1px solid var(--border);
+  background:var(--surface-2);color:var(--text-muted);transition:all .15s;
+}
+.chip.on{border-color:var(--teal-dim);color:var(--teal);background:rgba(94,200,195,.1);}
+.price-fields{display:flex;gap:8px;align-items:center;}
+.price-fields input{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:8px 10px;color:var(--text);font-family:var(--mono);font-size:12px;
+}
+.price-fields input:focus{outline:none;border-color:var(--amber-dim);}
+.range-wrap{margin-top:10px;}
+input[type=range]{width:100%;accent-color:var(--amber);}
+.reset-link{margin-top:18px;width:100%;}
+
+/* product grid */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap;}
+.result-count{font-size:13px;color:var(--text-muted);}
+.result-count b{color:var(--text);}
+.sort-select{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);padding:9px 14px;border-radius:var(--radius-sm);
+  font-size:13px;
+}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;
+  display:flex;flex-direction:column;transition:border-color .2s, transform .2s;position:relative;
+}
+.card:hover{border-color:var(--amber-dim);transform:translateY(-3px);}
+.card .cat-tag{
+  font-family:var(--mono);font-size:10px;color:var(--teal);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;
+}
+.card-icon{
+  width:100%;height:120px;display:flex;align-items:center;justify-content:center;color:var(--amber);
+  background:linear-gradient(180deg, var(--surface-2), var(--surface));border-radius:var(--radius-sm);margin-bottom:14px;
+  border:1px solid var(--border-soft);cursor:pointer;
+}
+.card-icon svg{width:64px;height:64px;}
+.card h4{margin:0 0 4px;font-size:15px;font-weight:700;cursor:pointer;}
+.card .brand-line{font-size:12px;color:var(--text-muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.stars{color:var(--amber);font-size:12px;letter-spacing:1px;}
+.card .price-row{display:flex;align-items:baseline;justify-content:space-between;margin-top:auto;margin-bottom:12px;}
+.card .price-row .led{font-size:16px;}
+.stock-dot{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-family:var(--mono);}
+.stock-dot::before{content:'';width:6px;height:6px;border-radius:50%;}
+.stock-dot.in::before{background:var(--teal);box-shadow:0 0 6px var(--teal);}
+.stock-dot.in{color:var(--teal);}
+.stock-dot.out::before{background:var(--danger);}
+.stock-dot.out{color:var(--danger);}
+.qty-stepper{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:999px;overflow:hidden;}
+.qty-stepper button{background:var(--surface-2);border:none;color:var(--text);width:32px;height:32px;font-size:16px;}
+.qty-stepper button:hover{color:var(--amber);}
+.qty-stepper .qn{flex:1;text-align:center;font-family:var(--mono);font-weight:700;font-size:13px;}
+.empty-state{
+  text-align:center;padding:60px 20px;border:1px dashed var(--border);border-radius:var(--radius);grid-column:1/-1;
+}
+.empty-state .icn{color:var(--text-faint);margin:0 auto 14px;width:48px;height:48px;}
+.empty-state h4{margin:0 0 6px;font-family:var(--mono);}
+.empty-state p{color:var(--text-muted);font-size:13.5px;margin:0 0 16px;}
+
+/* ============ DRAWER / MODALS (overlay system) ============ */
+.overlay{
+  position:fixed;inset:0;background:rgba(8,10,13,.6);backdrop-filter:blur(2px);z-index:90;
+  display:none;align-items:stretch;justify-content:flex-end;
+}
+.overlay.show{display:flex;}
+.overlay.center{align-items:center;justify-content:center;padding:20px;}
+.panel{
+  background:var(--surface);width:420px;max-width:100%;height:100%;display:flex;flex-direction:column;
+  border-left:1px solid var(--border);transform:translateX(20px);animation:slide-in .25s ease forwards;
+}
+@keyframes slide-in{to{transform:translateX(0);}}
+.modal-box{
+  background:var(--surface);border:1px solid var(--border);border-radius:16px;width:520px;max-width:100%;
+  max-height:88vh;overflow:auto;animation:pop-in .18s ease;
+}
+@keyframes pop-in{from{opacity:0;transform:scale(.96);}to{opacity:1;transform:scale(1);}}
+.panel-head,.modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--border);}
+.panel-head h3,.modal-head h3{font-family:var(--mono);font-size:16px;margin:0;}
+.panel-body{flex:1;overflow:auto;padding:18px 22px;}
+.panel-foot{padding:18px 22px;border-top:1px solid var(--border);}
+.modal-body{padding:22px;}
+
+.cart-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border-soft);}
+.cart-item .ci-icon{width:52px;height:52px;border-radius:var(--radius-sm);background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--amber);flex-shrink:0;}
+.cart-item .ci-icon svg{width:30px;height:30px;}
+.cart-item .ci-info{flex:1;min-width:0;}
+.cart-item .ci-info h5{margin:0 0 4px;font-size:13.5px;}
+.cart-item .ci-row{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.cart-item .qty-stepper{width:90px;}
+.remove-x{color:var(--text-faint);background:none;border:none;font-size:12px;text-decoration:underline;padding:0;}
+.remove-x:hover{color:var(--danger);}
+.cart-empty{text-align:center;padding:60px 20px;color:var(--text-muted);}
+.subtotal-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;font-size:14px;}
+.subtotal-row .led{font-size:20px;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;color:var(--text-muted);margin-bottom:6px;font-weight:600;}
+.field input,.field select,.field textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);
+  padding:10px 12px;color:var(--text);font-size:14px;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--amber-dim);}
+.field-row{display:flex;gap:12px;}
+.field-row .field{flex:1;}
+.radio-row{display:flex;gap:16px;}
+.radio-row label{display:flex;align-items:center;gap:7px;font-size:13.5px;color:var(--text);}
+.success-box{text-align:center;padding:20px 0;}
+.success-box .check{
+  width:60px;height:60px;border-radius:50%;background:rgba(94,200,195,.12);color:var(--teal);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 18px;
+}
+.success-box .check svg{width:30px;height:30px;}
+.order-no{font-family:var(--mono);color:var(--amber);font-weight:800;font-size:18px;}
+.field-error{color:var(--danger);font-size:12px;margin-top:5px;display:none;}
+.field.invalid input,.field.invalid select{border-color:var(--danger);}
+.field.invalid .field-error{display:block;}
+
+/* admin */
+.admin-overlay{position:fixed;inset:0;background:var(--bg);z-index:80;display:none;overflow:auto;}
+.admin-overlay.show{display:block;}
+.admin-top{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:5;}
+.admin-tabs{display:flex;gap:6px;padding:18px 24px 0;}
+.admin-tab{padding:9px 16px;border-radius:999px;font-size:13px;font-weight:700;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);}
+.admin-tab.active{border-color:var(--amber-dim);color:var(--amber);background:rgba(255,179,71,.08);}
+.admin-body{padding:20px 24px 60px;}
+table.admin-table{width:100%;border-collapse:collapse;font-size:13.5px;}
+table.admin-table th{text-align:left;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);padding:10px 12px;border-bottom:1px solid var(--border);}
+table.admin-table td{padding:12px 12px;border-bottom:1px solid var(--border-soft);vertical-align:middle;}
+table.admin-table tr:hover td{background:var(--surface);}
+.row-actions{display:flex;gap:8px;}
+.row-actions button{background:none;border:1px solid var(--border);color:var(--text-muted);width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.row-actions button:hover{border-color:var(--amber);color:var(--amber);}
+.row-actions button.del:hover{border-color:var(--danger);color:var(--danger);}
+.status-pill{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:999px;border:1px solid var(--border);}
+.status-pill.new{color:var(--amber);border-color:var(--amber-dim);}
+.status-pill.done{color:var(--teal);border-color:var(--teal-dim);}
+.pin-box{max-width:320px;margin:80px auto;text-align:center;}
+.pin-box input{text-align:center;font-family:var(--mono);font-size:22px;letter-spacing:8px;}
+
+/* footer */
+footer{border-top:1px solid var(--border);background:var(--surface);margin-top:40px;}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding:56px 0 28px;}
+.footer-grid h5{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);margin:0 0 14px;}
+.footer-grid p,.footer-grid a{font-size:13.5px;color:var(--text-muted);}
+.footer-grid ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
+.footer-grid a:hover{color:var(--amber);}
+.footer-bottom{border-top:1px solid var(--border);padding:18px 0;display:flex;justify-content:space-between;font-size:12px;color:var(--text-faint);flex-wrap:wrap;gap:8px;}
+.footer-bottom a{font-family:var(--mono);}
+
+/* mobile */
+.filter-toggle{display:none;}
+@media (max-width:900px){
+  .nav-links{display:none;}
+  .hero-grid{grid-template-columns:1fr;}
+  .stats-row{grid-template-columns:repeat(2,1fr);}
+  .stat:nth-child(2){border-right:none;}
+  .catalog-layout{grid-template-columns:1fr;}
+  .sidebar{position:fixed;top:0;left:0;height:100%;width:300px;z-index:95;border-radius:0;
+    transform:translateX(-105%);transition:transform .25s ease;overflow:auto;}
+  .sidebar.open{transform:translateX(0);}
+  .filter-toggle{display:inline-flex;}
+  .footer-grid{grid-template-columns:1fr 1fr;}
+  .panel{width:100%;}
+}
+@media (max-width:600px){
+  .footer-grid{grid-template-columns:1fr;}
+  .header-row{flex-wrap:wrap;}
+  .search-box{order:3;flex-basis:100%;}
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<!-- HEADER -->
+<header class="site">
+  <div class="header-row wrap">
+    <button class="icon-btn filter-toggle" id="mobileFilterBtn" aria-label="Filtrlarni ochish">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round"/></svg>
+    </button>
+    <a href="#top" class="logo"><span class="bolt">⚡</span>VOLTA</a>
+    <nav class="nav-links">
+      <a href="#catalog">Katalog</a>
+      <a href="#stats-anchor">Aksiyalar</a>
+      <a href="#footer-anchor">Kontakt</a>
+    </nav>
+    <div class="search-box">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>
+      <input id="searchInput" type="text" placeholder="Mahsulot qidirish...">
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="cartBtn" aria-label="Savatcha">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 4h2l2.4 12.4a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.6L21 8H6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4"/><circle cx="17" cy="20" r="1.4"/></svg>
+        <span class="badge" id="cartCount" style="display:none">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span>180+ ORIGINAL MAHSULOT OMBORDA</div>
+        <h1>Quvvat <span class="hl">sizning</span><br>qo'lingizda.</h1>
+        <p class="lead">VOLTA — smartfonlar, noutbuklar va aksessuarlar. Aniq narxlar, original mahsulot, Toshkent bo'ylab tezkor yetkazib berish.</p>
+        <div class="hero-ctas">
+          <a href="#catalog" class="btn btn-amber">Katalogni ko'rish →</a>
+          <button class="btn btn-outline" onclick="document.getElementById('stats-anchor').scrollIntoView({behavior:'smooth'})">Nega VOLTA?</button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-panel">
+          <div class="hero-panel-icon"><svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="38" y="14" width="44" height="92" rx="10"/><line x1="50" y1="22" x2="70" y2="22"/><circle cx="60" cy="96" r="3.5"/></svg></div>
+          <h4 style="text-align:center;margin:0 0 4px;font-family:var(--mono);">Nova X12</h4>
+          <p style="text-align:center;color:var(--text-muted);font-size:13px;margin:0 0 4px;">Bestseller smartfon</p>
+          <div class="hero-readout">
+            <div><div class="num">6.5″</div><div class="lbl">EKRAN</div></div>
+            <div><div class="num">5000</div><div class="lbl">MAH BATAREYA</div></div>
+            <div><div class="num">128GB</div><div class="lbl">XOTIRA</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats" id="stats-anchor">
+    <div class="wrap stats-row">
+      <div class="stat"><div class="led" id="statProducts">0</div><div class="cap">Mahsulot turi</div></div>
+      <div class="stat"><div class="led">12 400+</div><div class="cap">Mamnun mijoz</div></div>
+      <div class="stat"><div class="led">2 soat</div><div class="cap">O'rtacha yetkazish</div></div>
+      <div class="stat"><div class="led">24 oy</div><div class="cap">Rasmiy kafolat</div></div>
+    </div>
+  </section>
+
+  <!-- CATALOG -->
+  <section class="catalog" id="catalog">
+    <div class="wrap">
+      <div class="catalog-head">
+        <h2>Katalog<span>.</span></h2>
+      </div>
+      <div class="catalog-layout">
+        <aside class="sidebar" id="sidebar">
+          <h3>Kategoriya</h3>
+          <div id="categoryFilters"></div>
+          <h3>Brend</h3>
+          <div class="chip-row" id="brandFilters"></div>
+          <h3>Narx oralig'i (so'm)</h3>
+          <div class="price-fields">
+            <input type="number" id="minPrice" placeholder="Dan" min="0" step="10000">
+            <span class="muted">—</span>
+            <input type="number" id="maxPrice" placeholder="Gacha" min="0" step="10000">
+          </div>
+          <div class="range-wrap">
+            <input type="range" id="maxPriceRange" min="0" max="10000000" step="50000" value="10000000">
+          </div>
+          <h3>Mavjudlik</h3>
+          <div class="toggle-row">
+            <span class="lbl">Faqat mavjud bo'lganlar</span>
+            <div class="switch" id="inStockToggle"></div>
+          </div>
+          <button class="btn btn-ghost reset-link" id="resetFilters">↺ Filtrlarni tozalash</button>
+        </aside>
+
+        <div>
+          <div class="toolbar">
+            <div class="result-count"><b id="resultCount">0</b> mahsulot topildi</div>
+            <select class="sort-select" id="sortSelect">
+              <option value="rating-desc">Mashhurligi bo'yicha</option>
+              <option value="price-asc">Narx: pastdan yuqoriga</option>
+              <option value="price-desc">Narx: yuqoridan pastga</option>
+              <option value="name-asc">Nomi bo'yicha (A-Z)</option>
+            </select>
+          </div>
+          <div class="grid" id="productGrid"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer id="footer-anchor">
+  <div class="wrap footer-grid">
+    <div>
+      <a href="#top" class="logo" style="margin-bottom:12px;display:inline-flex;"><span class="bolt">⚡</span>VOLTA</a>
+      <p>2019 yildan beri O'zbekistonda original elektronika yetkazib beruvchi. Har bir mahsulot rasmiy kafolat bilan.</p>
+    </div>
+    <div>
+      <h5>Xarid</h5>
+      <ul><li><a href="#catalog">Katalog</a></li><li><a href="#stats-anchor">Aksiyalar</a></li><li><a href="#">Yetkazib berish</a></li></ul>
+    </div>
+    <div>
+      <h5>Kompaniya</h5>
+      <ul><li><a href="#">Biz haqimizda</a></li><li><a href="#">Kontakt</a></li><li><a href="#" id="adminLink">Admin panel</a></li></ul>
+    </div>
+    <div>
+      <h5>Aloqa</h5>
+      <ul><li>+998 71 200 00 00</li><li>info@volta.uz</li><li>Toshkent sh., Chilonzor</li></ul>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <span>© 2026 VOLTA. Barcha huquqlar himoyalangan.</span>
+    <a href="#" id="adminLink2">admin →</a>
+  </div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="cartOverlay">
+  <div class="panel">
+    <div class="panel-head">
+      <h3>Savatcha</h3>
+      <button class="icon-btn" data-close="cartOverlay" aria-label="Yopish">✕</button>
+    </div>
+    <div class="panel-body" id="cartBody"></div>
+    <div class="panel-foot" id="cartFoot"></div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="overlay center" id="productOverlay">
+  <div class="modal-box" id="productModalContent"></div>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="overlay center" id="checkoutOverlay">
+  <div class="modal-box" id="checkoutModalContent"></div>
+</div>
+
+<!-- ADMIN -->
+<div class="admin-overlay" id="adminOverlay">
+  <div class="admin-top wrap">
+    <a href="#top" class="logo"><span class="bolt">⚡</span>VOLTA <span class="muted" style="font-size:12px;font-weight:600;">/ admin</span></a>
+    <button class="btn btn-outline" id="exitAdmin">Saytga qaytish</button>
+  </div>
+  <div id="adminGate"></div>
+  <div id="adminMain" style="display:none">
+    <div class="admin-tabs wrap">
+      <button class="admin-tab active" data-tab="products">Mahsulotlar</button>
+      <button class="admin-tab" data-tab="orders">Buyurtmalar</button>
+    </div>
+    <div class="admin-body wrap" id="adminBody"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ICON LIBRARY — line-art "datasheet" style illustrations
+   ============================================================ */
+const ICONS = {
+  phone: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="38" y="14" width="44" height="92" rx="10"/><line x1="50" y1="22" x2="70" y2="22"/><circle cx="60" cy="96" r="3.5"/></svg>`,
+  laptop: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="22" y="26" width="76" height="50" rx="4"/><path d="M14 90h92l-8 12H22z"/><line x1="50" y1="90" x2="70" y2="90"/></svg>`,
+  tablet: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="26" y="14" width="68" height="92" rx="9"/><circle cx="60" cy="96" r="3"/></svg>`,
+  headphones: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 64v-6a38 38 0 0 1 76 0v6"/><rect x="14" y="60" width="18" height="30" rx="7"/><rect x="88" y="60" width="18" height="30" rx="7"/></svg>`,
+  watch: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="36" y="38" width="48" height="44" rx="10"/><path d="M46 38V20h28v18M46 82v18h28V82"/><line x1="50" y1="56" x2="70" y2="56"/><line x1="50" y1="64" x2="64" y2="64"/></svg>`,
+  speaker: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="30" y="12" width="60" height="96" rx="10"/><circle cx="60" cy="46" r="13"/><circle cx="60" cy="84" r="7"/></svg>`,
+  camera: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="14" y="38" width="92" height="62" rx="8"/><circle cx="60" cy="70" r="20"/><rect x="42" y="24" width="36" height="14" rx="3"/></svg>`,
+  accessory: `<svg viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><rect x="34" y="16" width="52" height="32" rx="6"/><line x1="48" y1="48" x2="48" y2="60"/><line x1="72" y1="48" x2="72" y2="60"/><path d="M48 60c0 24 24 18 24 42"/></svg>`,
+};
+const CATEGORY_ICON = {
+  "Telefonlar":"phone","Noutbuklar":"laptop","Planshetlar":"tablet","Quloqchinlar":"headphones",
+  "Smart soatlar":"watch","Kolonkalar":"speaker","Kamera":"camera","Aksessuarlar":"accessory"
+};
+const UI = {
+  close: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`,
+  empty: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3" stroke-linecap="round"/></svg>`,
+  edit: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2 2 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>`,
+  trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2m-9 0 1 13a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-13"/></svg>`,
+};
+
+function icon(name, cls){ return `<div class="${cls||''}" aria-hidden="true">${ICONS[name]||ICONS.accessory}</div>`; }
+
+/* ============================================================
+   DATA / STATE
+   ============================================================ */
+let products = [
+  {id:'p1',name:"Nova X12",brand:"Nova",category:"Telefonlar",price:4200000,rating:4.6,stock:18,desc:"Flagman smartfon — yorqin AMOLED ekran, kun bo'yi yetadigan batareya va tezkor protsessor.",specs:["Ekran: 6.5″ AMOLED","Xotira: 128GB","Batareya: 5000mAh"]},
+  {id:'p2',name:"Nova Lite 5",brand:"Nova",category:"Telefonlar",price:2650000,rating:4.3,stock:24,desc:"Kundalik foydalanish uchun ishonchli va qulay narxdagi smartfon.",specs:["Ekran: 6.1″ IPS","Xotira: 64GB","Batareya: 4500mAh"]},
+  {id:'p3',name:"Vector Pro 14",brand:"Vector",category:"Noutbuklar",price:9800000,rating:4.8,stock:7,desc:"Ish va o'qish uchun kuchli noutbuk — yengil korpus, uzoq batareya.",specs:["Protsessor: Ryzen 7","RAM: 16GB","SSD: 512GB"]},
+  {id:'p4',name:"Vector Air 13",brand:"Vector",category:"Noutbuklar",price:7300000,rating:4.5,stock:0,desc:"Ultra yupqa va yengil noutbuk, safar uchun ideal hamroh.",specs:["Protsessor: Ryzen 5","RAM: 8GB","SSD: 256GB"]},
+  {id:'p5',name:"Halo Tab 10",brand:"Halo",category:"Planshetlar",price:3100000,rating:4.2,stock:12,desc:"Katta ekranli planshet — multimedia va ish uchun qulay.",specs:["Ekran: 10.5″","Xotira: 64GB","Batareya: 7000mAh"]},
+  {id:'p6',name:"Halo Tab Mini",brand:"Halo",category:"Planshetlar",price:2200000,rating:4.0,stock:15,desc:"Kompakt planshet — kitob o'qish va video tomosha qilish uchun mos.",specs:["Ekran: 8.3″","Xotira: 32GB","Batareya: 5000mAh"]},
+  {id:'p7',name:"Pulse Buds Air",brand:"Pulse",category:"Quloqchinlar",price:890000,rating:4.7,stock:40,desc:"Simsiz quloqchinlar — yengil, qulay va sof tovush.",specs:["Turi: TWS","Batareya: 24 soat","Bluetooth: 5.2"]},
+  {id:'p8',name:"Pulse Buds Max ANC",brand:"Pulse",category:"Quloqchinlar",price:1450000,rating:4.6,stock:22,desc:"Shovqinni bostirish funksiyali premium quloqchinlar.",specs:["Turi: TWS","Batareya: 30 soat","Shovqin: ANC"]},
+  {id:'p9',name:"Orbit Watch 2",brand:"Orbit",category:"Smart soatlar",price:1750000,rating:4.4,stock:16,desc:"Sport va sog'liqni kuzatish uchun smart soat.",specs:["Ekran: AMOLED","Batareya: 7 kun","Suv: 5ATM"]},
+  {id:'p10',name:"Orbit Watch SE",brand:"Orbit",category:"Smart soatlar",price:1150000,rating:4.1,stock:5,desc:"Qulay narxdagi smart soat — asosiy funksiyalar barchasi mavjud.",specs:["Ekran: IPS","Batareya: 5 kun","Suv: 3ATM"]},
+  {id:'p11',name:"Zenith Boom 20",brand:"Zenith",category:"Kolonkalar",price:980000,rating:4.5,stock:14,desc:"Kuchli bas va aniq tovushli portativ kolonka.",specs:["Quvvat: 20W","Batareya: 14 soat","Bluetooth: 5.3"]},
+  {id:'p12',name:"Zenith Boom Mini",brand:"Zenith",category:"Kolonkalar",price:540000,rating:4.2,stock:30,desc:"Kichik, lekin baquvvat — har qanday sayohatga moslashuvchan.",specs:["Quvvat: 10W","Batareya: 10 soat","Bluetooth: 5.1"]},
+  {id:'p13',name:"Lumen Shot X",brand:"Lumen",category:"Kamera",price:6400000,rating:4.7,stock:3,desc:"Professional fotosurat va video uchun aks etuvchi kamera.",specs:["Sensor: 24MP","Video: 4K","Stabilizatsiya: bor"]},
+  {id:'p14',name:"Lumen Action 4K",brand:"Lumen",category:"Kamera",price:2900000,rating:4.3,stock:9,desc:"Ekstremal sport va sayohatlar uchun mo'jaz aksiyon-kamera.",specs:["Sensor: 16MP","Video: 4K","Suv o'tkazmas: 10m"]},
+  {id:'p15',name:"Volt Charge 65W",brand:"Volt",category:"Aksessuarlar",price:320000,rating:4.4,stock:60,desc:"Tezkor quvvatlash uchun universal zaryadlovchi.",specs:["Quvvat: 65W","Port: Type-C","Tezkor zaryad: bor"]},
+  {id:'p16',name:"Volt Cable USB-C",brand:"Volt",category:"Aksessuarlar",price:85000,rating:4.0,stock:100,desc:"Mustahkam, uzun muddatli ishlatish uchun mo'ljallangan kabel.",specs:["Uzunlik: 1m","Turi: Type-C","Mustahkamlik: yuqori"]},
+];
+
+let cart = []; // {id, qty}
+let orders = [];
+let orderCounter = 1001;
+let adminUnlocked = false;
+let currentAdminTab = 'products';
+let editingProductId = null;
+
+let filters = {
+  search:'', categories:new Set(), brands:new Set(), minPrice:0, maxPrice:10000000, inStockOnly:false, sort:'rating-desc'
+};
+
+function fmt(n){ return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ') + " so'm"; }
+function stars(r){ const full=Math.round(r); return '★'.repeat(full)+'☆'.repeat(5-full); }
+function byId(id){ return products.find(p=>p.id===id); }
+
+/* ============================================================
+   TICKER
+   ============================================================ */
+function renderTicker(){
+  const items = ["✓ ORIGINAL MAHSULOTLAR","✓ 24 OY RASMIY KAFOLAT","✓ TOSHKENT BO'YLAB 2 SOATDA YETKAZIB BERISH","✓ NAQD YOKI KARTA ORQALI TO'LOV","✓ 14 KUN ICHIDA QAYTARISH"];
+  const html = items.map(t=>`<span>${t}</span>`).join('');
+  document.getElementById('tickerTrack').innerHTML = html + html;
+}
+
+/* ============================================================
+   FILTER SIDEBAR
+   ============================================================ */
+function renderSidebar(){
+  const cats = Object.keys(CATEGORY_ICON);
+  document.getElementById('categoryFilters').innerHTML = cats.map(c=>{
+    const count = products.filter(p=>p.category===c).length;
+    const on = filters.categories.has(c);
+    return `<div class="toggle-row" data-cat="${c}" style="cursor:pointer">
+      <span class="lbl">${c}</span>
+      <span class="cnt">${count}</span>
+      <div class="switch ${on?'on':''}" style="margin-left:8px"></div>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-cat]').forEach(el=>{
+    el.onclick = ()=>{ const c=el.dataset.cat; filters.categories.has(c)?filters.categories.delete(c):filters.categories.add(c); renderSidebar(); renderCatalog(); };
+  });
+
+  const brands = [...new Set(products.map(p=>p.brand))].sort();
+  document.getElementById('brandFilters').innerHTML = brands.map(b=>
+    `<button class="chip ${filters.brands.has(b)?'on':''}" data-brand="${b}">${b}</button>`
+  ).join('');
+  document.querySelectorAll('[data-brand]').forEach(el=>{
+    el.onclick = ()=>{ const b=el.dataset.brand; filters.brands.has(b)?filters.brands.delete(b):filters.brands.add(b); renderSidebar(); renderCatalog(); };
+  });
+
+  document.getElementById('inStockToggle').classList.toggle('on', filters.inStockOnly);
+}
+
+document.getElementById('inStockToggle').onclick = function(){
+  filters.inStockOnly = !filters.inStockOnly; this.classList.toggle('on'); renderCatalog();
+};
+document.getElementById('minPrice').oninput = function(){ filters.minPrice = Number(this.value)||0; renderCatalog(); };
+document.getElementById('maxPrice').oninput = function(){ filters.maxPrice = Number(this.value)|| 10000000; renderCatalog(); };
+document.getElementById('maxPriceRange').oninput = function(){
+  filters.maxPrice = Number(this.value); document.getElementById('maxPrice').value = this.value; renderCatalog();
+};
+document.getElementById('sortSelect').onchange = function(){ filters.sort = this.value; renderCatalog(); };
+document.getElementById('searchInput').oninput = function(){ filters.search = this.value.trim().toLowerCase(); renderCatalog(); };
+document.getElementById('resetFilters').onclick = function(){
+  filters = {search:'', categories:new Set(), brands:new Set(), minPrice:0, maxPrice:10000000, inStockOnly:false, sort:'rating-desc'};
+  document.getElementById('searchInput').value='';
+  document.getElementById('minPrice').value='';
+  document.getElementById('maxPrice').value='';
+  document.getElementById('maxPriceRange').value=10000000;
+  document.getElementById('sortSelect').value='rating-desc';
+  renderSidebar(); renderCatalog();
+};
+document.getElementById('mobileFilterBtn').onclick = ()=> document.getElementById('sidebar').classList.add('open');
+document.addEventListener('click', (e)=>{
+  const sb = document.getElementById('sidebar');
+  if(sb.classList.contains('open') && !sb.contains(e.target) && e.target.id!=='mobileFilterBtn' && !e.target.closest('#mobileFilterBtn')){
+    sb.classList.remove('open');
+  }
+});
+
+/* ============================================================
+   CATALOG GRID
+   ============================================================ */
+function getFiltered(){
+  let list = products.filter(p=>{
+    if(filters.search && !(p.name.toLowerCase().includes(filters.search) || p.brand.toLowerCase().includes(filters.search))) return false;
+    if(filters.categories.size && !filters.categories.has(p.category)) return false;
+    if(filters.brands.size && !filters.brands.has(p.brand)) return false;
+    if(p.price < filters.minPrice || p.price > filters.maxPrice) return false;
+    if(filters.inStockOnly && p.stock<=0) return false;
+    return true;
+  });
+  switch(filters.sort){
+    case 'price-asc': list.sort((a,b)=>a.price-b.price); break;
+    case 'price-desc': list.sort((a,b)=>b.price-a.price); break;
+    case 'name-asc': list.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    default: list.sort((a,b)=>b.rating-a.rating);
+  }
+  return list;
+}
+
+function cardHtml(p){
+  const inCart = cart.find(c=>c.id===p.id);
+  const out = p.stock<=0;
+  return `<div class="card" data-id="${p.id}">
+    <div class="cat-tag">${p.category}</div>
+    <div class="card-icon" data-open="${p.id}">${ICONS[CATEGORY_ICON[p.category]]||ICONS.accessory}</div>
+    <h4 data-open="${p.id}">${p.name}</h4>
+    <div class="brand-line"><span>${p.brand}</span>·<span class="stars">${stars(p.rating)}</span></div>
+    <div class="price-row">
+      <span class="led">${fmt(p.price)}</span>
+      <span class="stock-dot ${out?'out':'in'}">${out?'Tugagan':'Mavjud · '+p.stock}</span>
+    </div>
+    ${ out
+      ? `<button class="btn btn-amber" disabled>Mavjud emas</button>`
+      : inCart
+        ? `<div class="qty-stepper" data-id="${p.id}">
+             <button data-act="dec">−</button><span class="qn">${inCart.qty}</span><button data-act="inc">+</button>
+           </div>`
+        : `<button class="btn btn-amber" data-add="${p.id}">Savatchaga qo'shish</button>`
+    }
+  </div>`;
+}
+
+function renderCatalog(){
+  const list = getFiltered();
+  document.getElementById('resultCount').textContent = list.length;
+  document.getElementById('statProducts').textContent = products.length;
+  const grid = document.getElementById('productGrid');
+  if(!list.length){
+    grid.innerHTML = `<div class="empty-state">
+      <div class="icn">${UI.empty}</div>
+      <h4>Hech narsa topilmadi</h4>
+      <p>Filtrlarni o'zgartirib ko'ring yoki tozalang.</p>
+      <button class="btn btn-outline" onclick="document.getElementById('resetFilters').click()">Filtrlarni tozalash</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = list.map(cardHtml).join('');
+  grid.querySelectorAll('[data-open]').forEach(el=> el.onclick = ()=> openProduct(el.dataset.open));
+  grid.querySelectorAll('[data-add]').forEach(el=> el.onclick = ()=> addToCart(el.dataset.add));
+  grid.querySelectorAll('.qty-stepper[data-id]').forEach(el=>{
+    const id = el.dataset.id;
+    el.querySelector('[data-act="inc"]').onclick = ()=> changeQty(id, 1);
+    el.querySelector('[data-act="dec"]').onclick = ()=> changeQty(id, -1);
+  });
+}
+
+/* ============================================================
+   CART
+   ============================================================ */
+function addToCart(id){
+  const p = byId(id); if(!p || p.stock<=0) return;
+  const existing = cart.find(c=>c.id===id);
+  if(existing){ if(existing.qty < p.stock) existing.qty++; }
+  else cart.push({id, qty:1});
+  renderCatalog(); renderCartBadge(); renderCart();
+}
+function changeQty(id, delta){
+  const item = cart.find(c=>c.id===id); const p = byId(id);
+  if(!item) return;
+  item.qty += delta;
+  if(item.qty<=0) cart = cart.filter(c=>c.id!==id);
+  else if(item.qty > p.stock) item.qty = p.stock;
+  renderCatalog(); renderCartBadge(); renderCart();
+}
+function removeFromCart(id){ cart = cart.filter(c=>c.id!==id); renderCatalog(); renderCartBadge(); renderCart(); }
+function cartTotal(){ return cart.reduce((s,c)=> s + byId(c.id).price * c.qty, 0); }
+function renderCartBadge(){
+  const count = cart.reduce((s,c)=>s+c.qty,0);
+  const badge = document.getElementById('cartCount');
+  badge.style.display = count? 'flex':'none'; badge.textContent = count;
+}
+function renderCart(){
+  const body = document.getElementById('cartBody');
+  const foot = document.getElementById('cartFoot');
+  if(!cart.length){
+    body.innerHTML = `<div class="cart-empty"><p>Savatcha hozircha bo'sh.</p></div>`;
+    foot.innerHTML = `<button class="btn btn-outline" style="width:100%" data-close="cartOverlay">Xaridni davom ettirish</button>`;
+    return;
+  }
+  body.innerHTML = cart.map(c=>{
+    const p = byId(c.id);
+    return `<div class="cart-item">
+      <div class="ci-icon">${ICONS[CATEGORY_ICON[p.category]]||ICONS.accessory}</div>
+      <div class="ci-info">
+        <h5>${p.name}</h5>
+        <span class="led-sm">${fmt(p.price*c.qty)}</span>
+        <div class="ci-row">
+          <div class="qty-stepper" data-id="${p.id}">
+            <button data-act="dec">−</button><span class="qn">${c.qty}</span><button data-act="inc">+</button>
+          </div>
+          <button class="remove-x" data-rm="${p.id}">olib tashlash</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  body.querySelectorAll('.qty-stepper[data-id]').forEach(el=>{
+    const id = el.dataset.id;
+    el.querySelector('[data-act="inc"]').onclick = ()=> changeQty(id,1);
+    el.querySelector('[data-act="dec"]').onclick = ()=> changeQty(id,-1);
+  });
+  body.querySelectorAll('[data-rm]').forEach(el=> el.onclick = ()=> removeFromCart(el.dataset.rm));
+  foot.innerHTML = `
+    <div class="subtotal-row"><span class="muted">Jami summa</span><span class="led">${fmt(cartTotal())}</span></div>
+    <button class="btn btn-amber" style="width:100%" id="checkoutBtn">Buyurtma berish →</button>
+  `;
+  document.getElementById('checkoutBtn').onclick = openCheckout;
+}
+
+/* ============================================================
+   OVERLAYS (open/close)
+   ============================================================ */
+function openOverlay(id){ document.getElementById(id).classList.add('show'); }
+function closeOverlay(id){ document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('[data-close]').forEach(el=> el.onclick = ()=> closeOverlay(el.dataset.close));
+document.querySelectorAll('.overlay').forEach(ov=>{
+  ov.addEventListener('click', e=>{ if(e.target===ov) closeOverlay(ov.id); });
+});
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){ document.querySelectorAll('.overlay.show').forEach(ov=>closeOverlay(ov.id)); }
+});
+document.getElementById('cartBtn').onclick = ()=>{ renderCart(); openOverlay('cartOverlay'); };
+
+/* ============================================================
+   PRODUCT QUICK VIEW
+   ============================================================ */
+function openProduct(id){
+  const p = byId(id); if(!p) return;
+  const out = p.stock<=0;
+  document.getElementById('productModalContent').innerHTML = `
+    <div class="modal-head">
+      <h3>${p.name}</h3>
+      <button class="icon-btn" data-close="productOverlay" aria-label="Yopish">${UI.close}</button>
+    </div>
+    <div class="modal-body">
+      <div class="card-icon" style="height:160px;margin-bottom:18px;">${ICONS[CATEGORY_ICON[p.category]]||ICONS.accessory}</div>
+      <div class="cat-tag" style="margin-bottom:8px;">${p.category} · ${p.brand}</div>
+      <p class="muted" style="line-height:1.6;font-size:14px;">${p.desc}</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin:16px 0;font-family:var(--mono);font-size:12.5px;color:var(--text-muted);">
+        ${p.specs.map(s=>`<div>▸ ${s}</div>`).join('')}
+      </div>
+      <div class="price-row" style="margin-top:18px;">
+        <span class="led" style="font-size:22px;">${fmt(p.price)}</span>
+        <span class="stock-dot ${out?'out':'in'}">${out?'Tugagan':'Mavjud · '+p.stock+' dona'}</span>
+      </div>
+      <button class="btn btn-amber" style="width:100%;margin-top:14px;" ${out?'disabled':''} id="modalAddBtn">${out?'Mavjud emas':"Savatchaga qo'shish"}</button>
+    </div>`;
+  if(!out) document.getElementById('modalAddBtn').onclick = ()=>{ addToCart(p.id); closeOverlay('productOverlay'); };
+  openOverlay('productOverlay');
+}
+
+/* ============================================================
+   CHECKOUT
+   ============================================================ */
+function openCheckout(){
+  if(!cart.length) return;
+  document.getElementById('checkoutModalContent').innerHTML = `
+    <div class="modal-head"><h3>Buyurtmani rasmiylashtirish</h3><button class="icon-btn" data-close="checkoutOverlay">${UI.close}</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Ism familiya *</label><input id="ckName" type="text" placeholder="Aliyev Vali"></div>
+      <div class="field-row">
+        <div class="field"><label>Telefon raqami *</label><input id="ckPhone" type="tel" placeholder="+998 90 123 45 67"></div>
+        <div class="field"><label>To'lov usuli</label>
+          <select id="ckPay"><option>Naqd pul</option><option>Bank kartasi</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Yetkazib berish manzili *</label><input id="ckAddress" type="text" placeholder="Shahar, tuman, ko'cha"></div>
+      <div class="field"><label>Izoh (ixtiyoriy)</label><textarea id="ckNote" rows="2" placeholder="Qo'shimcha izoh..."></textarea></div>
+      <div class="subtotal-row" style="margin-top:18px;"><span class="muted">To'lash uchun jami</span><span class="led">${fmt(cartTotal())}</span></div>
+      <button class="btn btn-amber" style="width:100%" id="ckSubmit">Buyurtmani tasdiqlash</button>
+    </div>`;
+  document.getElementById('ckSubmit').onclick = submitOrder;
+  openOverlay('checkoutOverlay');
+}
+function submitOrder(){
+  const name = document.getElementById('ckName').value.trim();
+  const phone = document.getElementById('ckPhone').value.trim();
+  const address = document.getElementById('ckAddress').value.trim();
+  if(!name || !phone || !address){
+    alert("Iltimos, * bilan belgilangan barcha maydonlarni to'ldiring.");
+    return;
+  }
+  const pay = document.getElementById('ckPay').value;
+  const note = document.getElementById('ckNote').value.trim();
+  const orderNo = 'ORD-' + (orderCounter++);
+  const order = {
+    no: orderNo, name, phone, address, pay, note,
+    items: cart.map(c=>({id:c.id, name:byId(c.id).name, qty:c.qty, price:byId(c.id).price})),
+    total: cartTotal(), date: new Date().toLocaleString('uz-UZ'), status:'new'
+  };
+  orders.unshift(order);
+  document.getElementById('checkoutModalContent').innerHTML = `
+    <div class="modal-body">
+      <div class="success-box">
+        <div class="check">${UI.check}</div>
+        <h3 style="margin:0 0 8px;">Buyurtma qabul qilindi!</h3>
+        <p class="muted" style="margin:0 0 14px;">Tez orada operatorimiz siz bilan bog'lanadi.</p>
+        <div class="order-no">${orderNo}</div>
+        <button class="btn btn-outline" style="margin-top:24px;width:100%" id="ckClose">Yopish</button>
+      </div>
+    </div>`;
+  document.getElementById('ckClose').onclick = ()=>{
+    cart = []; renderCatalog(); renderCartBadge(); renderCart();
+    closeOverlay('checkoutOverlay'); closeOverlay('cartOverlay');
+  };
+}
+
+/* ============================================================
+   ADMIN PANEL
+   ============================================================ */
+const ADMIN_PIN = '1234';
+function openAdmin(){
+  document.getElementById('adminOverlay').classList.add('show');
+  if(adminUnlocked){ showAdminMain(); } else { showAdminGate(); }
+}
+function showAdminGate(){
+  document.getElementById('adminMain').style.display='none';
+  document.getElementById('adminGate').innerHTML = `
+    <div class="pin-box">
+      <h3 style="font-family:var(--mono);">Admin panelga kirish</h3>
+      <p class="muted" style="font-size:13px;margin-bottom:18px;">Demo PIN: <span class="led-sm">1234</span></p>
+      <input id="pinInput" type="password" maxlength="4" placeholder="••••">
+      <div class="field-error" id="pinError" style="display:none;text-align:center;margin-top:8px;">Noto'g'ri PIN kod</div>
+      <button class="btn btn-amber" style="width:100%;margin-top:16px;" id="pinSubmit">Kirish</button>
+    </div>`;
+  document.getElementById('pinSubmit').onclick = ()=>{
+    const val = document.getElementById('pinInput').value;
+    if(val===ADMIN_PIN){ adminUnlocked=true; showAdminMain(); }
+    else document.getElementById('pinError').style.display='block';
+  };
+}
+function showAdminMain(){
+  document.getElementById('adminGate').innerHTML='';
+  document.getElementById('adminMain').style.display='block';
+  renderAdminBody();
+}
+document.querySelectorAll('.admin-tab').forEach(t=> t.onclick = ()=>{
+  document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); currentAdminTab = t.dataset.tab; renderAdminBody();
+});
+document.getElementById('exitAdmin').onclick = ()=> document.getElementById('adminOverlay').classList.remove('show');
+document.getElementById('adminLink').onclick = (e)=>{ e.preventDefault(); openAdmin(); };
+document.getElementById('adminLink2').onclick = (e)=>{ e.preventDefault(); openAdmin(); };
+
+function renderAdminBody(){
+  const body = document.getElementById('adminBody');
+  if(currentAdminTab==='products'){
+    body.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="font-family:var(--mono);font-size:18px;margin:0;">Mahsulotlar (${products.length})</h2>
+        <button class="btn btn-amber" id="addProductBtn">+ Yangi mahsulot</button>
+      </div>
+      <table class="admin-table">
+        <thead><tr><th>Nomi</th><th>Kategoriya</th><th>Brend</th><th>Narx</th><th>Zaxira</th><th>Amallar</th></tr></thead>
+        <tbody>${products.map(p=>`
+          <tr>
+            <td>${p.name}</td><td>${p.category}</td><td>${p.brand}</td>
+            <td class="led-sm">${fmt(p.price)}</td>
+            <td>${p.stock<=0?'<span style="color:var(--danger)">0</span>':p.stock}</td>
+            <td><div class="row-actions">
+              <button data-edit="${p.id}" aria-label="Tahrirlash">${UI.edit}</button>
+              <button class="del" data-del="${p.id}" aria-label="O'chirish">${UI.trash}</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`;
+    document.getElementById('addProductBtn').onclick = ()=> openProductForm(null);
+    body.querySelectorAll('[data-edit]').forEach(b=> b.onclick = ()=> openProductForm(b.dataset.edit));
+    body.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{
+      if(confirm("Mahsulotni o'chirishni tasdiqlaysizmi?")){
+        products = products.filter(p=>p.id!==b.dataset.del);
+        cart = cart.filter(c=>c.id!==b.dataset.del);
+        renderAdminBody(); renderSidebar(); renderCatalog(); renderCartBadge();
+      }
+    });
+  } else {
+    body.innerHTML = `
+      <h2 style="font-family:var(--mono);font-size:18px;margin:0 0 16px;">Buyurtmalar (${orders.length})</h2>
+      ${!orders.length ? `<p class="muted">Hozircha buyurtmalar yo'q.</p>` : `
+      <table class="admin-table">
+        <thead><tr><th>Raqami</th><th>Mijoz</th><th>Telefon</th><th>Mahsulot</th><th>Summa</th><th>Sana</th><th>Holati</th></tr></thead>
+        <tbody>${orders.map(o=>`
+          <tr>
+            <td class="mono">${o.no}</td><td>${o.name}</td><td class="mono">${o.phone}</td>
+            <td>${o.items.reduce((s,i)=>s+i.qty,0)} dona</td>
+            <td class="led-sm">${fmt(o.total)}</td>
+            <td class="muted" style="font-size:12px;">${o.date}</td>
+            <td><button class="status-pill ${o.status}" data-order="${o.no}">${o.status==='new'?'Yangi':'Bajarilgan'}</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>`}`;
+    body.querySelectorAll('[data-order]').forEach(b=> b.onclick = ()=>{
+      const o = orders.find(x=>x.no===b.dataset.order);
+      o.status = o.status==='new' ? 'done' : 'new';
+      renderAdminBody();
+    });
+  }
+}
+
+function openProductForm(id){
+  editingProductId = id;
+  const p = id ? byId(id) : null;
+  const cats = Object.keys(CATEGORY_ICON);
+  document.getElementById('productModalContent').innerHTML = `
+    <div class="modal-head"><h3>${p?'Mahsulotni tahrirlash':"Yangi mahsulot qo'shish"}</h3><button class="icon-btn" data-close="productOverlay">${UI.close}</button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label>Nomi *</label><input id="fName" value="${p?p.name:''}" placeholder="Mahsulot nomi"></div>
+        <div class="field"><label>Brend *</label><input id="fBrand" value="${p?p.brand:''}" placeholder="Brend"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Kategoriya</label>
+          <select id="fCategory">${cats.map(c=>`<option ${p&&p.category===c?'selected':''}>${c}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>Narx (so'm) *</label><input id="fPrice" type="number" value="${p?p.price:''}" placeholder="0"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Zaxira (dona)</label><input id="fStock" type="number" value="${p?p.stock:0}"></div>
+        <div class="field"><label>Reyting (0–5)</label><input id="fRating" type="number" step="0.1" max="5" min="0" value="${p?p.rating:4.0}"></div>
+      </div>
+      <div class="field"><label>Tavsif</label><textarea id="fDesc" rows="2">${p?p.desc:''}</textarea></div>
+      <div class="field"><label>Xususiyatlar (har birini vergul bilan ajrating)</label>
+        <input id="fSpecs" value="${p?p.specs.join(', '):''}" placeholder="Ekran: 6.5″, Xotira: 128GB, Batareya: 5000mAh"></div>
+      <button class="btn btn-amber" style="width:100%;margin-top:8px;" id="fSubmit">${p?'Saqlash':"Qo'shish"}</button>
+    </div>`;
+  document.getElementById('fSubmit').onclick = saveProductForm;
+  openOverlay('productOverlay');
+}
+function saveProductForm(){
+  const name = document.getElementById('fName').value.trim();
+  const brand = document.getElementById('fBrand').value.trim();
+  const price = Number(document.getElementById('fPrice').value);
+  if(!name || !brand || !price){ alert("Nomi, brend va narx maydonlarini to'ldiring."); return; }
+  const category = document.getElementById('fCategory').value;
+  const stock = Number(document.getElementById('fStock').value)||0;
+  const rating = Number(document.getElementById('fRating').value)||4.0;
+  const desc = document.getElementById('fDesc').value.trim();
+  const specs = document.getElementById('fSpecs').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(editingProductId){
+    const p = byId(editingProductId);
+    Object.assign(p, {name,brand,category,price,stock,rating,desc,specs});
+  } else {
+    products.push({id:'p'+Date.now(), name,brand,category,price,stock,rating,desc, specs: specs.length?specs:['—']});
+  }
+  closeOverlay('productOverlay');
+  renderAdminBody(); renderSidebar(); renderCatalog();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderTicker();
+renderSidebar();
+renderCatalog();
+renderCart();
+renderCartBadge();
+</script>
+</body>
+</html>

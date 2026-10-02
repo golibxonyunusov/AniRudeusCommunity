@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="theme.css">
+  <title>Admin panel — AniRudeus Community</title>
+  <style>
+    body{ display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+    .app-shell{ flex:1; display:flex; min-height:0; }
+
+    .req-list{
+      width:300px; flex-shrink:0;
+      background:var(--panel);
+      border-right:1px solid var(--line);
+      overflow-y:auto;
+      padding:14px;
+    }
+    .req-item{
+      padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+      background:var(--panel-2); margin-bottom:8px; cursor:pointer;
+      transition:border-color .12s ease;
+    }
+    .req-item:hover{ border-color:rgba(255,212,0,0.35); }
+    .req-item.active{ border-color:var(--gold); }
+    .req-item .name{ font-weight:700; font-size:14px; }
+    .req-item .status{ font-size:11.5px; color:var(--muted); margin-top:3px; }
+    .req-item .status.pending{ color:var(--gold); }
+    .req-item .status.active{ color:var(--mint); }
+    .req-item .badge{
+      float:right; background:var(--danger); color:#fff; border-radius:999px;
+      font-size:11px; font-weight:700; padding:1px 7px;
+    }
+
+    .thread{ flex:1; display:flex; flex-direction:column; min-width:0; }
+    .thread-head{
+      padding:14px 24px; border-bottom:1px solid var(--line);
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+    }
+    .thread-head h2{ font-size:16px; }
+    .thread-head .actions{ display:flex; gap:8px; }
+    .thread-head .btn{ padding:8px 14px; font-size:13px; }
+
+    .thread-messages{ flex:1; overflow-y:auto; padding:20px 24px; display:flex; flex-direction:column; gap:8px; }
+    .t-msg{ max-width:65%; padding:10px 13px; border-radius:11px; font-size:13.5px; line-height:1.5; word-wrap:break-word; }
+    .t-msg.user{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); }
+    .t-msg.admin{ align-self:flex-end; background:var(--gold); color:#0b1220; font-weight:600; }
+
+    .thread-input{ display:flex; gap:10px; padding:14px 24px; border-top:1px solid var(--line); }
+    .thread-input input{
+      flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+      background:var(--panel); color:var(--text); outline:none; font-size:14px;
+    }
+    .thread-input input:focus{ border-color:var(--gold); }
+
+    .empty-state{ flex:1; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:14px; }
+    .gate{ flex:1; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; color:var(--muted); text-align:center; padding:40px; }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="index.html" class="brand">AniRudeus<span>.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-right">
+      <span style="color:var(--gold); font-weight:700; font-size:13px;">👑 Admin panel</span>
+    </div>
+  </nav>
+
+  <div class="app-shell" id="appShell">
+    <div class="gate">
+      <p>Tekshirilmoqda...</p>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const appShell = document.getElementById('appShell');
+    let currentRequestUid = null;
+    let unsubMsgs = null;
+    let requestsCache = {};
+
+    function renderShell(){
+      appShell.innerHTML = `
+        <div class="req-list" id="reqList"></div>
+        <div class="thread" id="thread">
+          <div class="empty-state">Chapdan bir so'rovni tanlang</div>
+        </div>`;
+    }
+
+    function renderGateDenied(){
+      appShell.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Kirish taqiqlangan</h2><p>Bu sahifa faqat adminlar uchun.</p></div>`;
+    }
+    function renderGateLoggedOut(){
+      appShell.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Tizimga kiring</h2><p>Admin panelga kirish uchun avval tizimga kiring.</p></div>`;
+    }
+
+    function fmtTime(ts){
+      if(!ts || !ts.toDate) return '';
+      return ts.toDate().toLocaleString();
+    }
+
+    function renderList(){
+      const listEl = document.getElementById('reqList');
+      if(!listEl) return;
+      const items = Object.entries(requestsCache).sort((a,b)=>{
+        const ta = a[1].updatedAt && a[1].updatedAt.toMillis ? a[1].updatedAt.toMillis() : 0;
+        const tb = b[1].updatedAt && b[1].updatedAt.toMillis ? b[1].updatedAt.toMillis() : 0;
+        return tb - ta;
+      });
+      if(items.length === 0){ listEl.innerHTML = '<p style="color:var(--muted);font-size:13px;padding:8px;">Hozircha so\'rov yo\'q.</p>'; return; }
+      listEl.innerHTML = '';
+      items.forEach(([uid, data])=>{
+        const div = document.createElement('div');
+        div.className = 'req-item' + (uid === currentRequestUid ? ' active' : '');
+        const unread = data.unreadForAdmin ? `<span class="badge">${data.unreadForAdmin}</span>` : '';
+        div.innerHTML = `${unread}<div class="name">${data.nickname || uid}</div><div class="status ${data.status}">${data.status === 'pending' ? '⏳ Kutmoqda' : data.status === 'active' ? '💬 Faol' : '✔ Yopilgan'}</div>`;
+        div.onclick = () => openThread(uid);
+        listEl.appendChild(div);
+      });
+    }
+
+    function openThread(uid){
+      currentRequestUid = uid;
+      renderList();
+      const data = requestsCache[uid];
+      const threadEl = document.getElementById('thread');
+      const approveBtn = data.status === 'pending'
+        ? `<button class="btn primary" onclick="window.__adminApprove('${uid}')">Ruxsat berish</button>`
+        : '';
+      const closeBtn = data.status !== 'closed'
+        ? `<button class="btn ghost" onclick="window.__adminClose('${uid}')">Yopish</button>`
+        : '';
+      threadEl.innerHTML = `
+        <div class="thread-head">
+          <h2>${data.nickname || uid}</h2>
+          <div class="actions">${approveBtn}${closeBtn}</div>
+        </div>
+        <div class="thread-messages" id="threadMessages"><p style="color:var(--muted);font-size:13px;">Yuklanmoqda...</p></div>
+        <div class="thread-input">
+          <input type="text" id="threadInput" placeholder="Javob yozing..." onkeydown="if(event.key==='Enter'){ window.__adminSend(); }" ${data.status === 'active' ? '' : 'disabled'}>
+          <button class="btn primary" onclick="window.__adminSend()" ${data.status === 'active' ? '' : 'disabled'}>Yuborish</button>
+        </div>`;
+
+      // O'qilgan deb belgilash
+      if(data.unreadForAdmin){
+        db.collection('support').doc(uid).set({ unreadForAdmin: 0 }, { merge: true });
+      }
+
+      if(unsubMsgs) unsubMsgs();
+      unsubMsgs = db.collection('support').doc(uid).collection('messages')
+        .orderBy('time', 'asc')
+        .onSnapshot(snap => {
+          const msgsEl = document.getElementById('threadMessages');
+          if(!msgsEl) return;
+          if(snap.empty){ msgsEl.innerHTML = '<p style="color:var(--muted);font-size:13px;">Xabar yo\'q.</p>'; return; }
+          msgsEl.innerHTML = '';
+          snap.forEach(doc=>{
+            const m = doc.data();
+            const div = document.createElement('div');
+            div.className = 't-msg ' + (m.sender === 'admin' ? 'admin' : 'user');
+            div.textContent = m.text;
+            msgsEl.appendChild(div);
+          });
+          msgsEl.scrollTop = msgsEl.scrollHeight;
+        });
+    }
+
+    window.__adminApprove = async function(uid){
+      await db.collection('support').doc(uid).set({
+        status: 'active',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      openThread(uid);
+    };
+
+    window.__adminClose = async function(uid){
+      await db.collection('support').doc(uid).set({
+        status: 'closed',
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge: true });
+      openThread(uid);
+    };
+
+    window.__adminSend = async function(){
+      const input = document.getElementById('threadInput');
+      const text = input.value.trim();
+      if(!text || !currentRequestUid) return;
+      input.value = '';
+      const ref = db.collection('support').doc(currentRequestUid);
+      await ref.collection('messages').add({ sender: 'admin', text, time: firebase.firestore.FieldValue.serverTimestamp() });
+      await ref.set({
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        lastMessageBy: 'admin',
+        unreadForUser: firebase.firestore.FieldValue.increment(1)
+      }, { merge: true });
+    };
+
+    function listenAllRequests(){
+      db.collection('support').onSnapshot(snap=>{
+        requestsCache = {};
+        snap.forEach(doc=>{ requestsCache[doc.id] = doc.data(); });
+        renderList();
+      });
+    }
+
+    auth.onAuthStateChanged(async function(user){
+      if(!user){ renderGateLoggedOut(); return; }
+      try{
+        const doc = await db.collection('users').doc(user.uid).get();
+        if(!doc.exists || doc.data().role !== 'admin'){ renderGateDenied(); return; }
+      }catch(e){ renderGateDenied(); return; }
+      renderShell();
+      listenAllRequests();
+    });
+  </script>
+
+</body>
+</html>

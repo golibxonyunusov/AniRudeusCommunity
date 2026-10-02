@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="theme.css">
+    <title>Yordam — AniRudeus Community</title>
+    <style>
+        .help-shell{
+            display:grid;
+            grid-template-columns:1.05fr 1fr;
+            min-height:calc(100vh - 66px);
+        }
+        .help-info{
+            padding:56px 48px;
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
+            gap:22px;
+            border-right:1px solid var(--line);
+        }
+        .help-info h1{ font-size:34px; line-height:1.15; max-width:420px; }
+        .help-info p{ color:var(--muted); font-size:15px; line-height:1.6; max-width:420px; }
+        .contact-chips{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+        .contact-chips a{
+            display:inline-flex; align-items:center; gap:8px;
+            padding:10px 16px; border-radius:999px;
+            background:var(--panel); border:1px solid var(--line);
+            color:var(--text); text-decoration:none; font-size:13.5px; font-weight:600;
+            transition:border-color .14s ease, transform .12s ease;
+        }
+        .contact-chips a:hover{ border-color:rgba(255,212,0,0.4); transform:translateY(-2px); }
+
+        .help-panel-wrap{ display:flex; align-items:center; justify-content:center; padding:40px 28px; }
+        .help-card{
+            width:100%; max-width:440px;
+            background:var(--panel);
+            border:1px solid var(--line);
+            border-radius:16px;
+            padding:28px;
+            display:flex;
+            flex-direction:column;
+        }
+
+        /* ---- Holat: kirilmagan ---- */
+        .state-box{ text-align:center; padding:20px 6px; }
+        .state-box h2{ font-size:19px; margin-bottom:8px; }
+        .state-box p{ color:var(--muted); font-size:13.5px; margin:0 0 18px; }
+        .state-box .btn{ width:100%; padding:13px; }
+        .pulse-dot{
+            width:12px;height:12px;border-radius:50%;background:var(--gold);
+            display:inline-block; margin-right:8px;
+            animation:pulseDot 1.4s ease-in-out infinite;
+        }
+        @keyframes pulseDot{ 0%,100%{opacity:1;transform:scale(1);} 50%{opacity:.4;transform:scale(1.4);} }
+
+        /* ---- Chat holati ---- */
+        .chat-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+        .chat-head h2{ font-size:17px; }
+        .chat-status{ font-size:12px; color:var(--mint); display:flex; align-items:center; gap:6px; }
+        .chat-status .dot{ width:8px;height:8px;border-radius:50%;background:var(--mint); }
+
+        .help-messages{
+            flex:1; min-height:280px; max-height:360px; overflow-y:auto;
+            display:flex; flex-direction:column; gap:8px; margin-bottom:12px;
+            padding-right:4px;
+        }
+        .help-msg{ max-width:82%; padding:9px 12px; border-radius:11px; font-size:13.5px; line-height:1.45; word-wrap:break-word; }
+        .help-msg.user{ align-self:flex-end; background:var(--gold); color:#0b1220; font-weight:600; }
+        .help-msg.admin{ align-self:flex-start; background:var(--panel-2); border:1px solid var(--line); color:var(--text); }
+        .help-empty{ color:var(--muted); font-size:13px; text-align:center; margin-top:30px; }
+
+        .help-input-row{ display:flex; gap:8px; }
+        .help-input-row input{
+            flex:1; padding:12px 14px; border-radius:10px; border:1px solid var(--line);
+            background:var(--panel-2); color:var(--text); outline:none; font-size:14px;
+            font-family:'Inter',sans-serif;
+        }
+        .help-input-row input:focus{ border-color:var(--gold); }
+
+        @media(max-width:860px){
+            .help-shell{ grid-template-columns:1fr; }
+            .help-info{ border-right:none; border-bottom:1px solid var(--line); padding:40px 28px; text-align:center; align-items:center; }
+            .help-info h1, .help-info p{ max-width:none; }
+            .contact-chips{ justify-content:center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="site-nav">
+        <a href="index.html" class="brand">AniRudeus<span>.</span></a>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="web.html">Web</a>
+            <a href="Game.html">Game</a>
+            <a href="help.html" class="active">Help</a>
+        </div>
+        <div class="nav-right">
+            <a href="index.html" class="btn ghost btn-back" onclick="if(window.history.length>1){history.back();return false;}">← Orqaga</a>
+        </div>
+    </nav>
+
+    <div class="help-shell">
+        <div class="help-info">
+            <span class="kicker">Yordam markazi</span>
+            <h1>Qiynalyapsizmi? Admin bilan to'g'ridan-to'g'ri yozishing.</h1>
+            <p>Savol, xatolik yoki taklif — pastdagi tugmani bosing, admin ruxsat bergach shu yerning o'zida jonli yozishasiz. Telefon raqam shart emas.</p>
+            <div class="contact-chips">
+                <a href="https://discord.com/channels/1463407879112622195/1463407880173523020" target="_blank" rel="noopener noreferrer">💬 Discord</a>
+                <a href="mailto:support@anirudeus.app">✉️ Email</a>
+            </div>
+        </div>
+
+        <div class="help-panel-wrap">
+            <div class="help-card" id="helpCard">
+                <div class="state-box">
+                    <p>Yuklanmoqda...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase-config.js"></script>
+    <script>
+        const helpCard = document.getElementById('helpCard');
+        let currentUid = null;
+        let currentNickname = null;
+        let unsubDoc = null;
+        let unsubMsgs = null;
+
+        function renderLoggedOut(){
+            helpCard.innerHTML = `
+                <div class="state-box">
+                    <h2>Chat qilish uchun tizimga kiring</h2>
+                    <p>Admin bilan yozishish faqat ro'yxatdan o'tgan foydalanuvchilar uchun mavjud.</p>
+                    <button class="btn primary" onclick="window.location.href='auth.html'">Kirish</button>
+                </div>`;
+        }
+
+        function renderNoRequest(){
+            helpCard.innerHTML = `
+                <div class="state-box">
+                    <h2>Yordam kerakmi?</h2>
+                    <p>Tugmani bosing — so'rovingiz adminga yuboriladi, u ruxsat bergach shu yerda yozishasiz.</p>
+                    <button class="btn primary" id="startBtn">Suhbatni boshlash</button>
+                </div>`;
+            document.getElementById('startBtn').addEventListener('click', startRequest);
+        }
+
+        function renderPending(){
+            helpCard.innerHTML = `
+                <div class="state-box">
+                    <h2><span class="pulse-dot"></span>So'rov yuborildi</h2>
+                    <p>Admin javobini kutyapmiz... Bu sahifani ochiq qoldiring yoki keyinroq qayting — ruxsat berilgach avtomatik ochiladi.</p>
+                </div>`;
+        }
+
+        function renderChat(){
+            helpCard.innerHTML = `
+                <div class="chat-head">
+                    <h2>Admin bilan suhbat</h2>
+                    <span class="chat-status"><span class="dot"></span>Faol</span>
+                </div>
+                <div class="help-messages" id="helpMessages"><p class="help-empty">Xabar yo'q — yozib ko'ring.</p></div>
+                <div class="help-input-row">
+                    <input type="text" id="helpInput" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter'){ window.__helpSend(); }">
+                    <button class="btn primary" onclick="window.__helpSend()">Yuborish</button>
+                </div>`;
+            listenMessages();
+        }
+
+        function renderClosed(){
+            helpCard.innerHTML = `
+                <div class="state-box">
+                    <h2>Suhbat yakunlandi</h2>
+                    <p>Admin bu so'rovni yopdi. Yangi savolingiz bo'lsa, qayta murojaat qiling.</p>
+                    <button class="btn primary" id="startBtn">Qayta murojaat qilish</button>
+                </div>`;
+            document.getElementById('startBtn').addEventListener('click', startRequest);
+        }
+
+        async function startRequest(){
+            const ref = db.collection('support').doc(currentUid);
+            await ref.set({
+                nickname: currentNickname,
+                status: 'pending',
+                unreadForUser: 0,
+                unreadForAdmin: 1,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+            }, { merge: true });
+        }
+
+        function listenMessages(){
+            if(unsubMsgs) unsubMsgs();
+            const msgsEl = document.getElementById('helpMessages');
+            unsubMsgs = db.collection('support').doc(currentUid).collection('messages')
+                .orderBy('time', 'asc')
+                .onSnapshot(snap => {
+                    if(snap.empty){ msgsEl.innerHTML = '<p class="help-empty">Xabar yo\'q — yozib ko\'ring.</p>'; return; }
+                    msgsEl.innerHTML = '';
+                    snap.forEach(doc => {
+                        const m = doc.data();
+                        const div = document.createElement('div');
+                        div.className = 'help-msg ' + (m.sender === 'admin' ? 'admin' : 'user');
+                        div.textContent = m.text;
+                        msgsEl.appendChild(div);
+                    });
+                    msgsEl.scrollTop = msgsEl.scrollHeight;
+                });
+        }
+
+        window.__helpSend = async function(){
+            const input = document.getElementById('helpInput');
+            const text = input.value.trim();
+            if(!text) return;
+            input.value = '';
+            const ref = db.collection('support').doc(currentUid);
+            await ref.collection('messages').add({ sender: 'user', text, time: firebase.firestore.FieldValue.serverTimestamp() });
+            await ref.set({
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastMessageBy: 'user',
+                unreadForAdmin: firebase.firestore.FieldValue.increment(1)
+            }, { merge: true });
+        };
+
+        function watchSupportDoc(){
+            if(unsubDoc) unsubDoc();
+            unsubDoc = db.collection('support').doc(currentUid).onSnapshot(snap => {
+                if(!snap.exists){ renderNoRequest(); return; }
+                const data = snap.data();
+                if(data.status === 'pending'){ renderPending(); }
+                else if(data.status === 'active'){
+                    renderChat();
+                    // Chat ochilganda "o'qilmagan" hisoblagichini nolga tushiramiz
+                    if(data.unreadForUser){
+                        db.collection('support').doc(currentUid).set({ unreadForUser: 0 }, { merge: true });
+                    }
+                }
+                else { renderClosed(); }
+            });
+        }
+
+        auth.onAuthStateChanged(async function(user){
+            if(!user){ renderLoggedOut(); return; }
+            currentUid = user.uid;
+            try{
+                const doc = await db.collection('users').doc(user.uid).get();
+                currentNickname = (doc.exists && doc.data().nickname) || 'Foydalanuvchi';
+            }catch(e){ currentNickname = 'Foydalanuvchi'; }
+            watchSupportDoc();
+        });
+    </script>
+
+</body>
+</html>

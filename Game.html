@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>O'yinlar — AniRudeus Community</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Rubik:wght@400;500;600&display=swap');
+
+    :root{
+      --bg:#0B0E14;
+      --bg2:#11161F;
+      --card:#161D29;
+      --line:#232C3A;
+      --neon:#FFD23F;
+      --neon2:#3FD2FF;
+      --text:#E7EAF0;
+      --muted:#8A94A6;
+    }
+
+    *{margin:0;padding:0;box-sizing:border-box;}
+
+    body{
+      background:radial-gradient(circle at 20% -10%, #1A2233 0%, var(--bg) 55%);
+      color:var(--text);
+      font-family:'Rubik', sans-serif;
+      min-height:100vh;
+    }
+
+    /* ---------- NAV ---------- */
+    .nav{
+      background:rgba(11,14,20,0.85);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid var(--line);
+      position:sticky;top:0;z-index:50;
+    }
+    .innav{
+      max-width:1100px;margin:0 auto;
+      display:flex;align-items:center;gap:28px;
+      padding:14px 24px;
+      flex-wrap:wrap;
+    }
+    .innav a{
+      text-decoration:none;
+      color:var(--text) !important;
+      font-family:'Orbitron',sans-serif;
+      font-size:13px;
+      font-weight:600;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      position:relative;
+      transition:color .2s;
+    }
+    .innav a:hover{color:var(--neon) !important;}
+    .innav a::after{
+      content:'';position:absolute;left:0;bottom:-6px;
+      width:0;height:2px;background:var(--neon);
+      transition:width .25s;
+    }
+    .innav a:hover::after{width:100%;}
+    .navB{
+      background:var(--neon);
+      color:#1A1303;
+      border:none;
+      font-family:'Orbitron',sans-serif;
+      font-weight:700;
+      font-size:12px;
+      letter-spacing:1px;
+      padding:9px 18px;
+      border-radius:6px;
+      cursor:pointer;
+      margin-left:auto;
+      text-decoration:none !important;
+      display:inline-block;
+      transition:transform .15s, box-shadow .15s;
+    }
+    .navB::after{display:none !important;}
+    .navB:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(255,210,63,.35); color:#1A1303 !important;}
+
+    /* ---------- HEADER ---------- */
+    .section-header{
+      max-width:800px;margin:70px auto 50px;
+      text-align:center;padding:0 24px;
+    }
+    .kicker{
+      display:inline-block;
+      font-family:'Orbitron',sans-serif;
+      font-size:12px;
+      letter-spacing:2px;
+      color:var(--neon2);
+      margin-bottom:14px;
+    }
+    .section-header h1{
+      font-family:'Orbitron',sans-serif;
+      font-size:clamp(32px,5vw,52px);
+      font-weight:800;
+      letter-spacing:1px;
+      background:linear-gradient(90deg, var(--neon), var(--neon2));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+      margin-bottom:14px;
+    }
+    .section-header p{
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.7;
+    }
+
+    /* ---------- CARDS ---------- */
+    .cards-container{
+      max-width:1100px;margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px,1fr));
+      gap:24px;
+      padding:0 24px 80px;
+    }
+    .card{
+      background:linear-gradient(160deg, var(--card), var(--bg2));
+      border:1px solid var(--line);
+      border-radius:14px;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      overflow:hidden;
+      transition:transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .card::before{
+      content:'';
+      position:absolute;top:0;left:0;
+      width:100%;height:3px;z-index:2;
+      background:linear-gradient(90deg, var(--neon), var(--neon2));
+      transform:scaleX(0);
+      transform-origin:left;
+      transition:transform .3s;
+    }
+    .card:hover{
+      transform:translateY(-6px);
+      border-color:var(--neon2);
+      box-shadow:0 12px 30px rgba(63,210,255,.12);
+    }
+    .card:hover::before{transform:scaleX(1);}
+    .thumb{position:relative;}
+    .thumb img{width:100%;height:140px;object-fit:cover;display:block;}
+    .tag{
+      position:absolute;top:10px;left:10px;
+      font-family:'Orbitron',sans-serif;
+      font-size:10px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      padding:5px 10px;
+      border-radius:999px;
+      background:rgba(11,14,20,0.8);
+      border:1px solid var(--neon);
+      color:var(--neon);
+    }
+    .tag.cyan{border-color:var(--neon2);color:var(--neon2);}
+    .card-body{
+      padding:20px 22px 24px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+    .card h3{
+      font-family:'Orbitron',sans-serif;
+      font-size:15px;
+      letter-spacing:.5px;
+      color:var(--text);
+    }
+    .card .btn{
+      align-self:flex-start;
+      text-decoration:none;
+      background:transparent;
+      border:1px solid var(--neon2);
+      color:var(--neon2);
+      font-family:'Orbitron',sans-serif;
+      font-size:11.5px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      padding:8px 16px;
+      border-radius:6px;
+      cursor:pointer;
+      transition:all .2s;
+    }
+    .card .btn:hover{
+      background:var(--neon2);
+      color:#06131A;
+    }
+
+    /* ---------- FOOTER ---------- */
+    footer{
+      border-top:1px solid var(--line);
+      background:var(--bg2);
+      padding:36px 24px;
+    }
+    .footer-container{
+      max-width:1100px;margin:0 auto;
+      text-align:center;
+    }
+    .footer-container h2{
+      font-family:'Orbitron',sans-serif;
+      font-size:18px;
+      letter-spacing:1px;
+      color:var(--neon);
+      margin-bottom:6px;
+    }
+    .footer-container p{
+      color:var(--muted);
+      font-size:12.5px;
+      margin-bottom:14px;
+    }
+    .footer-links{
+      display:flex;justify-content:center;gap:22px;flex-wrap:wrap;
+    }
+    .footer-links a{
+      color:var(--muted);
+      text-decoration:none;
+      font-size:12.5px;
+      transition:color .2s;
+    }
+    .footer-links a:hover{color:var(--neon2);}
+
+    /* ---------- RESPONSIVE ---------- */
+    @media (max-width:560px){
+      .innav{flex-wrap:wrap;gap:14px;}
+      .navB{margin-left:0;}
+      .section-header{margin:40px auto 30px;}
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="innav">
+      <a href="index.html">Home</a>
+      <a href="web.html">Web</a>
+      <a href="Game.html">Game</a>
+      <a href="help.html">Help<span id="helpBadge" style="display:none; margin-left:5px; background:#ff6b6b; color:#fff; border-radius:999px; font-size:10px; font-weight:700; padding:1px 6px; text-transform:none; letter-spacing:0;"></span></a>
+      <a href="index.html" class="navB" onclick="if(window.history.length>1){history.back();return false;}">Orqaga</a>
+    </div>
+  </nav>
+
+  <div class="section-header">
+    <span class="kicker">JAMOA TANLOVI</span>
+    <h1>Biz o'ynaydigan o'yinlar</h1>
+    <p>Jamoamiz eng ko'p o'ynaydigan o'yinlar ro'yxati. Birini tanlang, yuklab oling va birga o'ynashga qo'shiling.</p>
+  </div>
+
+  <div class="cards-container">
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2527500/header.jpg?t=1761879413" alt="MiSide">
+        <span class="tag">Horror</span>
+      </div>
+      <div class="card-body">
+        <h3>MiSide</h3>
+        <a href="https://store.steampowered.com/app/2527500/MiSide/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2819520/header.jpg?t=1745761718" alt="Viking Rise">
+        <span class="tag cyan">Strategiya</span>
+      </div>
+      <div class="card-body">
+        <h3>Viking Rise</h3>
+        <a href="https://store.steampowered.com/app/2819520/Viking_Rise/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://store-images.s-microsoft.com/image/apps.26021.13510798885735219.b1dc1d11-ab4b-4d8d-832b-53c9622207e3.60aac159-6c05-47b2-92de-c7dc3a2233ac?q=90&w=320&h=180" alt="Minecraft Bedrock">
+        <span class="tag cyan">Sandbox</span>
+      </div>
+      <div class="card-body">
+        <h3>Minecraft (Bedrock)</h3>
+        <a href="https://www.xbox.com/en-US/games/store/minecraft-for-windows/9nblggh2jhxj?ocid=storeforweb" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://tlauncher.org/assets/images/front_page/settings_versions_en_2_0_v1.png" alt="Minecraft Java">
+        <span class="tag cyan">Sandbox</span>
+      </div>
+      <div class="card-body">
+        <h3>Minecraft (Java)</h3>
+        <a href="https://tlauncher.org/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1222670/header.jpg?t=1760029137" alt="The Sims 4">
+        <span class="tag">Simulyatsiya</span>
+      </div>
+      <div class="card-body">
+        <h3>The Sims 4</h3>
+        <a href="https://store.steampowered.com/app/1222670/The_Sims_4/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1665460/0fb7eebc292768714f2b3be666d59b59a11b0031/header.jpg?t=1761192425" alt="eFootball">
+        <span class="tag cyan">Sport</span>
+      </div>
+      <div class="card-body">
+        <h3>eFootball</h3>
+        <a href="https://store.steampowered.com/app/1665460/eFootball/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2466680/header.jpg?t=1689621318" alt="Kebab Simulator">
+        <span class="tag">Komediya</span>
+      </div>
+      <div class="card-body">
+        <h3>Kebab Simulator</h3>
+        <a href="https://store.steampowered.com/app/2466680/Kebab_Simulator_Prologue/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="thumb">
+        <img src="https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/212500/f88dcfdcd0ad3926d90491b31e1b5bcd8eb9a0f3/header_alt_assets_4.jpg?t=1758813057" alt="The Lord of the Rings Online">
+        <span class="tag cyan">MMORPG</span>
+      </div>
+      <div class="card-body">
+        <h3>The Lord of the Rings</h3>
+        <a href="https://store.steampowered.com/app/212500/The_Lord_of_the_Rings_Online/" target="_blank" rel="noopener noreferrer" class="btn">Yuklab olish</a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-container">
+      <h2>AniRudeusGaming</h2>
+      <p>&copy; 2026 AniRudeusGaming. Barcha huquqlar himoyalangan. 👍</p>
+      <div class="footer-links">
+        <a href="#">Biz haqimizda</a>
+        <a href="help.html">Aloqa</a>
+        <a href="#">Maxfiylik siyosati</a>
+      </div>
+    </div>
+  </footer>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    // Help havolasi yonida admin javobi kelganini ko'rsatish (agar tizimga kirilgan bo'lsa)
+    auth.onAuthStateChanged(function(user){
+      const badge = document.getElementById('helpBadge');
+      if(!user || !badge) return;
+      db.collection('support').doc(user.uid).onSnapshot(snap=>{
+        const unread = snap.exists ? (snap.data().unreadForUser || 0) : 0;
+        if(unread > 0){ badge.textContent = unread; badge.style.display = 'inline-block'; }
+        else { badge.style.display = 'none'; }
+      });
+    });
+  </script>
+</body>
+</html>

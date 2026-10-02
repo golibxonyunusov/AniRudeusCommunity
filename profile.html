@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="theme.css">
+  <title>Profil — AniRudeus Community</title>
+  <style>
+    .profile-wrap{ display:flex; justify-content:center; padding:48px 20px 70px; }
+    .profile-card{
+      width:100%; max-width:560px;
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:40px;
+      text-align:center;
+    }
+    .avatar-wrap{ position:relative; width:128px; height:128px; margin:0 auto 18px; }
+    .avatar{
+      width:128px; height:128px; border-radius:50%; object-fit:cover;
+      border:3px solid var(--panel-2); background:var(--panel-2);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'Space Grotesk',sans-serif; font-size:40px; font-weight:700; color:var(--muted);
+    }
+    .avatar-edit{
+      position:absolute; bottom:2px; right:2px;
+      width:34px; height:34px; border-radius:50%;
+      background:var(--gold); color:#0b1220; border:none;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer; font-size:15px;
+    }
+    .p-name{ font-size:24px; margin-bottom:8px; }
+    .p-badges{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-bottom:18px; }
+    .p-bio{ color:var(--text); font-size:14.5px; line-height:1.6; max-width:440px; margin:0 auto 22px; white-space:pre-wrap; }
+    .p-bio.empty{ color:var(--muted); font-style:italic; }
+    .p-bio textarea{
+      width:100%; min-height:100px; padding:12px 14px; border-radius:10px;
+      border:1px solid var(--line); background:var(--panel-2); color:var(--text);
+      font-family:'Inter',sans-serif; font-size:14px; outline:none; resize:vertical;
+    }
+    .p-bio textarea:focus{ border-color:var(--gold); }
+    .p-meta{ display:flex; justify-content:center; gap:26px; margin:20px 0 26px; flex-wrap:wrap; }
+    .p-meta .item{ text-align:center; }
+    .p-meta .item b{ display:block; font-family:'Space Grotesk',sans-serif; font-size:15px; }
+    .p-meta .item span{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+    .p-actions{ display:flex; gap:10px; justify-content:center; }
+    .p-actions .btn{ padding:11px 20px; }
+    .gate{ text-align:center; color:var(--muted); padding:70px 20px; }
+    .gate .btn{ margin-top:14px; }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="index.html" class="brand">AniRudeus<span>.</span></a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="web.html">Web</a>
+      <a href="Game.html">Game</a>
+      <a href="help.html">Help</a>
+    </div>
+    <div class="nav-right">
+      <a id="adminLink" href="admin.html" class="btn ghost" style="display:none">👑 Admin</a>
+      <a href="index.html" class="btn ghost btn-back" onclick="if(window.history.length>1){history.back();return false;}">← Orqaga</a>
+    </div>
+  </nav>
+
+  <div class="profile-wrap" id="profileWrap">
+    <div class="gate">Yuklanmoqda...</div>
+  </div>
+
+  <input type="file" id="photoFile" accept="image/*" style="display:none">
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    const FIELD_LABELS = {
+      web: 'Web dasturchi', designer: 'Dizayner', app: 'App dasturchi',
+      gamer: 'Gamer', streamer: 'Streamer', other: 'Dasturchi'
+    };
+    const wrap = document.getElementById('profileWrap');
+    let me = null;          // { uid, ...docData }
+    let viewing = null;     // uid of the profile being shown
+    let viewingData = null;
+    let isOwn = false;
+
+    function fieldLine(data){
+      if(!data.field) return '';
+      let label = FIELD_LABELS[data.field] || data.field;
+      if(data.subfield){
+        const sub = (data.field === 'web') ? (data.subfield === 'frontend' ? 'Frontend' : 'Backend') : data.subfield;
+        label += ' · ' + sub;
+      }
+      return label;
+    }
+
+    function initials(nick){
+      return (nick || '?').trim().slice(0,2).toUpperCase();
+    }
+
+    function renderGateLoggedOut(){
+      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Profilni ko'rish uchun tizimga kiring</h2>
+        <button class="btn primary" onclick="window.location.href='auth.html'">Kirish</button></div>`;
+    }
+
+    function renderNotFound(nick){
+      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Foydalanuvchi topilmadi</h2>
+        <p>"${nick}" nomli foydalanuvchi mavjud emas.</p>
+        <button class="btn primary" onclick="window.location.href='index.html'">Bosh sahifaga qaytish</button></div>`;
+    }
+
+    function renderProfile(){
+      const data = viewingData;
+      const joined = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString() : '—';
+      const testBadge = data.testPassed ? '✅ Test topshirilgan' : '—';
+      const roleBadge = data.role === 'admin' ? '<span class="tag">👑 Admin</span>' : '';
+      const fieldBadge = fieldLine(data) ? `<span class="tag">${fieldLine(data)}</span>` : '';
+
+      wrap.innerHTML = `
+        <div class="profile-card">
+          <div class="avatar-wrap">
+            ${data.photo
+              ? `<img class="avatar" src="${data.photo}" alt="${data.nickname}">`
+              : `<div class="avatar">${initials(data.nickname)}</div>`}
+            ${isOwn ? '<button class="avatar-edit" id="avatarEditBtn" title="Rasm o\'zgartirish">📷</button>' : ''}
+          </div>
+          <div class="p-name">${data.nickname}</div>
+          <div class="p-badges">${fieldBadge}${roleBadge}</div>
+
+          <div id="bioArea" class="p-bio ${data.bio ? '' : 'empty'}">${data.bio ? escapeHtml(data.bio) : (isOwn ? "O'zingiz haqingizda yozing..." : 'Bio yo\'q.')}</div>
+
+          <div class="p-meta">
+            <div class="item"><b>${joined}</b><span>A'zo bo'lgan</span></div>
+            <div class="item"><b>${testBadge}</b><span>Holat</span></div>
+          </div>
+
+          ${isOwn ? `
+          <div class="p-actions" id="viewActions">
+            <button class="btn primary" id="editBtn">✏️ Profilni tahrirlash</button>
+          </div>
+          <div class="p-actions" id="editActions" style="display:none; margin-top:10px;">
+            <button class="btn primary" id="saveBtn">Saqlash</button>
+            <button class="btn ghost" id="cancelBtn">Bekor qilish</button>
+          </div>` : ''}
+        </div>`;
+
+      if(isOwn){
+        document.getElementById('avatarEditBtn').addEventListener('click', ()=> document.getElementById('photoFile').click());
+        document.getElementById('editBtn').addEventListener('click', enterEditMode);
+      }
+    }
+
+    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    function enterEditMode(){
+      const bioArea = document.getElementById('bioArea');
+      const currentBio = viewingData.bio || '';
+      bioArea.innerHTML = `<textarea id="bioInput" maxlength="300" placeholder="O'zingiz haqingizda qisqacha yozing...">${escapeHtml(currentBio)}</textarea>`;
+      document.getElementById('viewActions').style.display = 'none';
+      document.getElementById('editActions').style.display = 'flex';
+      document.getElementById('saveBtn').addEventListener('click', saveProfile);
+      document.getElementById('cancelBtn').addEventListener('click', renderProfile);
+    }
+
+    async function saveProfile(){
+      const bioInput = document.getElementById('bioInput');
+      const newBio = bioInput.value.trim();
+      const saveBtn = document.getElementById('saveBtn');
+      saveBtn.disabled = true; saveBtn.textContent = 'Saqlanmoqda...';
+      try{
+        await db.collection('users').doc(me.uid).set({ bio: newBio }, { merge: true });
+        viewingData.bio = newBio;
+        renderProfile();
+      }catch(e){
+        alert('Saqlashda xatolik: ' + e.message);
+        saveBtn.disabled = false; saveBtn.textContent = 'Saqlash';
+      }
+    }
+
+    // ---- Rasmni tanlab, kichraytirib, Firestore'ga base64 sifatida saqlash ----
+    document.getElementById('photoFile').addEventListener('change', function(e){
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev){
+        const img = new Image();
+        img.onload = function(){
+          const size = 220;
+          const canvas = document.createElement('canvas');
+          canvas.width = size; canvas.height = size;
+          const ctx = canvas.getContext('2d');
+          const scale = Math.max(size / img.width, size / img.height);
+          const w = img.width * scale, h = img.height * scale;
+          ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
+          savePhoto(dataUrl);
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    async function savePhoto(dataUrl){
+      try{
+        await db.collection('users').doc(me.uid).set({ photo: dataUrl }, { merge: true });
+        viewingData.photo = dataUrl;
+        renderProfile();
+      }catch(e){
+        alert('Rasm saqlashda xatolik: ' + e.message);
+      }
+    }
+
+    async function loadProfile(){
+      const params = new URLSearchParams(window.location.search);
+      const requestedNick = params.get('user');
+
+      if(!requestedNick || requestedNick.toLowerCase() === (me.nickname || '').toLowerCase()){
+        isOwn = true;
+        viewing = me.uid;
+        viewingData = me;
+        renderProfile();
+        return;
+      }
+
+      // Boshqa birovning profilini nickname bo'yicha qidirish
+      try{
+        const snap = await db.collection('users')
+          .where('nicknameLower', '==', requestedNick.toLowerCase())
+          .limit(1).get();
+        if(snap.empty){ renderNotFound(requestedNick); return; }
+        const doc = snap.docs[0];
+        isOwn = (doc.id === me.uid);
+        viewing = doc.id;
+        viewingData = doc.data();
+        renderProfile();
+      }catch(e){
+        wrap.innerHTML = `<div class="gate"><p>Xatolik: ${e.message}</p></div>`;
+      }
+    }
+
+    auth.onAuthStateChanged(async function(user){
+      if(!user){ renderGateLoggedOut(); return; }
+      try{
+        const doc = await db.collection('users').doc(user.uid).get();
+        if(!doc.exists || !doc.data().profileComplete){
+          window.location.href = 'onboarding.html';
+          return;
+        }
+        me = Object.assign({ uid: user.uid }, doc.data());
+        const adminLink = document.getElementById('adminLink');
+        if(adminLink) adminLink.style.display = (me.role === 'admin') ? 'inline-flex' : 'none';
+        loadProfile();
+      }catch(e){
+        wrap.innerHTML = `<div class="gate"><p>Xatolik: ${e.message}</p></div>`;
+      }
+    });
+  </script>
+
+</body>
+</html>

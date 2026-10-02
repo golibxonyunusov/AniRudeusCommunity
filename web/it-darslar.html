@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechUz — IT Darslar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --card: #1a1a24;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0f0f4;
+    --muted: #8888a0;
+    --accent: #7c6af7;
+    --accent-light: #a799ff;
+    --accent-glow: rgba(124,106,247,0.15);
+    --green: #3dd68c;
+    --amber: #f5a623;
+    --coral: #ff6b6b;
+    --font: 'Space Grotesk', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Nav ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 64px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: #fff !important;
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    transition: background 0.2s !important;
+  }
+
+  .nav-cta:hover { background: var(--accent-light) !important; }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 100px 2rem 80px;
+    text-align: center;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--accent-glow);
+    border: 1px solid rgba(124,106,247,0.3);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--accent-light);
+    font-family: var(--mono);
+    margin-bottom: 2rem;
+    letter-spacing: 0.5px;
+  }
+
+  .hero-badge::before {
+    content: '';
+    display: block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 6px var(--green);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 1.5rem;
+    color: #fff;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent-light), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero p {
+    font-size: 1.15rem;
+    color: var(--muted);
+    max-width: 580px;
+    margin: 0 auto 2.5rem;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 0 20px rgba(124,106,247,0.3);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 24px rgba(124,106,247,0.45);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--muted);
+    padding: 14px 28px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid var(--border-hover);
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .btn-secondary:hover {
+    border-color: rgba(255,255,255,0.3);
+    color: var(--text);
+  }
+
+  /* ── Stats ── */
+  .stats {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    padding: 2.5rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin: 0 2rem;
+  }
+
+  .stat { text-align: center; }
+
+  .stat-num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    font-family: var(--mono);
+  }
+
+  .stat-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* ── Section ── */
+  section { padding: 80px 2rem; max-width: 1100px; margin: 0 auto; }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: #fff;
+    margin-bottom: 1rem;
+  }
+
+  .section-sub {
+    font-size: 1.05rem;
+    color: var(--muted);
+    max-width: 520px;
+    margin-bottom: 3rem;
+  }
+
+  /* ── Courses Grid ── */
+  .courses-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .course-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .course-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--card-accent, var(--accent));
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .course-card:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-3px);
+  }
+
+  .course-card:hover::before { opacity: 1; }
+
+  .course-icon {
+    width: 48px; height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 1.25rem;
+    background: var(--icon-bg, rgba(124,106,247,0.12));
+  }
+
+  .course-level {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 100px;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+  }
+
+  .level-boshlangich { background: rgba(61,214,140,0.12); color: var(--green); }
+  .level-orta { background: rgba(245,166,35,0.12); color: var(--amber); }
+  .level-ilgori { background: rgba(255,107,107,0.12); color: var(--coral); }
+
+  .course-card h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .course-card p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 1.25rem;
+  }
+
+  .course-meta {
+    display: flex;
+    gap: 1rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .course-meta span { display: flex; align-items: center; gap: 5px; }
+
+  .course-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .price { font-size: 1.1rem; font-weight: 700; color: #fff; }
+  .price-free { color: var(--green); }
+
+  .btn-enroll {
+    background: var(--accent-glow);
+    border: 1px solid rgba(124,106,247,0.3);
+    color: var(--accent-light);
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    font-family: var(--font);
+  }
+
+  .btn-enroll:hover {
+    background: rgba(124,106,247,0.25);
+    border-color: rgba(124,106,247,0.5);
+  }
+
+  /* ── Roadmap ── */
+  .roadmap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2.5rem;
+  }
+
+  .roadmap-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 2rem;
+  }
+
+  .roadmap-step {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .roadmap-step:last-child { border-bottom: none; }
+
+  .step-num {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent);
+    background: var(--accent-glow);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 8px;
+    width: 36px; height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .step-content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .step-content p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  .step-tags {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 0.6rem;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 3px 10px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+
+  /* ── Features ── */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .feature {
+    padding: 1.5rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .feature h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 0.4rem;
+  }
+
+  .feature p {
+    font-size: 0.875rem;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+
+  /* ── Instructors ── */
+  .instructors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .instructor {
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .instructor:hover { border-color: var(--border-hover); }
+
+  .instructor-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #a855f7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 auto 1rem;
+  }
+
+  .instructor h4 { font-size: 1rem; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .instructor p { font-size: 0.82rem; color: var(--muted); }
+
+  /* ── CTA Banner ── */
+  .cta-banner {
+    background: var(--card);
+    border: 1px solid rgba(124,106,247,0.25);
+    border-radius: 20px;
+    padding: 4rem 3rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-banner::before {
+    content: '';
+    position: absolute;
+    top: -80px; left: 50%;
+    transform: translateX(-50%);
+    width: 400px; height: 200px;
+    background: radial-gradient(ellipse, rgba(124,106,247,0.2) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-banner h2 {
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+  }
+
+  .cta-banner p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin-bottom: 2rem;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 3rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  footer p { font-size: 0.85rem; color: var(--muted); }
+
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { font-size: 0.85rem; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    nav { padding: 0 1.25rem; }
+    .nav-links { display: none; }
+    .hero { padding: 60px 1.25rem 60px; }
+    .stats { gap: 2rem; padding: 2rem 1.25rem; margin: 0; }
+    section { padding: 60px 1.25rem; }
+    .cta-banner { padding: 3rem 1.5rem; }
+    footer { flex-direction: column; text-align: center; }
+    .hero-actions { flex-direction: column; align-items: center; }
+    .btn-primary, .btn-secondary { width: 100%; max-width: 320px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">
+    <span class="logo-dot"></span>
+    TechUz
+  </a>
+  <ul class="nav-links">
+    <li><a href="#kurslar">Kurslar</a></li>
+    <li><a href="#yoqnama">Yo'l xaritasi</a></li>
+    <li><a href="#oqituvchilar">O'qituvchilar</a></li>
+    <li><a href="#kurslar" class="nav-cta">Boshlash</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-badge">🇺🇿 O'zbek tilida · Bepul boshlang</div>
+  <h1>IT sohasini <em>haqiqatan</em><br>o'rganing</h1>
+  <p>Dasturlash, dizayn, ma'lumotlar tahlili — amaliy loyihalar bilan o'zbek tilida professional darajaga chiqing.</p>
+  <div class="hero-actions">
+    <a href="#kurslar" class="btn-primary">Kurslarni ko'rish →</a>
+    <a href="#yoqnama" class="btn-secondary">Yo'l xaritasi</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">12,400+</div>
+    <div class="stat-label">Faol o'quvchi</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">48</div>
+    <div class="stat-label">Kurs mavjud</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">96%</div>
+    <div class="stat-label">Ish topish darajasi</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">4.9★</div>
+    <div class="stat-label">O'rtacha baho</div>
+  </div>
+</div>
+
+<!-- COURSES -->
+<section id="kurslar">
+  <div class="section-label">// kurslar</div>
+  <h2 class="section-title">Qayerdan boshlashni bilasizmi?</h2>
+  <p class="section-sub">Boshlang'ich yoki ilg'or — barcha daraja uchun kurslar mavjud.</p>
+
+  <div class="courses-grid">
+
+    <div class="course-card" style="--card-accent: #7c6af7;">
+      <div class="course-icon" style="--icon-bg: rgba(124,106,247,0.12);">💻</div>
+      <span class="course-level level-boshlangich">Boshlang'ich</span>
+      <h3>Python dasturlash asoslari</h3>
+      <p>O'zgaruvchilar, tsikllar, funksiyalar va fayllar bilan ishlash — noldan.</p>
+      <div class="course-meta">
+        <span>⏱ 42 soat</span>
+        <span>📹 89 dars</span>
+        <span>👥 3,200</span>
+      </div>
+      <div class="course-footer">
+        <span class="price price-free">Bepul</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+    <div class="course-card" style="--card-accent: #3dd68c;">
+      <div class="course-icon" style="--icon-bg: rgba(61,214,140,0.1);">🌐</div>
+      <span class="course-level level-boshlangich">Boshlang'ich</span>
+      <h3>HTML & CSS bilan veb-sayt yaratish</h3>
+      <p>Brauzerda ko'rinadigan hamma narsani yaratishni o'rganing. Birinchi loyihangiz tayyor.</p>
+      <div class="course-meta">
+        <span>⏱ 28 soat</span>
+        <span>📹 54 dars</span>
+        <span>👥 5,100</span>
+      </div>
+      <div class="course-footer">
+        <span class="price price-free">Bepul</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+    <div class="course-card" style="--card-accent: #f5a623;">
+      <div class="course-icon" style="--icon-bg: rgba(245,166,35,0.1);">⚛️</div>
+      <span class="course-level level-orta">O'rta</span>
+      <h3>React.js — zamonaviy frontend</h3>
+      <p>Komponentlar, state management va real loyihalar orqali React'ni chuqur o'rganing.</p>
+      <div class="course-meta">
+        <span>⏱ 56 soat</span>
+        <span>📹 112 dars</span>
+        <span>👥 1,870</span>
+      </div>
+      <div class="course-footer">
+        <span class="price">299,000 so'm</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+    <div class="course-card" style="--card-accent: #ff6b6b;">
+      <div class="course-icon" style="--icon-bg: rgba(255,107,107,0.1);">🗄️</div>
+      <span class="course-level level-orta">O'rta</span>
+      <h3>PostgreSQL va ma'lumotlar bazasi</h3>
+      <p>SQL so'rovlar, indekslar, tranzaksiyalar — backend dasturchi uchun asosiy ko'nikma.</p>
+      <div class="course-meta">
+        <span>⏱ 34 soat</span>
+        <span>📹 67 dars</span>
+        <span>👥 980</span>
+      </div>
+      <div class="course-footer">
+        <span class="price">199,000 so'm</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+    <div class="course-card" style="--card-accent: #a855f7;">
+      <div class="course-icon" style="--icon-bg: rgba(168,85,247,0.1);">🤖</div>
+      <span class="course-level level-ilgori">Ilg'or</span>
+      <h3>Sun'iy intellekt va Machine Learning</h3>
+      <p>PyTorch, model yaratish, real loyiha — AI muhandisi bo'lishning birinchi qadami.</p>
+      <div class="course-meta">
+        <span>⏱ 80 soat</span>
+        <span>📹 160 dars</span>
+        <span>👥 620</span>
+      </div>
+      <div class="course-footer">
+        <span class="price">499,000 so'm</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+    <div class="course-card" style="--card-accent: #38bdf8;">
+      <div class="course-icon" style="--icon-bg: rgba(56,189,248,0.1);">☁️</div>
+      <span class="course-level level-ilgori">Ilg'or</span>
+      <h3>DevOps va Cloud texnologiyalar</h3>
+      <p>Docker, Kubernetes, CI/CD va AWS — zamonaviy infratuzilma boshqaruvini o'rganing.</p>
+      <div class="course-meta">
+        <span>⏱ 65 soat</span>
+        <span>📹 130 dars</span>
+        <span>👥 440</span>
+      </div>
+      <div class="course-footer">
+        <span class="price">399,000 so'm</span>
+        <button class="btn-enroll">Ro'yxatdan o'tish</button>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="yoqnama">
+  <div class="section-label">// yo'l xaritasi</div>
+  <h2 class="section-title">Backend dasturchi bo'lish yo'li</h2>
+  <p class="section-sub">Noldan ish topguncha — aniq ketma-ketlik.</p>
+
+  <div class="roadmap">
+    <div class="roadmap-steps">
+      <div class="roadmap-step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h4>Dasturlash asoslari</h4>
+          <p>Python sintaksisi, algoritmik fikrlash, ma'lumotlar turlari va boshqaruv konstruksiyalari.</p>
+          <div class="step-tags">
+            <span class="tag">Python</span>
+            <span class="tag">Algoritmlar</span>
+            <span class="tag">OOP</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h4>Veb-freymvorklar</h4>
+          <p>Django yoki FastAPI bilan API va veb-ilovalar yarating. REST arxitekturasi.</p>
+          <div class="step-tags">
+            <span class="tag">Django</span>
+            <span class="tag">FastAPI</span>
+            <span class="tag">REST API</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h4>Ma'lumotlar bazasi</h4>
+          <p>PostgreSQL, so'rovlar optimizatsiyasi, ORM va migratsiyalar.</p>
+          <div class="step-tags">
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">Redis</span>
+            <span class="tag">ORM</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h4>Deploy va DevOps</h4>
+          <p>Docker, Linux server boshqaruvi, CI/CD pipeline va monitoring.</p>
+          <div class="step-tags">
+            <span class="tag">Docker</span>
+            <span class="tag">GitHub Actions</span>
+            <span class="tag">Linux</span>
+          </div>
+        </div>
+      </div>
+      <div class="roadmap-step">
+        <div class="step-num">05</div>
+        <div class="step-content">
+          <h4>Portfolio va ish qidirish</h4>
+          <p>GitHub profil, 3 ta real loyiha, CV tayyorlash va texnik intervyu mashg'ulotlari.</p>
+          <div class="step-tags">
+            <span class="tag">GitHub</span>
+            <span class="tag">Portfolio</span>
+            <span class="tag">Intervyu</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section>
+  <div class="section-label">// nima uchun biz</div>
+  <h2 class="section-title">O'rganishni qulay qilamiz</h2>
+  <p class="section-sub">Faqat video emas — amaliy ko'nikmalar.</p>
+
+  <div class="features-grid">
+    <div class="feature">
+      <div class="feature-icon">🎯</div>
+      <h4>Amaliy loyihalar</h4>
+      <p>Har bir kursda haqiqiy loyihalar bor. Portfoliongiz dars jarayonida to'ladi.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">💬</div>
+      <h4>Mentor qo'llab-quvvatlash</h4>
+      <p>Savollaringiz 24 soat ichida javob oladi. Amaliyot muhimroq nazariyadan.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">📱</div>
+      <h4>Istalgan qurilmada</h4>
+      <p>Telefon, planshet yoki kompyuterdan kiring. Darslar offline ham ishlaydi.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🏆</div>
+      <h4>Sertifikat</h4>
+      <p>Kursni tugatgach LinkedIn-ga yuklashingiz mumkin bo'lgan sertifikat olasiz.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">🔄</div>
+      <h4>Doimiy yangilanadi</h4>
+      <p>Texnologiyalar tez o'zgaradi — kurslarimiz ham yangilanib turadi. Bir marta to'lang.</p>
+    </div>
+    <div class="feature">
+      <div class="feature-icon">👥</div>
+      <h4>Jamoa va hamjamiyat</h4>
+      <p>Telegram guruhida 12,000+ dasturchi bor. Savollar, loyihalar, ish takliflari.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INSTRUCTORS -->
+<section id="oqituvchilar">
+  <div class="section-label">// o'qituvchilar</div>
+  <h2 class="section-title">Amaliyotchi mutaxassislar</h2>
+  <p class="section-sub">Kurs mualliflari hozir ham katta kompaniyalarda ishlaydi.</p>
+
+  <div class="instructors-grid">
+    <div class="instructor">
+      <div class="instructor-avatar">AJ</div>
+      <h4>Aziz Jurayev</h4>
+      <p>Python · Django<br>Yandex, 6 yil tajriba</p>
+    </div>
+    <div class="instructor">
+      <div class="instructor-avatar" style="background: linear-gradient(135deg, #3dd68c, #0ea5e9);">MN</div>
+      <h4>Malika Nazarova</h4>
+      <p>React · Frontend<br>EPAM Uzbekistan</p>
+    </div>
+    <div class="instructor">
+      <div class="instructor-avatar" style="background: linear-gradient(135deg, #f5a623, #ff6b6b);">SK</div>
+      <h4>Sanjar Karimov</h4>
+      <p>DevOps · AWS<br>Uzum Market</p>
+    </div>
+    <div class="instructor">
+      <div class="instructor-avatar" style="background: linear-gradient(135deg, #a855f7, #6366f1);">DT</div>
+      <h4>Dilnoza Tosheva</h4>
+      <p>ML · AI<br>Google, London</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section>
+  <div class="cta-banner">
+    <h2>Bugun birinchi qadamni qo'ying</h2>
+    <p>Bepul kurslar bilan boshlang. To'liq paket uchun birinchi oy 50% chegirma.</p>
+    <a href="#kurslar" class="btn-primary">Bepul ro'yxatdan o'tish →</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 TechUz. Barcha huquqlar himoyalangan.</p>
+  <div class="footer-links">
+    <a href="#">Shartlar</a>
+    <a href="#">Maxfiylik</a>
+    <a href="#">Telegram</a>
+    <a href="#">YouTube</a>
+  </div>
+</footer>
+
+</body>
+</html>

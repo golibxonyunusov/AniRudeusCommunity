@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sohangizni tanlang — AniRudeus Community</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-0:#040f1c;
+    --bg-1:#071c30;
+    --panel:#0b2540;
+    --panel-2:#0e2c4c;
+    --line:rgba(255,255,255,0.08);
+    --gold:#ffd400;
+    --mint:#35e6a0;
+    --text:#eaf2fb;
+    --muted:#8ca3bd;
+    --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Inter',system-ui,Arial,sans-serif;
+    background:
+      radial-gradient(1100px 700px at 90% -10%, rgba(255,212,0,0.07), transparent 60%),
+      linear-gradient(180deg,var(--bg-0),var(--bg-1));
+    color:var(--text);
+    display:flex;
+    justify-content:center;
+    padding:40px 18px 80px;
+  }
+  .wrap{width:100%;max-width:640px}
+
+  .top-brand{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+  .top-brand a{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;color:var(--text);text-decoration:none}
+  .top-brand a span{color:var(--gold)}
+  .greet{color:var(--muted);font-size:13.5px}
+  .greet b{color:var(--text)}
+
+  /* progress */
+  .progress{display:flex;gap:8px;margin-bottom:32px}
+  .progress .seg{flex:1;height:4px;border-radius:4px;background:var(--panel)}
+  .progress .seg.done{background:var(--gold)}
+  .progress .seg.current{background:linear-gradient(90deg,var(--gold),rgba(255,212,0,0.35))}
+
+  .step{display:none}
+  .step.active{display:block}
+
+  h1.step-title{font-family:'Space Grotesk',sans-serif;font-size:26px;margin:0 0 6px;font-weight:600}
+  p.step-sub{color:var(--muted);font-size:14.5px;margin:0 0 26px;line-height:1.5}
+
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:520px){.grid{grid-template-columns:1fr}}
+
+  .choice-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px;
+    cursor:pointer;
+    transition:border-color .14s ease, transform .12s ease, background .14s ease;
+  }
+  .choice-card:hover{transform:translateY(-3px);border-color:rgba(255,212,0,0.35)}
+  .choice-card.selected{border-color:var(--gold);background:var(--panel-2);box-shadow:0 0 0 1px var(--gold) inset}
+  .choice-card h3{margin:0 0 6px;font-size:16.5px;font-family:'Space Grotesk',sans-serif;font-weight:600}
+  .choice-card p{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
+
+  .chip-grid{display:flex;flex-wrap:wrap;gap:10px}
+  .chip{
+    padding:10px 16px;
+    border-radius:999px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    color:var(--text);
+    font-size:14px;
+    cursor:pointer;
+    transition:all .12s ease;
+  }
+  .chip:hover{border-color:rgba(255,212,0,0.4)}
+  .chip.selected{background:var(--gold);color:#0b1220;border-color:var(--gold);font-weight:600}
+
+  .q-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+  .q-card .q-num{color:var(--gold);font-size:12.5px;font-weight:700;margin-bottom:6px}
+  .q-card h3{margin:0 0 14px;font-size:16px;font-weight:600;line-height:1.4}
+  .opt{display:flex;align-items:center;gap:10px;padding:11px 13px;border-radius:9px;border:1px solid var(--line);margin-bottom:8px;cursor:pointer;font-size:14.5px;transition:border-color .12s ease, background .12s ease}
+  .opt:hover{border-color:rgba(255,212,0,0.35)}
+  .opt.selected{border-color:var(--gold);background:rgba(255,212,0,0.08)}
+  .opt input{accent-color:var(--gold)}
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:26px;gap:12px}
+  .btn{
+    padding:13px 22px;border:none;border-radius:10px;font-weight:700;font-size:14.5px;cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .15s ease;
+  }
+  .btn.primary{background:var(--gold);color:#0b1220}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 22px rgba(255,212,0,0.18)}
+  .btn.primary:disabled{opacity:.4;cursor:default;transform:none;box-shadow:none}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+  .btn.ghost:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+
+  .result-box{text-align:center;padding:36px 20px}
+  .result-box .badge{
+    width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    margin:0 auto 18px;font-size:28px;
+  }
+  .result-box.pass .badge{background:rgba(53,230,160,0.15);color:var(--mint)}
+  .result-box.fail .badge{background:rgba(255,107,107,0.15);color:var(--danger)}
+  .result-box h2{font-family:'Space Grotesk',sans-serif;margin:0 0 8px;font-size:22px}
+  .result-box p{color:var(--muted);margin:0 0 22px}
+
+  #loadingGate{display:flex;align-items:center;justify-content:center;min-height:60vh;color:var(--muted);width:100%}
+</style>
+</head>
+<body>
+  <div class="wrap" id="loadingGate">Yuklanmoqda...</div>
+
+  <div class="wrap" id="app" style="display:none">
+    <div class="top-brand">
+      <a href="index.html">AniRudeus<span>.</span></a>
+      <div class="greet">Salom, <b id="greetName">foydalanuvchi</b></div>
+    </div>
+
+    <div class="progress">
+      <div class="seg" id="segA"></div>
+      <div class="seg" id="segB"></div>
+      <div class="seg" id="segC"></div>
+    </div>
+
+    <!-- STEP 1: soha -->
+    <section class="step active" id="step1">
+      <h1 class="step-title">Sizning sohangiz qaysi?</h1>
+      <p class="step-sub">Shu tanlovingiz asosida mos guruhga qo'shilasiz.</p>
+      <div class="grid" id="fieldGrid"></div>
+      <div class="nav-row">
+        <span></span>
+        <button class="btn primary" id="step1Next" disabled onclick="goStep2()">Davom etish</button>
+      </div>
+    </section>
+
+    <!-- STEP 2: subfield yoki til -->
+    <section class="step" id="step2">
+      <h1 class="step-title" id="step2Title">Yo'nalishni aniqlashtiring</h1>
+      <p class="step-sub" id="step2Sub">Qaysi biri sizga yaqinroq?</p>
+      <div class="grid" id="subGrid" style="display:none"></div>
+      <div class="chip-grid" id="langGrid" style="display:none"></div>
+      <div class="nav-row">
+        <button class="btn ghost" onclick="goStep1()">Orqaga</button>
+        <button class="btn primary" id="step2Next" disabled onclick="goStep3()">Davom etish</button>
+      </div>
+    </section>
+
+    <!-- STEP 3: test -->
+    <section class="step" id="step3">
+      <h1 class="step-title">Boshlang'ich daraja testi</h1>
+      <p class="step-sub">3 ta savoldan kamida 2 tasiga to'g'ri javob bering.</p>
+      <div id="quizArea"></div>
+      <div class="nav-row">
+        <button class="btn ghost" onclick="goBackFromQuiz()">Orqaga</button>
+        <button class="btn primary" id="submitQuiz" onclick="submitQuiz()">Testni yakunlash</button>
+      </div>
+    </section>
+
+    <!-- RESULT -->
+    <section class="step" id="stepResult">
+      <div class="result-box" id="resultBox">
+        <div class="badge" id="resultBadge">✓</div>
+        <h2 id="resultTitle">Tabriklaymiz!</h2>
+        <p id="resultText">Siz guruhga qo'shildingiz.</p>
+        <button class="btn primary" id="resultBtn" onclick="finishOnboarding()">Chatga o'tish</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    // ---------- Ma'lumotlar ----------
+    const FIELDS = [
+      {key:'web', label:"Web dasturchi", desc:"Sayt va veb-ilovalar yarataman", needsSub:true,
+        sub:[{key:'frontend', label:'Frontend'}, {key:'backend', label:'Backend'}]},
+      {key:'designer', label:"Dizayner", desc:"UI/UX va vizual dizayn bilan shug'ullanaman"},
+      {key:'app', label:"App dasturchi", desc:"Mobil ilovalar yarataman"},
+      {key:'gamer', label:"Gamer", desc:"Jamoada birga o'ynashni yaxshi ko'raman"},
+      {key:'streamer', label:"Streamer", desc:"Jonli translyatsiya qilaman"},
+      {key:'other', label:"Boshqa dasturchi", desc:"Boshqa dasturlash tilida ishlayman", needsLang:true}
+    ];
+
+    const LANGS = ['JavaScript','Python','Java','C++','C#','PHP','TypeScript','Kotlin','Swift','Go','Ruby','Dart','Rust','Boshqa'];
+
+    const QUIZ_BANK = {
+      frontend: [
+        {q:"HTML’da eng katta sarlavha qaysi teg bilan yoziladi?", o:["<h1>","<p>","<head>","<title>"], c:0},
+        {q:"CSS’da elementni flex yordamida markazlashtirish uchun nima ishlatiladi?", o:["display:flex + justify-content:center","color:center","float:middle","align:auto"], c:0},
+        {q:"JavaScript’da o'zgaruvchi e'lon qilishning zamonaviy usuli?", o:["var","let","int","def"], c:1}
+      ],
+      backend: [
+        {q:"Server va brauzer o'rtasida ma'lumot almashishning asosiy protokoli?", o:["HTTP","USB","Bluetooth","IMAP"], c:0},
+        {q:"Ma'lumotlar bazasida jadvaldagi qatorni noyob aniqlovchi ustun?", o:["Primary Key","Foreign Key","Index","Column"], c:0},
+        {q:"API javobi ko'pincha qaysi formatda qaytadi?", o:["JSON","MP3","EXE","ZIP"], c:0}
+      ],
+      designer: [
+        {q:"RGB rang tizimida “R” harfi nimani anglatadi?", o:["Red","Round","Ray","Radius"], c:0},
+        {q:"“UX” atamasi nimani anglatadi?", o:["User Experience","User Export","Unique Cross","Ultra Extra"], c:0},
+        {q:"Matn va fon orasidagi kontrast nima uchun muhim?", o:["O'qishni osonlashtiradi","Faylni kichraytiradi","Rangni o'chiradi","Ahamiyati yo'q"], c:0}
+      ],
+      app: [
+        {q:"Android uchun native dasturlash tili qaysi?", o:["Kotlin","HTML","SQL","CSS"], c:0},
+        {q:"iOS ilovalari uchun Apple qaysi tilni tavsiya qiladi?", o:["Swift","PHP","Ruby","Perl"], c:0},
+        {q:"Ilovaning “UI” qismi nimani bildiradi?", o:["Foydalanuvchi ko'radigan qism","Server kodi","Baza jadvali","Fayl nomi"], c:0}
+      ],
+      gamer: [
+        {q:"Grafika kontekstida “FPS” nimani anglatadi?", o:["Frames Per Second","Fast Play System","First Person Save","File Process Speed"], c:0},
+        {q:"Onlayn o'yinlarda “lag” nima?", o:["Tarmoq kechikishi","Yangi xarita","Qahramon nomi","Musiqa fayli"], c:0},
+        {q:"“Respawn” atamasi nimani bildiradi?", o:["Qayta paydo bo'lish","O'yindan chiqish","Faylni saqlash","Ekranni o'chirish"], c:0}
+      ],
+      streamer: [
+        {q:"Jonli translyatsiya uchun eng ko'p ishlatiladigan dastur?", o:["OBS Studio","Photoshop","Excel","AutoCAD"], c:0},
+        {q:"Strimingda “overlay” nima?", o:["Ekranga qo'shiladigan grafik qatlam","Ovoz balandligi","Internet tezligi","Video formati"], c:0},
+        {q:"Auditoriya bilan jonli aloqa asosan qaysi kanal orqali bo'ladi?", o:["Chat","Email","SMS","Faks"], c:0}
+      ],
+      javascript: [
+        {q:"JavaScript’da massiv qanday belgilanadi?", o:["[]","{}","()","<>"], c:0},
+        {q:"Konsolga chiqarish uchun qaysi funksiya ishlatiladi?", o:["console.log()","print()","echo()","System.out"], c:0},
+        {q:"“===” operatori nimani tekshiradi?", o:["Qiymat va tur bir xilligini","Faqat qiymatni","Faqat turini","Hech narsani"], c:0}
+      ],
+      python: [
+        {q:"Python’da ekranga chiqarish funksiyasi?", o:["print()","console.log()","echo","System.out.println"], c:0},
+        {q:"Python’da kod bloklari qanday ajratiladi?", o:["Chekinish (indentation) bilan","Qavslar bilan","Nuqta-vergul bilan","Teglar bilan"], c:0},
+        {q:"Ro'yxat (list) qanday belgilanadi?", o:["[]","{}","()","<>"], c:0}
+      ],
+      java: [
+        {q:"Java dasturi qaysi metoddan boshlanadi?", o:["main()","start()","run()","init()"], c:0},
+        {q:"Java’da klass yaratish uchun kalit so'z?", o:["class","def","function","struct"], c:0},
+        {q:"Java’ning mashhur shiori qaysi?", o:["Write once, run anywhere","Faqat Windows uchun","Faqat mobil uchun","Faqat brauzer uchun"], c:0}
+      ],
+      "c++": [
+        {q:"C++’da ekranga chiqarish operatori?", o:["cout <<","print()","echo","console.log"], c:0},
+        {q:"C++’da sarlavha fayli odatda qaysi kengaytmada bo'ladi?", o:[".h",".py",".js",".css"], c:0},
+        {q:"Xotirani qo'lda ajratish uchun operator?", o:["new","alloc","create","malloc_js"], c:0}
+      ],
+      "c#": [
+        {q:"C# qaysi kompaniya tomonidan yaratilgan?", o:["Microsoft","Google","Apple","Oracle"], c:0},
+        {q:"C#’da konsolga chiqarish qanday amalga oshadi?", o:["Console.WriteLine()","print()","echo","cout"], c:0},
+        {q:".NET nima uchun kerak?", o:["Ilovalarni ishga tushirish muhiti","Rasm formati","Video kodek","Shrift turi"], c:0}
+      ],
+      php: [
+        {q:"PHP asosan qayerda ishlaydi?", o:["Server tomonida","Faqat brauzerda","Faqat mobil qurilmada","Hech qayerda"], c:0},
+        {q:"PHP kodi qanday belgilanadi?", o:["<?php ... ?>","<script>","<py>","<java>"], c:0},
+        {q:"PHP ko'pincha qaysi baza bilan birga ishlatiladi?", o:["MySQL","Excel","Word","Photoshop"], c:0}
+      ],
+      generic: [
+        {q:"Dasturlashda “o'zgaruvchi” (variable) nima uchun ishlatiladi?", o:["Ma'lumotni saqlash uchun","Rasmni o'chirish uchun","Internetni tezlashtirish uchun","Faylni yopish uchun"], c:0},
+        {q:"“Sikl” (loop) nima uchun kerak?", o:["Amalni bir necha marta takrorlash uchun","Dasturni o'chirish uchun","Faylni nomlash uchun","Rangni o'zgartirish uchun"], c:0},
+        {q:"“Funksiya” (function) nimani anglatadi?", o:["Qayta ishlatsa bo'ladigan kod bo'lagi","Kompyuter virusi","Internet provayder","Grafik dastur"], c:0}
+      ]
+    };
+
+    const PASS_THRESHOLD = 2; // 3 tadan kamida 2 tasi to'g'ri bo'lishi kerak
+
+    // ---------- Holat ----------
+    let currentUser = null;
+    let userDocRef = null;
+    let selectedField = null;
+    let selectedSub = null;   // web uchun frontend/backend
+    let selectedLang = null;  // "other" uchun til
+    let currentQuiz = [];
+    let quizAnswers = [];
+
+    // ---------- Auth guard ----------
+    auth.onAuthStateChanged(async function(user){
+      if(!user){
+        window.location.href = 'auth.html';
+        return;
+      }
+      currentUser = user;
+      userDocRef = db.collection('users').doc(user.uid);
+      const doc = await userDocRef.get();
+      if(doc.exists && doc.data().profileComplete){
+        window.location.href = 'index.html';
+        return;
+      }
+      const nickname = (doc.exists && doc.data().nickname) || localStorage.getItem('chat_username') || 'foydalanuvchi';
+      document.getElementById('greetName').textContent = nickname;
+      document.getElementById('loadingGate').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      buildFieldGrid();
+      updateProgress();
+    });
+
+    // ---------- Progress bar ----------
+    function updateProgress(){
+      const segs = ['segA','segB','segC'];
+      const activeStep = document.querySelector('.step.active').id;
+      const order = ['step1','step2','step3','stepResult'];
+      const idx = order.indexOf(activeStep);
+      segs.forEach((id,i)=>{
+        const el = document.getElementById(id);
+        el.className = 'seg' + (i < idx ? ' done' : (i === idx ? ' current' : ''));
+      });
+    }
+
+    function showStep(id){
+      document.querySelectorAll('.step').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+      updateProgress();
+    }
+
+    // ---------- Step 1 ----------
+    function buildFieldGrid(){
+      const grid = document.getElementById('fieldGrid');
+      grid.innerHTML = '';
+      FIELDS.forEach(f=>{
+        const card = document.createElement('div');
+        card.className = 'choice-card';
+        card.innerHTML = `<h3>${f.label}</h3><p>${f.desc}</p>`;
+        card.onclick = ()=>{
+          document.querySelectorAll('#fieldGrid .choice-card').forEach(c=>c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedField = f.key;
+          selectedSub = null; selectedLang = null;
+          document.getElementById('step1Next').disabled = false;
+        };
+        grid.appendChild(card);
+      });
+    }
+
+    function fieldMeta(key){ return FIELDS.find(f=>f.key===key); }
+
+    function goStep1(){ showStep('step1'); }
+
+    function goStep2(){
+      const meta = fieldMeta(selectedField);
+      if(!meta.needsSub && !meta.needsLang){
+        // to'g'ridan-to'g'ri testga
+        prepareQuiz();
+        showStep('step3');
+        return;
+      }
+      const subGrid = document.getElementById('subGrid');
+      const langGrid = document.getElementById('langGrid');
+      subGrid.style.display = 'none'; langGrid.style.display = 'none';
+      subGrid.innerHTML = ''; langGrid.innerHTML = '';
+      document.getElementById('step2Next').disabled = true;
+
+      if(meta.needsSub){
+        document.getElementById('step2Title').textContent = "Qaysi yo'nalish sizga yaqin?";
+        document.getElementById('step2Sub').textContent = "Web dasturlashning qaysi tomoni bilan shug'ullanasiz?";
+        subGrid.style.display = 'grid';
+        meta.sub.forEach(s=>{
+          const card = document.createElement('div');
+          card.className = 'choice-card';
+          card.innerHTML = `<h3>${s.label}</h3>`;
+          card.onclick = ()=>{
+            document.querySelectorAll('#subGrid .choice-card').forEach(c=>c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedSub = s.key;
+            document.getElementById('step2Next').disabled = false;
+          };
+          subGrid.appendChild(card);
+        });
+      } else if(meta.needsLang){
+        document.getElementById('step2Title').textContent = "Qaysi dasturlash tilida ishlaysiz?";
+        document.getElementById('step2Sub').textContent = "Eng ko'p ishlatadigan tilingizni tanlang.";
+        langGrid.style.display = 'flex';
+        LANGS.forEach(l=>{
+          const chip = document.createElement('div');
+          chip.className = 'chip';
+          chip.textContent = l;
+          chip.onclick = ()=>{
+            document.querySelectorAll('#langGrid .chip').forEach(c=>c.classList.remove('selected'));
+            chip.classList.add('selected');
+            selectedLang = l;
+            document.getElementById('step2Next').disabled = false;
+          };
+          langGrid.appendChild(chip);
+        });
+      }
+      showStep('step2');
+    }
+
+    function goStep3(){
+      prepareQuiz();
+      showStep('step3');
+    }
+
+    function goBackFromQuiz(){
+      const meta = fieldMeta(selectedField);
+      if(meta.needsSub || meta.needsLang){ showStep('step2'); }
+      else { showStep('step1'); }
+    }
+
+    // ---------- Quiz ----------
+    function quizKey(){
+      const meta = fieldMeta(selectedField);
+      if(meta.needsSub) return selectedSub; // frontend / backend
+      if(meta.needsLang){
+        const l = (selectedLang || '').toLowerCase();
+        return QUIZ_BANK[l] ? l : 'generic';
+      }
+      return selectedField;
+    }
+
+    function prepareQuiz(){
+      currentQuiz = QUIZ_BANK[quizKey()] || QUIZ_BANK.generic;
+      quizAnswers = new Array(currentQuiz.length).fill(null);
+      renderQuiz();
+    }
+
+    function renderQuiz(){
+      const area = document.getElementById('quizArea');
+      area.innerHTML = '';
+      currentQuiz.forEach((q, qi)=>{
+        const card = document.createElement('div');
+        card.className = 'q-card';
+        const num = document.createElement('div');
+        num.className = 'q-num';
+        num.textContent = (qi+1) + '-savol / 3';
+        const h3 = document.createElement('h3');
+        h3.textContent = q.q;
+        card.appendChild(num); card.appendChild(h3);
+        q.o.forEach((opt, oi)=>{
+          const label = document.createElement('label');
+          label.className = 'opt';
+          label.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> <span>${opt}</span>`;
+          label.querySelector('input').addEventListener('change', ()=>{
+            quizAnswers[qi] = oi;
+            card.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
+            label.classList.add('selected');
+          });
+          card.appendChild(label);
+        });
+        area.appendChild(card);
+      });
+    }
+
+    function submitQuiz(){
+      if(quizAnswers.some(a=>a===null)){
+        alert("Iltimos, barcha savollarga javob bering.");
+        return;
+      }
+      let correct = 0;
+      currentQuiz.forEach((q,i)=>{ if(quizAnswers[i]===q.c) correct++; });
+
+      const resultBox = document.getElementById('resultBox');
+      const badge = document.getElementById('resultBadge');
+      const title = document.getElementById('resultTitle');
+      const text = document.getElementById('resultText');
+      const btn = document.getElementById('resultBtn');
+
+      if(correct >= PASS_THRESHOLD){
+        resultBox.className = 'result-box pass';
+        badge.textContent = '✓';
+        title.textContent = 'Tabriklaymiz!';
+        text.textContent = `Siz ${correct}/3 to'g'ri javob berdingiz. Endi o'z sohangiz guruhiga qo'shilasiz.`;
+        btn.textContent = 'Chatga o\'tish';
+        btn.onclick = finishOnboarding;
+        saveProfileAndFinishLater = true;
+        showStep('stepResult');
+      } else {
+        resultBox.className = 'result-box fail';
+        badge.textContent = '✕';
+        title.textContent = "Bu safar chiqmadi";
+        text.textContent = `Siz ${correct}/3 to'g'ri javob berdingiz. Kamida ${PASS_THRESHOLD} ta kerak. Qaytadan urinib ko'ring.`;
+        btn.textContent = 'Qaytadan urinish';
+        btn.onclick = ()=>{ prepareQuiz(); showStep('step3'); };
+        showStep('stepResult');
+      }
+    }
+
+    async function finishOnboarding(){
+      const btn = document.getElementById('resultBtn');
+      btn.disabled = true; btn.textContent = 'Saqlanmoqda...';
+      try{
+        const meta = fieldMeta(selectedField);
+        // set(..., {merge:true}) ishlatiladi, chunki ba'zi eski akkountlarda
+        // (Firestore yaratilishidan oldin ro'yxatdan o'tganlarda) hujjat umuman
+        // mavjud bo'lmasligi mumkin — update() bunday holatda xato beradi.
+        await userDocRef.set({
+          nickname: (localStorage.getItem('chat_username') || currentUser.email.split('@')[0]),
+          field: selectedField,
+          subfield: meta.needsSub ? selectedSub : (meta.needsLang ? selectedLang : null),
+          profileComplete: true,
+          testPassed: true,
+          completedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+        window.location.href = 'index.html';
+      }catch(e){
+        alert("Saqlashda xatolik: " + e.message);
+        btn.disabled = false; btn.textContent = "Chatga o'tish";
+      }
+    }
+  </script>
+</body>
+</html>

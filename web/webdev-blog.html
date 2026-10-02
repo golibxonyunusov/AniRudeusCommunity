@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kodxona — Web dasturlash asoslari</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1115; --surface:#171a21; --surface2:#1e222b; --border:#2a2f3a;
+  --text:#e7e9ee; --muted:#8b93a3;
+  --html:#e37933; --css:#4f8ff0; --js:#f0c94f;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  line-height:1.6;
+}
+h1,h2,h3,.brand{font-family:"Fraunces",serif}
+code,.mono,.tag,.nav-item .path{font-family:"JetBrains Mono",monospace}
+
+/* layout */
+.app{display:flex; min-height:100vh}
+.sidebar{
+  width:250px; flex-shrink:0; background:var(--surface);
+  border-right:1px solid var(--border); padding:24px 0;
+  position:sticky; top:0; height:100vh; overflow-y:auto;
+}
+.brand{padding:0 20px 20px; font-size:22px; font-weight:700; display:flex; align-items:center; gap:10px}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--html)}
+.nav-group{padding:0 12px; margin-bottom:6px}
+.nav-label{font-size:11px; color:var(--muted); padding:14px 8px 6px; letter-spacing:.02em}
+.nav-item{
+  display:flex; align-items:center; gap:8px; width:100%; text-align:left;
+  padding:8px 8px; border-radius:6px; border:none; background:none; color:var(--muted);
+  cursor:pointer; font-size:14.5px; font-family:inherit;
+}
+.nav-item:hover{background:var(--surface2); color:var(--text)}
+.nav-item.active{background:var(--surface2); color:var(--text)}
+.nav-item .sq{width:8px;height:8px;border-radius:2px; flex-shrink:0}
+.nav-item .path{font-size:11px; color:var(--muted); margin-left:auto}
+
+main{flex:1; min-width:0}
+.page{display:none; animation:fade .25s ease}
+.page.active{display:block}
+@keyframes fade{from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:translateY(0)}}
+
+/* hero */
+.hero{
+  padding:80px 56px 56px; border-bottom:1px solid var(--border);
+  background:radial-gradient(600px 300px at 85% -10%, rgba(227,121,51,.08), transparent);
+}
+.hero .kicker{color:var(--muted); font-size:14px; margin-bottom:14px}
+.hero h1{font-size:48px; font-weight:600; line-height:1.15; margin:0 0 18px; max-width:14ch}
+.hero p{color:var(--muted); font-size:17px; max-width:56ch; margin:0 0 28px}
+.hero .cta{display:flex; gap:12px; flex-wrap:wrap}
+.btn{
+  padding:11px 20px; border-radius:8px; border:1px solid var(--border); cursor:pointer;
+  font-size:14.5px; font-family:inherit; background:var(--surface2); color:var(--text);
+}
+.btn.primary{background:var(--html); border-color:var(--html); color:#1a1000; font-weight:600}
+
+.content{padding:48px 56px 80px; max-width:840px}
+
+/* article cards on home */
+.cards{display:grid; grid-template-columns:repeat(3,1fr); gap:18px; padding:0 56px 64px}
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:10px;
+  padding:22px; cursor:pointer; transition:border-color .15s;
+}
+.card:hover{border-color:var(--edge,var(--muted))}
+.card .sq{width:10px;height:10px;border-radius:2px; margin-bottom:14px}
+.card h3{margin:0 0 8px; font-size:19px; font-weight:600}
+.card p{margin:0; color:var(--muted); font-size:14px}
+.card .meta{margin-top:16px; font-size:12px; color:var(--muted)}
+
+/* article body */
+.article h2{font-size:30px; margin:0 0 6px; font-weight:600}
+.article .lede{color:var(--muted); font-size:16px; margin:0 0 36px}
+.section{margin-bottom:36px}
+.section h3{font-size:20px; margin:0 0 10px; font-weight:600}
+.section p{margin:0 0 14px; color:#c6cad4}
+.section ul{color:#c6cad4; padding-left:20px}
+.section li{margin-bottom:6px}
+
+pre{
+  background:#0a0c10; border:1px solid var(--border); border-radius:8px;
+  padding:16px 18px; overflow-x:auto; font-size:13.5px; margin:0 0 18px;
+}
+pre code{color:#dbe0ea}
+.tk-tag{color:#f0c94f}
+.tk-attr{color:#4f8ff0}
+.tk-str{color:#8fd68c}
+.tk-cmt{color:#6b7280}
+.tk-kw{color:#e37933}
+.tk-fn{color:#4f8ff0}
+
+.callout{
+  border-left:3px solid var(--js); background:var(--surface); border-radius:0 8px 8px 0;
+  padding:14px 18px; font-size:14.5px; color:#c6cad4; margin:0 0 18px;
+}
+.badge{display:inline-block; font-size:12px; padding:3px 9px; border-radius:20px; margin-bottom:14px}
+
+footer{padding:32px 56px; border-top:1px solid var(--border); color:var(--muted); font-size:13px}
+
+@media (max-width:820px){
+  .app{flex-direction:column}
+  .sidebar{width:100%; height:auto; position:relative; padding:16px 0}
+  .hero{padding:48px 24px 36px}
+  .hero h1{font-size:34px}
+  .content{padding:32px 24px 56px}
+  .cards{grid-template-columns:1fr; padding:0 24px 48px}
+  footer{padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="sidebar">
+    <div class="brand"><span class="dot"></span>Kodxona</div>
+
+    <div class="nav-group">
+      <button class="nav-item active" data-page="home" onclick="go('home')">
+        <span class="sq" style="background:#8b93a3"></span> Bosh sahifa
+      </button>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Darsliklar</div>
+      <button class="nav-item" data-page="html" onclick="go('html')">
+        <span class="sq" style="background:var(--html)"></span> HTML asoslari <span class="path">.html</span>
+      </button>
+      <button class="nav-item" data-page="css" onclick="go('css')">
+        <span class="sq" style="background:var(--css)"></span> CSS asoslari <span class="path">.css</span>
+      </button>
+      <button class="nav-item" data-page="js" onclick="go('js')">
+        <span class="sq" style="background:var(--js)"></span> JavaScript asoslari <span class="path">.js</span>
+      </button>
+    </div>
+  </nav>
+
+  <main>
+
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <div class="kicker">Kodxona / boshlang'ich kurs</div>
+        <h1>Veb dasturlashni noldan o'rganing</h1>
+        <p>HTML, CSS va JavaScript — har bir veb sayt shu uchta tilga tayanadi. Bu yerda ularning asoslarini sodda tilda, real misollar bilan tushuntiramiz.</p>
+        <div class="cta">
+          <button class="btn primary" onclick="go('html')">HTML'dan boshlash</button>
+          <button class="btn" onclick="go('js')">JavaScript'ga o'tish</button>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card" style="--edge:var(--html)" onclick="go('html')">
+          <div class="sq" style="background:var(--html)"></div>
+          <h3>HTML asoslari</h3>
+          <p>Teglar, elementlar, atributlar va sahifa strukturasi qanday quriladi.</p>
+          <div class="meta">6 bo'lim · boshlang'ich daraja</div>
+        </div>
+        <div class="card" style="--edge:var(--css)" onclick="go('css')">
+          <div class="sq" style="background:var(--css)"></div>
+          <h3>CSS asoslari</h3>
+          <p>Selektorlar, box model, flexbox va saytga rang-tus berish.</p>
+          <div class="meta">6 bo'lim · boshlang'ich daraja</div>
+        </div>
+        <div class="card" style="--edge:var(--js)" onclick="go('js')">
+          <div class="sq" style="background:var(--js)"></div>
+          <h3>JavaScript asoslari</h3>
+          <p>O'zgaruvchilar, funksiyalar va sahifani interaktiv qilish.</p>
+          <div class="meta">6 bo'lim · boshlang'ich daraja</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HTML -->
+    <section class="page" id="page-html">
+      <div class="content article">
+        <span class="badge" style="background:rgba(227,121,51,.15); color:var(--html)">HTML</span>
+        <h2>HTML asoslari</h2>
+        <p class="lede">HTML (HyperText Markup Language) — sahifaning skeleti. U matn, rasm va boshqa elementlarni brauzerga qanday joylashtirishni aytadi.</p>
+
+        <div class="section">
+          <h3>1. Sahifa strukturasi</h3>
+          <p>Har bir HTML fayl quyidagi asosiy qismlardan iborat bo'ladi:</p>
+          <pre><code>&lt;<span class="tk-tag">!DOCTYPE html</span>&gt;
+&lt;<span class="tk-tag">html</span> <span class="tk-attr">lang</span>=<span class="tk-str">"uz"</span>&gt;
+  &lt;<span class="tk-tag">head</span>&gt;
+    &lt;<span class="tk-tag">title</span>&gt;Mening saytim&lt;/<span class="tk-tag">title</span>&gt;
+  &lt;/<span class="tk-tag">head</span>&gt;
+  &lt;<span class="tk-tag">body</span>&gt;
+    &lt;<span class="tk-tag">h1</span>&gt;Salom, dunyo!&lt;/<span class="tk-tag">h1</span>&gt;
+  &lt;/<span class="tk-tag">body</span>&gt;
+&lt;/<span class="tk-tag">html</span>&gt;</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>2. Teglar va elementlar</h3>
+          <p>Teg — burchakli qavslar ichidagi buyruq (<code>&lt;p&gt;</code>), element esa ochuvchi va yopuvchi teg orasidagi butun blok.</p>
+          <ul>
+            <li><code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> — sarlavhalar, kattadan kichikkacha</li>
+            <li><code>&lt;p&gt;</code> — matn abzatsi</li>
+            <li><code>&lt;a href="..."&gt;</code> — havola</li>
+            <li><code>&lt;img src="..."&gt;</code> — rasm, yopuvchi tegi yo'q</li>
+            <li><code>&lt;div&gt;</code> va <code>&lt;span&gt;</code> — bo'sh konteynerlar</li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3>3. Atributlar</h3>
+          <p>Atributlar elementga qo'shimcha ma'lumot beradi va ochuvchi teg ichida yoziladi:</p>
+          <pre><code>&lt;<span class="tk-tag">a</span> <span class="tk-attr">href</span>=<span class="tk-str">"https://example.com"</span> <span class="tk-attr">target</span>=<span class="tk-str">"_blank"</span>&gt;
+  Saytga o'tish
+&lt;/<span class="tk-tag">a</span>&gt;</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>4. Ro'yxatlar va jadvallar</h3>
+          <pre><code>&lt;<span class="tk-tag">ul</span>&gt;
+  &lt;<span class="tk-tag">li</span>&gt;Non&lt;/<span class="tk-tag">li</span>&gt;
+  &lt;<span class="tk-tag">li</span>&gt;Sut&lt;/<span class="tk-tag">li</span>&gt;
+&lt;/<span class="tk-tag">ul</span>&gt;</code></pre>
+          <p><code>&lt;ul&gt;</code> — tartibsiz ro'yxat, <code>&lt;ol&gt;</code> — tartibli ro'yxat, ikkalasi ham <code>&lt;li&gt;</code> elementlaridan iborat bo'ladi.</p>
+        </div>
+
+        <div class="section">
+          <h3>5. Formalar</h3>
+          <p>Foydalanuvchidan ma'lumot olish uchun <code>&lt;form&gt;</code> va uning ichidagi <code>&lt;input&gt;</code>, <code>&lt;button&gt;</code> kabi elementlar ishlatiladi.</p>
+        </div>
+
+        <div class="callout">💡 Maslahat: HTML mazmun (content) uchun, dizayn uchun CSS, harakat uchun JavaScript ishlatiladi — ularni aralashtirmang.</div>
+
+        <div class="section">
+          <h3>6. Semantik teglar</h3>
+          <p><code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;footer&gt;</code> kabi teglar sahifa qismlarining ma'nosini bildiradi va qidiruv tizimlari uchun ham foydali.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CSS -->
+    <section class="page" id="page-css">
+      <div class="content article">
+        <span class="badge" style="background:rgba(79,143,240,.15); color:var(--css)">CSS</span>
+        <h2>CSS asoslari</h2>
+        <p class="lede">CSS (Cascading Style Sheets) — HTML elementlariga rang, o'lcham va joylashuv beradi. U sahifaning "kiyimi".</p>
+
+        <div class="section">
+          <h3>1. Selektorlar</h3>
+          <pre><code><span class="tk-tag">h1</span> {
+  <span class="tk-attr">color</span>: <span class="tk-str">navy</span>;
+}
+<span class="tk-fn">.card</span> {
+  <span class="tk-attr">padding</span>: <span class="tk-str">16px</span>;
+}
+<span class="tk-fn">#header</span> {
+  <span class="tk-attr">background</span>: <span class="tk-str">#171a21</span>;
+}</code></pre>
+          <p>Teg nomi, <code>.klass</code> yoki <code>#id</code> orqali elementni tanlab, unga stil beriladi.</p>
+        </div>
+
+        <div class="section">
+          <h3>2. Box model</h3>
+          <p>Har bir element to'rtta qatlamdan iborat: <strong>content</strong> → <strong>padding</strong> → <strong>border</strong> → <strong>margin</strong>. Bu tushunchani bilmasdan layout qurish qiyin.</p>
+        </div>
+
+        <div class="section">
+          <h3>3. Flexbox bilan joylashtirish</h3>
+          <pre><code><span class="tk-fn">.container</span> {
+  <span class="tk-attr">display</span>: <span class="tk-str">flex</span>;
+  <span class="tk-attr">justify-content</span>: <span class="tk-str">space-between</span>;
+  <span class="tk-attr">align-items</span>: <span class="tk-str">center</span>;
+  <span class="tk-attr">gap</span>: <span class="tk-str">12px</span>;
+}</code></pre>
+          <p>Flexbox elementlarni bir qatorda yoki ustunda tekis joylashtirish uchun eng ko'p ishlatiladigan usul.</p>
+        </div>
+
+        <div class="section">
+          <h3>4. Ranglar va o'lchov birliklari</h3>
+          <ul>
+            <li><code>px</code> — qattiq piksel o'lcham</li>
+            <li><code>%</code>, <code>vw</code>, <code>vh</code> — nisbiy o'lchamlar</li>
+            <li><code>rem</code> — asosiy shrift o'lchamiga nisbatan</li>
+            <li>Rang: nom (<code>red</code>), hex (<code>#e37933</code>), yoki <code>rgb()</code></li>
+          </ul>
+        </div>
+
+        <div class="section">
+          <h3>5. Responsive dizayn</h3>
+          <pre><code><span class="tk-kw">@media</span> (<span class="tk-attr">max-width</span>: <span class="tk-str">600px</span>) {
+  <span class="tk-fn">.card</span> { <span class="tk-attr">flex-direction</span>: <span class="tk-str">column</span>; }
+}</code></pre>
+          <p>Media query yordamida sayt turli ekran o'lchamlariga moslashadi — mobil, planshet, kompyuter.</p>
+        </div>
+
+        <div class="callout">💡 Maslahat: butun saytga bitta shrift oilasi va 4–5 ta rangdan iborat palitra tanlang — bu dizaynni izchil qiladi.</div>
+
+        <div class="section">
+          <h3>6. Grid layout</h3>
+          <p>Murakkab, ikki o'lchamli joylashuvlar uchun <code>display: grid</code> flexbox'dan ko'ra qulayroq — ustun va qatorlarni bir vaqtda boshqarish imkonini beradi.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- JS -->
+    <section class="page" id="page-js">
+      <div class="content article">
+        <span class="badge" style="background:rgba(240,201,79,.15); color:var(--js)">JavaScript</span>
+        <h2>JavaScript asoslari</h2>
+        <p class="lede">JavaScript sahifani "jonlantiradi" — tugma bosilganda, forma to'ldirilganda yoki ma'lumot o'zgarganda nima bo'lishini shu til belgilaydi.</p>
+
+        <div class="section">
+          <h3>1. O'zgaruvchilar</h3>
+          <pre><code><span class="tk-kw">let</span> ism = <span class="tk-str">"Aziz"</span>;
+<span class="tk-kw">const</span> yosh = <span class="tk-str">25</span>;
+<span class="tk-kw">let</span> faol = <span class="tk-str">true</span>;</code></pre>
+          <p><code>let</code> — qiymati o'zgarishi mumkin bo'lgan o'zgaruvchi, <code>const</code> — o'zgarmas qiymat.</p>
+        </div>
+
+        <div class="section">
+          <h3>2. Funksiyalar</h3>
+          <pre><code><span class="tk-kw">function</span> <span class="tk-fn">salomlash</span>(ism) {
+  <span class="tk-kw">return</span> <span class="tk-str">`Salom, ${ism}!`</span>;
+}
+
+<span class="tk-fn">salomlash</span>(<span class="tk-str">"Dunyo"</span>); <span class="tk-cmt">// "Salom, Dunyo!"</span></code></pre>
+        </div>
+
+        <div class="section">
+          <h3>3. Shartlar va sikllar</h3>
+          <pre><code><span class="tk-kw">if</span> (yosh &gt;= <span class="tk-str">18</span>) {
+  <span class="tk-fn">console</span>.log(<span class="tk-str">"Kattasiz"</span>);
+} <span class="tk-kw">else</span> {
+  <span class="tk-fn">console</span>.log(<span class="tk-str">"Yoshsiz"</span>);
+}
+
+<span class="tk-kw">for</span> (<span class="tk-kw">let</span> i = <span class="tk-str">0</span>; i &lt; <span class="tk-str">5</span>; i++) {
+  <span class="tk-fn">console</span>.log(i);
+}</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>4. DOM bilan ishlash</h3>
+          <p>DOM (Document Object Model) — HTML sahifaning JavaScript orqali boshqariladigan ko'rinishi:</p>
+          <pre><code><span class="tk-kw">const</span> tugma = <span class="tk-fn">document</span>.querySelector(<span class="tk-str">"button"</span>);
+tugma.addEventListener(<span class="tk-str">"click"</span>, () =&gt; {
+  <span class="tk-fn">alert</span>(<span class="tk-str">"Bosildi!"</span>);
+});</code></pre>
+        </div>
+
+        <div class="section">
+          <h3>5. Massivlar va obyektlar</h3>
+          <pre><code><span class="tk-kw">const</span> mevalar = [<span class="tk-str">"olma"</span>, <span class="tk-str">"nok"</span>, <span class="tk-str">"uzum"</span>];
+<span class="tk-kw">const</span> foydalanuvchi = {
+  ism: <span class="tk-str">"Laylo"</span>,
+  yosh: <span class="tk-str">22</span>
+};</code></pre>
+        </div>
+
+        <div class="callout">💡 Maslahat: avval HTML va CSS'ni mustahkamlang — JavaScript ular ustiga qurilgani uchun DOM tushunchasi tezroq yotib qoladi.</div>
+
+        <div class="section">
+          <h3>6. Zamonaviy JS (ES6+)</h3>
+          <p>Arrow function (<code>() =&gt; {}</code>), template literal (<code>`${...}`</code>) va <code>let</code>/<code>const</code> — bugungi kunda eng ko'p ishlatiladigan zamonaviy sintaksis.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>Kodxona — veb dasturlash asoslari bo'yicha qo'llanma.</footer>
+
+<script>
+function go(pageId){
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + pageId).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.querySelector('.nav-item[data-page="' + pageId + '"]').classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>

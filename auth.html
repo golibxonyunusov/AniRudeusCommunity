@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kirish — AniRudeus Community</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+  :root{
+    --bg-0:#040f1c;
+    --bg-1:#071c30;
+    --panel:#0b2540;
+    --panel-2:#0e2c4c;
+    --line:rgba(255,255,255,0.08);
+    --gold:#ffd400;
+    --mint:#35e6a0;
+    --text:#eaf2fb;
+    --muted:#8ca3bd;
+    --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,Arial,sans-serif;
+    background:
+      radial-gradient(1100px 700px at 85% -10%, rgba(255,212,0,0.08), transparent 60%),
+      radial-gradient(900px 600px at -10% 110%, rgba(53,230,160,0.06), transparent 55%),
+      linear-gradient(180deg,var(--bg-0),var(--bg-1));
+    color:var(--text);
+    min-height:100%;
+    display:flex;
+  }
+  a{color:inherit}
+
+  .shell{
+    display:grid;
+    grid-template-columns:1.1fr 1fr;
+    width:100%;
+    min-height:100vh;
+  }
+
+  /* ---------- Left brand panel ---------- */
+  .brand-panel{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    padding:48px;
+    overflow:hidden;
+    border-right:1px solid var(--line);
+  }
+  .brand-panel .top a{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:20px;
+    text-decoration:none;
+    color:var(--text);
+  }
+  .brand-panel .top a span{color:var(--gold)}
+
+  .brand-copy{max-width:420px;position:relative;z-index:2}
+  .brand-copy h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:40px;
+    line-height:1.12;
+    margin:0 0 16px;
+    font-weight:600;
+  }
+  .brand-copy p{
+    color:var(--muted);
+    font-size:16px;
+    line-height:1.6;
+    margin:0;
+  }
+
+  .network{position:absolute;inset:0;z-index:1;opacity:0.9}
+
+  .brand-panel .bottom{position:relative;z-index:2;display:flex;gap:28px;color:var(--muted);font-size:13px}
+  .brand-panel .bottom b{color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:22px;display:block}
+
+  /* ---------- Right auth panel ---------- */
+  .auth-panel{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px;
+  }
+  .auth-card{
+    width:100%;
+    max-width:380px;
+  }
+  .tabs{
+    display:flex;
+    gap:4px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:4px;
+    margin-bottom:28px;
+  }
+  .tabs button{
+    flex:1;
+    padding:10px 0;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    border-radius:9px;
+    cursor:pointer;
+    transition:background .15s ease, color .15s ease;
+  }
+  .tabs button.active{background:var(--gold);color:#0b1220}
+
+  h2.form-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:24px;
+    margin:0 0 6px;
+    font-weight:600;
+  }
+  .form-sub{color:var(--muted);font-size:14px;margin:0 0 22px}
+
+  .field{margin-bottom:16px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input{
+    width:100%;
+    padding:13px 14px;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    color:var(--text);
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s ease;
+  }
+  .field input:focus{border-color:var(--gold)}
+  .field .hint{font-size:12px;color:var(--muted);margin-top:6px}
+
+  .submit-btn{
+    width:100%;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    background:var(--gold);
+    color:#0b1220;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:6px;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .15s ease;
+  }
+  .submit-btn:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(255,212,0,0.18)}
+  .submit-btn:disabled{opacity:.55;cursor:default;transform:none;box-shadow:none}
+
+  .msg{
+    margin-top:16px;
+    padding:11px 13px;
+    border-radius:9px;
+    font-size:13.5px;
+    line-height:1.5;
+    display:none;
+  }
+  .msg.show{display:block}
+  .msg.error{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#ffb3b3}
+  .msg.success{background:rgba(53,230,160,0.1);border:1px solid rgba(53,230,160,0.3);color:#a8f5d6}
+
+  .switch-line{text-align:center;margin-top:20px;font-size:13.5px;color:var(--muted)}
+  .switch-line button{background:none;border:none;color:var(--gold);font-weight:600;cursor:pointer;font-size:13.5px}
+
+  form{display:none}
+  form.active{display:block}
+
+  @media(max-width:880px){
+    .shell{grid-template-columns:1fr}
+    .brand-panel{display:none}
+    .auth-panel{padding:24px}
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="brand-panel">
+      <div class="top"><a href="index.html">AniRudeus<span>.</span></a></div>
+
+      <svg class="network" viewBox="0 0 600 700" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <g stroke="rgba(255,212,0,0.28)" stroke-width="1">
+          <line x1="60" y1="120" x2="220" y2="220"/>
+          <line x1="220" y1="220" x2="180" y2="380"/>
+          <line x1="220" y1="220" x2="400" y2="180"/>
+          <line x1="400" y1="180" x2="520" y2="300"/>
+          <line x1="180" y1="380" x2="340" y2="440"/>
+          <line x1="340" y1="440" x2="520" y2="300"/>
+          <line x1="340" y1="440" x2="300" y2="600"/>
+          <line x1="180" y1="380" x2="70" y2="520"/>
+          <line x1="300" y1="600" x2="470" y2="640"/>
+        </g>
+        <g fill="#ffd400">
+          <circle cx="60" cy="120" r="5"/>
+          <circle cx="220" cy="220" r="7"/>
+          <circle cx="400" cy="180" r="5"/>
+          <circle cx="520" cy="300" r="6"/>
+          <circle cx="180" cy="380" r="6"/>
+          <circle cx="340" cy="440" r="7"/>
+          <circle cx="70" cy="520" r="5"/>
+          <circle cx="300" cy="600" r="6"/>
+          <circle cx="470" cy="640" r="5"/>
+        </g>
+      </svg>
+
+      <div class="brand-copy">
+        <h1>Dasturchilar, dizaynerlar, strimerlar va geymerlar — bitta joyda.</h1>
+        <p>Bitta nickname, bitta parol. Ro'yxatdan o'tib, o'z sohangizni tanlang va shu soha guruhiga qo'shiling.</p>
+      </div>
+
+      <div class="bottom">
+        <div><b>6</b>soha yo'nalishi</div>
+        <div><b>3</b>ta boshlang'ich test savoli</div>
+        <div><b>1</b>ta jamoa</div>
+      </div>
+    </div>
+
+    <div class="auth-panel">
+      <div class="auth-card">
+        <div class="tabs">
+          <button id="tabLogin" class="active" onclick="switchTab('login')">Kirish</button>
+          <button id="tabRegister" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
+        </div>
+
+        <!-- LOGIN -->
+        <form id="loginForm" class="active" onsubmit="return handleLogin(event)">
+          <h2 class="form-title">Xush kelibsiz</h2>
+          <p class="form-sub">Nickname va parolingiz bilan kiring.</p>
+
+          <div class="field">
+            <label for="loginNick">Nickname</label>
+            <input id="loginNick" type="text" autocomplete="username" placeholder="masalan: anirudeus" required>
+          </div>
+          <div class="field">
+            <label for="loginPass">Parol</label>
+            <input id="loginPass" type="password" autocomplete="current-password" placeholder="Parolingiz" required>
+          </div>
+
+          <button type="submit" class="submit-btn" id="loginBtn">Kirish</button>
+          <div class="msg" id="loginMsg"></div>
+
+          <div class="switch-line">Akkountingiz yo'qmi? <button type="button" onclick="switchTab('register')">Ro'yxatdan o'ting</button></div>
+        </form>
+
+        <!-- REGISTER -->
+        <form id="registerForm" onsubmit="return handleRegister(event)">
+          <h2 class="form-title">Jamoaga qo'shiling</h2>
+          <p class="form-sub">Faqat nickname va parol kifoya.</p>
+
+          <div class="field">
+            <label for="regNick">Nickname</label>
+            <input id="regNick" type="text" autocomplete="username" placeholder="masalan: anirudeus" minlength="3" maxlength="20" required>
+            <div class="hint">Faqat lotin harflari, raqam va pastki chiziq (_). Kamida 3 belgi.</div>
+          </div>
+          <div class="field">
+            <label for="regPass">Parol</label>
+            <input id="regPass" type="password" autocomplete="new-password" placeholder="Kamida 6 belgi" minlength="6" required>
+          </div>
+          <div class="field">
+            <label for="regPass2">Parolni takrorlang</label>
+            <input id="regPass2" type="password" autocomplete="new-password" placeholder="Parolni qayta yozing" minlength="6" required>
+          </div>
+
+          <button type="submit" class="submit-btn" id="registerBtn">Ro'yxatdan o'tish</button>
+          <div class="msg" id="registerMsg"></div>
+
+          <div class="switch-line">Akkountingiz bormi? <button type="button" onclick="switchTab('login')">Kirish</button></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script>
+    function switchTab(which){
+      const isLogin = which === 'login';
+      document.getElementById('tabLogin').classList.toggle('active', isLogin);
+      document.getElementById('tabRegister').classList.toggle('active', !isLogin);
+      document.getElementById('loginForm').classList.toggle('active', isLogin);
+      document.getElementById('registerForm').classList.toggle('active', !isLogin);
+    }
+
+    function showMsg(elId, text, type){
+      const el = document.getElementById(elId);
+      el.textContent = text;
+      el.className = 'msg show ' + type;
+    }
+    function clearMsg(elId){
+      const el = document.getElementById(elId);
+      el.className = 'msg';
+    }
+
+    function friendlyError(err){
+      const code = err && err.code;
+      switch(code){
+        case 'auth/email-already-in-use': return "Bu nickname band, boshqasini tanlang.";
+        case 'auth/weak-password': return "Parol juda oddiy, kamida 6 belgi bo'lsin.";
+        case 'auth/invalid-email': return "Nickname noto'g'ri belgilar bilan yozilgan.";
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential': return "Nickname yoki parol noto'g'ri.";
+        case 'auth/too-many-requests': return "Juda ko'p urinish. Birozdan keyin qayta urinib ko'ring.";
+        default: return "Xatolik yuz berdi: " + (err && err.message ? err.message : 'noma\'lum xatolik');
+      }
+    }
+
+    async function routeAfterLogin(uid, fallbackNickname){
+      const doc = await db.collection('users').doc(uid).get();
+      if(!doc.exists || !doc.data().profileComplete){
+        window.location.href = 'onboarding.html';
+      } else {
+        window.location.href = 'index.html';
+      }
+    }
+
+    async function handleLogin(e){
+      e.preventDefault();
+      clearMsg('loginMsg');
+      const nickRaw = document.getElementById('loginNick').value;
+      const pass = document.getElementById('loginPass').value;
+      const btn = document.getElementById('loginBtn');
+      const nick = sanitizeNickname(nickRaw);
+      if(nick.length < 3){ showMsg('loginMsg', "Nickname kamida 3 belgidan iborat bo'lsin.", 'error'); return false; }
+
+      btn.disabled = true; btn.textContent = 'Tekshirilmoqda...';
+      try{
+        const cred = await auth.signInWithEmailAndPassword(nickToEmail(nick), pass);
+        localStorage.setItem('chat_username', nick);
+        await routeAfterLogin(cred.user.uid, nick);
+      }catch(err){
+        showMsg('loginMsg', friendlyError(err), 'error');
+      }finally{
+        btn.disabled = false; btn.textContent = 'Kirish';
+      }
+      return false;
+    }
+
+    async function handleRegister(e){
+      e.preventDefault();
+      clearMsg('registerMsg');
+      const nickRaw = document.getElementById('regNick').value;
+      const pass = document.getElementById('regPass').value;
+      const pass2 = document.getElementById('regPass2').value;
+      const btn = document.getElementById('registerBtn');
+      const nick = sanitizeNickname(nickRaw);
+
+      if(nick.length < 3){ showMsg('registerMsg', "Nickname kamida 3 ta harf/raqamdan iborat bo'lsin.", 'error'); return false; }
+      if(pass.length < 6){ showMsg('registerMsg', "Parol kamida 6 belgidan iborat bo'lsin.", 'error'); return false; }
+      if(pass !== pass2){ showMsg('registerMsg', "Parollar bir xil emas.", 'error'); return false; }
+
+      btn.disabled = true; btn.textContent = 'Yaratilmoqda...';
+      try{
+        const cred = await auth.createUserWithEmailAndPassword(nickToEmail(nick), pass);
+        await db.collection('users').doc(cred.user.uid).set({
+          nickname: nickRaw.trim(),
+          nicknameLower: nick,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          role: 'user',
+          profileComplete: false,
+          field: null,
+          subfield: null,
+          bio: '',
+          photo: ''
+        });
+        localStorage.setItem('chat_username', nickRaw.trim());
+        showMsg('registerMsg', "Hisob yaratildi! Endi sohangizni tanlaymiz...", 'success');
+        setTimeout(()=>{ window.location.href = 'onboarding.html'; }, 700);
+      }catch(err){
+        showMsg('registerMsg', friendlyError(err), 'error');
+        btn.disabled = false; btn.textContent = "Ro'yxatdan o'tish";
+      }
+      return false;
+    }
+
+    // Agar allaqachon tizimga kirgan bo'lsa, avtomatik yo'naltirish
+    auth.onAuthStateChanged(function(user){
+      if(user){
+        db.collection('users').doc(user.uid).get().then(doc=>{
+          if(doc.exists && doc.data().profileComplete){
+            window.location.href = 'index.html';
+          } else if(doc.exists){
+            window.location.href = 'onboarding.html';
+          }
+        }).catch(()=>{});
+      }
+    });
+  </script>
+</body>
+</html>

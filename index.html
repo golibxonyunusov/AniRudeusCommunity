@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat — AniRudeus Community</title>
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    body{ display:flex; flex-direction:column; height:100vh; overflow:hidden; }
+
+    .app-shell{ flex:1; display:flex; min-height:0; }
+
+    /* ---------- Sidebar ---------- */
+    .sidebar{
+      width:230px;
+      flex-shrink:0;
+      background:var(--panel);
+      border-right:1px solid var(--line);
+      padding:22px 14px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      overflow-y:auto;
+    }
+    .sidebar .side-label{ color:var(--muted); font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; padding:0 6px 4px; }
+    .sidebar .btn{
+      width:100%;
+      justify-content:flex-start;
+      background:var(--panel-2);
+      color:var(--text);
+      border:1px solid var(--line);
+      font-weight:600;
+      text-align:left;
+    }
+    .sidebar .btn:hover{ border-color:rgba(255,212,0,0.4); transform:none; box-shadow:none; }
+    .sidebar .btn.active{ background:var(--gold); color:#0b1220; border-color:var(--gold); }
+    .sidebar .group-list{ display:flex; flex-direction:column; gap:8px; }
+
+    /* ---------- Chat area ---------- */
+    .chat-container{ flex:1; display:flex; flex-direction:column; min-width:0; }
+
+    .group-title{
+      padding:14px 26px;
+      border-bottom:1px solid var(--line);
+      background:rgba(4,15,28,0.4);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .group-title .name{
+      font-family:'Space Grotesk',sans-serif;
+      font-weight:600;
+      font-size:16px;
+    }
+    .group-title .mode-toggle{ display:flex; gap:8px; }
+    .group-title .mode-toggle .btn{ padding:8px 14px; font-size:13px; }
+
+    .chat-box{ flex:1; padding:22px 26px; overflow-y:auto; }
+    .chat-box .empty{ color:var(--muted); font-size:14px; }
+
+    .chatMessage{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px 40px 12px 14px;
+      margin-bottom:10px;
+      position:relative;
+      max-width:640px;
+    }
+    .chatMessage .meta{ font-size:12px; color:var(--muted); margin-bottom:5px; }
+    .chatMessage .meta a{ color:var(--gold); font-weight:700; text-decoration:none; }
+    .chatMessage .msg-text{ color:var(--text); word-wrap:break-word; cursor:pointer; line-height:1.5; }
+    .chatMessage button.del{
+      position:absolute; top:10px; right:10px; width:20px; height:20px; border-radius:50%;
+      border:none; background:rgba(255,107,107,0.15); color:var(--danger); cursor:pointer;
+      font-size:12px; line-height:1;
+    }
+    .chatMessage button.del:hover{ background:rgba(255,107,107,0.3); }
+
+    .input-area{
+      display:flex; gap:10px; padding:16px 26px;
+      border-top:1px solid var(--line);
+      background:rgba(4,15,28,0.5);
+    }
+    .input-area input{
+      flex:1; padding:13px 16px; border-radius:10px; border:1px solid var(--line);
+      background:var(--panel); color:var(--text); outline:none; font-size:14.5px;
+      font-family:'Inter',sans-serif;
+    }
+    .input-area input:focus{ border-color:var(--gold); }
+
+    /* ---------- Guruh video-chati ---------- */
+    .video-pane{ flex:1; display:flex; flex-direction:column; min-height:0; }
+    .video-pane .video-note{ padding:10px 26px; font-size:12.5px; color:var(--muted); border-bottom:1px solid var(--line); }
+    .video-pane iframe{ flex:1; width:100%; border:0; background:#000; }
+
+    /* ---------- AI widget ---------- */
+    .ai-modal{
+      display:none;
+      position:fixed; right:18px; bottom:18px;
+      width:520px; height:640px; min-height:240px; max-height:92vh;
+      background:var(--panel); border:1px solid var(--line);
+      border-radius:14px; overflow:hidden; z-index:9999;
+      box-shadow:0 16px 44px rgba(0,0,0,0.5);
+      resize:vertical;
+    }
+    .ai-modal .ai-header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 14px; background:var(--panel-2); color:var(--gold);
+      font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:14px;
+    }
+    .ai-modal .ai-body{ height:calc(100% - 122px); background:#061824; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+    .ai-modal .btn{ padding:7px 12px; font-size:13px; }
+    .ai-msg{ max-width:85%; padding:10px 13px; border-radius:12px; font-size:13.5px; line-height:1.5; word-wrap:break-word; }
+    .ai-msg.user{ align-self:flex-end; background:var(--gold); color:#0b1220; font-weight:600; white-space:pre-wrap; }
+    .ai-msg.bot{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); color:var(--text); }
+    .ai-msg.bot ul{ margin:0 0 8px; padding-left:20px; }
+    .ai-msg.bot p:last-child{ margin-bottom:0; }
+    .ai-msg.bot.error{ border-color:var(--danger); color:#ffb3b3; }
+    .ai-msg.typing{ align-self:flex-start; background:var(--panel); border:1px solid var(--line); color:var(--muted); font-style:italic; }
+    .ai-empty{ color:var(--muted); font-size:13px; text-align:center; margin-top:20px; }
+    .ai-input-row{
+      display:flex; gap:8px; padding:10px 14px;
+      border-top:1px solid var(--line); background:rgba(0,0,0,0.2);
+    }
+    .ai-input-row input{
+      flex:1; padding:10px 12px; border-radius:9px; border:1px solid var(--line);
+      background:var(--panel); color:var(--text); outline:none; font-size:13.5px;
+      font-family:'Inter',sans-serif;
+    }
+    .ai-input-row input:focus{ border-color:var(--gold); }
+
+    @media(max-width:760px){
+      .app-shell{ flex-direction:column; }
+      .sidebar{
+        width:100%; flex-direction:row; overflow-x:auto; border-right:none;
+        border-bottom:1px solid var(--line); padding:12px 14px;
+      }
+      .sidebar .side-label{ display:none; }
+      .sidebar .group-list{ flex-direction:row; }
+      .sidebar .btn{ width:auto; white-space:nowrap; }
+      .group-title, .chat-box, .input-area{ padding-left:16px; padding-right:16px; }
+      .ai-modal{ width:92vw; right:4vw; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="site-nav">
+    <a href="index.html" class="brand">AniRudeus<span>.</span></a>
+
+    <div class="nav-links">
+      <a href="index.html" id="link-home" class="active">Home</a>
+      <a href="web.html" id="link-web">Web</a>
+      <a href="Game.html" id="link-game">Game</a>
+      <a href="help.html" id="link-help">Help<span id="helpBadge" style="display:none; margin-left:5px; background:var(--danger); color:#fff; border-radius:999px; font-size:10.5px; font-weight:700; padding:1px 6px;"></span></a>
+    </div>
+
+    <div class="nav-right">
+      <button id="loginBtn" class="btn ghost">Kirish</button>
+      <button id="logoutBtn" class="btn ghost" style="display:none">Chiqish</button>
+      <span id="displayName" title="Profilni ko'rish" style="margin-left:4px; color:var(--gold); cursor:pointer; font-weight:600;"></span>
+    </div>
+  </nav>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="side-label">Guruhlar</div>
+      <div class="group-list" id="groupList">
+        <!-- Guruh tugmalari JS orqali, foydalanuvchi sohasiga qarab qo'shiladi -->
+      </div>
+      <div class="side-label" style="margin-top:8px">Vositalar</div>
+      <button id="btn-ai" class="btn">🤖 AI yordamchi</button>
+    </aside>
+
+    <div class="chat-container">
+      <div class="group-title">
+        <span class="name" id="groupTitle">Guruh: Asosiy</span>
+        <div class="mode-toggle">
+          <button id="modeChatBtn" class="btn primary" onclick="setMode('chat')">💬 Matnli chat</button>
+          <button id="modeVideoBtn" class="btn ghost" onclick="setMode('video')">🎥 Video chat</button>
+        </div>
+      </div>
+
+      <div id="chat" class="chat-box"></div>
+
+      <div class="input-area" id="inputArea">
+        <input type="text" id="myInput" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter'){ sendMessage(); }">
+        <button class="btn primary" onclick="sendMessage()">Yuborish</button>
+      </div>
+
+      <div class="video-pane" id="videoPane" style="display:none">
+        <div class="video-note">🎥 Guruh video-chati — shu havolani biladigan har kim qo'shilishi mumkin. Kamera/mikrofon uchun brauzer ruxsat so'raydi.</div>
+        <iframe id="videoFrame" src="about:blank" allow="camera; microphone; fullscreen; display-capture" title="Video chat"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    // ---- Guruhlar: "main" (Asosiy, hammada bor) + foydalanuvchining sohasi ----
+    const FIELD_LABELS = {
+      web: 'Web dasturchilar',
+      designer: 'Dizaynerlar',
+      app: 'App dasturchilar',
+      gamer: 'Gamerlar',
+      streamer: 'Streamerlar',
+      other: 'Boshqa dasturchilar'
+    };
+
+    let currentGroup = 'main';
+    let currentMode = 'chat'; // 'chat' | 'video'
+    const chatEl = document.getElementById('chat');
+    const inputEl = document.getElementById('myInput');
+    const inputAreaEl = document.getElementById('inputArea');
+    const videoPaneEl = document.getElementById('videoPane');
+    const videoFrameEl = document.getElementById('videoFrame');
+    const groupTitleEl = document.getElementById('groupTitle');
+    const groupListEl = document.getElementById('groupList');
+    const modeChatBtn = document.getElementById('modeChatBtn');
+    const modeVideoBtn = document.getElementById('modeVideoBtn');
+
+    // Foydalanuvchi nomi Firebase orqali aniqlanadi (pastdagi auth guard'ga qarang)
+    let username = null;
+
+    function groupLabel(id){ return id === 'main' ? 'Asosiy' : (FIELD_LABELS[id] || id); }
+
+    function renderSidebar(field){
+      groupListEl.innerHTML = '';
+      const groups = [{ id: 'main', label: '💬 Asosiy guruh' }];
+      if (field && FIELD_LABELS[field]) {
+        groups.push({ id: field, label: '💼 ' + FIELD_LABELS[field] });
+      }
+      groups.forEach(g => {
+        const btn = document.createElement('button');
+        btn.className = 'btn';
+        btn.id = 'btn-group-' + g.id;
+        btn.textContent = g.label;
+        btn.onclick = () => showGroup(g.id);
+        groupListEl.appendChild(btn);
+      });
+    }
+
+    function getStorageKey(group) { return 'chat_' + group; }
+    function loadMessages(group) { const raw = localStorage.getItem(getStorageKey(group)); try { return raw ? JSON.parse(raw) : []; } catch { return []; } }
+    function saveMessages(group, messages) { localStorage.setItem(getStorageKey(group), JSON.stringify(messages)); }
+
+    function renderMessages() {
+      const messages = loadMessages(currentGroup);
+      chatEl.innerHTML = '';
+      if (messages.length === 0) { chatEl.innerHTML = '<p class="empty">💬 Bu yerda hali xabar yo\'q — birinchi bo\'lib salom bering.</p>'; return; }
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = 'chatMessage';
+        const meta = document.createElement('div'); meta.className = 'meta';
+        const authorLink = document.createElement('a'); authorLink.href = 'profile.html?user=' + encodeURIComponent(msg.sender); authorLink.textContent = msg.sender;
+        const timeSpan = document.createElement('span'); timeSpan.textContent = ' · ' + new Date(msg.time).toLocaleString();
+        meta.appendChild(authorLink); meta.appendChild(timeSpan);
+        const text = document.createElement('div'); text.className = 'msg-text'; text.textContent = msg.text;
+        text.addEventListener('click', ()=>{ window.location.href = 'profile.html?user=' + encodeURIComponent(msg.sender); });
+        const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.title = "O'chirish"; del.onclick = () => deleteMessage(msg.id);
+        div.appendChild(meta); div.appendChild(text); div.appendChild(del); chatEl.appendChild(div);
+      });
+      chatEl.scrollTop = chatEl.scrollHeight;
+    }
+
+    function sendMessage() { const text = inputEl.value.trim(); if(!text) return; const messages = loadMessages(currentGroup); const message = { id: Date.now() + '_' + Math.random().toString(36).slice(2,7), sender: username, text, time: Date.now() }; messages.push(message); saveMessages(currentGroup, messages); inputEl.value = ''; renderMessages(); }
+    function deleteMessage(id) { let messages = loadMessages(currentGroup); messages = messages.filter(m => m.id !== id); saveMessages(currentGroup, messages); renderMessages(); }
+
+    function videoRoomName(group){
+      // Jitsi xona nomi — guruhga xos, taxmin qilish qiyinroq bo'lishi uchun loyiha nomi bilan birga
+      return 'AniRudeusCommunity-' + group.replace(/[^a-zA-Z0-9]/g, '');
+    }
+
+    function setMode(mode){
+      currentMode = mode;
+      const isVideo = mode === 'video';
+      modeChatBtn.className = isVideo ? 'btn ghost' : 'btn primary';
+      modeVideoBtn.className = isVideo ? 'btn primary' : 'btn ghost';
+      chatEl.style.display = isVideo ? 'none' : 'block';
+      inputAreaEl.style.display = isVideo ? 'none' : 'flex';
+      videoPaneEl.style.display = isVideo ? 'flex' : 'none';
+      if (isVideo) {
+        videoFrameEl.src = 'https://meet.jit.si/' + videoRoomName(currentGroup) + '#config.prejoinPageEnabled=true';
+      } else {
+        videoFrameEl.src = 'about:blank';
+      }
+    }
+
+    function showGroup(group) {
+      currentGroup = group;
+      groupTitleEl.textContent = 'Guruh: ' + groupLabel(group);
+      document.querySelectorAll('.group-list .btn').forEach(b => b.classList.remove('active'));
+      const btn = document.getElementById('btn-group-' + group);
+      if (btn) btn.classList.add('active');
+      setMode('chat');
+      renderMessages();
+    }
+
+    const loginBtn = document.getElementById('loginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    function updateAuthButtons(nickname){
+      if(nickname){
+        if(loginBtn) loginBtn.style.display = 'none';
+        if(logoutBtn) logoutBtn.style.display = 'inline-flex';
+        const dn = document.getElementById('displayName');
+        if(dn){ dn.textContent = nickname; dn.style.cursor = 'pointer'; dn.title = "Profilni ko'rish"; }
+      } else {
+        if(loginBtn) loginBtn.style.display = 'inline-flex';
+        if(logoutBtn) logoutBtn.style.display = 'none';
+        const dn = document.getElementById('displayName');
+        if(dn){ dn.textContent = ''; dn.style.cursor = 'default'; dn.title = ''; }
+      }
+    }
+
+    if(loginBtn){ loginBtn.addEventListener('click', () => { window.location.href = 'auth.html'; }); }
+    if(logoutBtn){ logoutBtn.addEventListener('click', () => { auth.signOut().then(()=>{ localStorage.removeItem('chat_username'); window.location.href = 'auth.html'; }); }); }
+    const displayNameEl = document.getElementById('displayName');
+    if(displayNameEl){ displayNameEl.addEventListener('click', ()=>{ if(username) window.location.href = 'profile.html?user=' + encodeURIComponent(username); }); }
+
+    // ---- Firebase auth guard: faqat ro'yxatdan o'tib, sohasini tanlagan foydalanuvchi chatga kira oladi ----
+    auth.onAuthStateChanged(async function(user){
+      if(!user){
+        window.location.href = 'auth.html';
+        return;
+      }
+      try{
+        const doc = await db.collection('users').doc(user.uid).get();
+        if(!doc.exists || !doc.data().profileComplete){
+          window.location.href = 'onboarding.html';
+          return;
+        }
+        const data = doc.data();
+        username = data.nickname;
+        localStorage.setItem('chat_username', username);
+        updateAuthButtons(username);
+        renderSidebar(data.field);
+        showGroup('main');
+
+        // Help sahifasidan admin javobi kelganda nav'da belgi ko'rsatish
+        db.collection('support').doc(user.uid).onSnapshot(snap=>{
+          const badge = document.getElementById('helpBadge');
+          if(!badge) return;
+          const unread = snap.exists ? (snap.data().unreadForUser || 0) : 0;
+          if(unread > 0){ badge.textContent = unread; badge.style.display = 'inline-block'; }
+          else { badge.style.display = 'none'; }
+        });
+      }catch(e){
+        console.error('Auth guard xatosi:', e);
+      }
+    });
+  </script>
+
+  <!-- AI modal (loads external page in iframe; use "Open in new tab" if embedding blocked) -->
+  <div id="aiModal" class="ai-modal" role="dialog" aria-hidden="true">
+    <div class="ai-header">
+      <strong>🤖 AI Yordamchi</strong>
+      <button id="aiClose" class="btn ghost">✕</button>
+    </div>
+    <div class="ai-body" id="aiBody">
+      <p class="ai-empty" id="aiEmpty">👋 Salom! Savolingizni yozing — dasturlash, sayt, yoki umuman nimadir bo'yicha yordam bera olaman.</p>
+    </div>
+    <div class="ai-input-row">
+      <input type="text" id="aiInput" placeholder="Savolingizni yozing..." onkeydown="if(event.key==='Enter'){ window.__aiSend(); }">
+      <button id="aiSendBtn" class="btn primary" onclick="window.__aiSend()">Yuborish</button>
+    </div>
+  </div>
+
+  <script>
+    // AI tugmasi -> modalni ochish/yopish (xabar yuborish quyidagi Gemini modul skriptida)
+    (function(){
+      const btn = document.getElementById('btn-ai');
+      const modal = document.getElementById('aiModal');
+      const closeBtn = document.getElementById('aiClose');
+
+      function showModal(){
+        modal.style.display = 'block';
+        modal.setAttribute('aria-hidden','false');
+        document.getElementById('aiInput').focus();
+      }
+      function hideModal(){
+        modal.style.display = 'none';
+        modal.setAttribute('aria-hidden','true');
+      }
+
+      btn && btn.addEventListener('click', (e)=>{ e.preventDefault(); showModal(); });
+      closeBtn && closeBtn.addEventListener('click', hideModal);
+      document.addEventListener('keydown', (ev)=>{ if(ev.key === 'Escape') hideModal(); });
+    })();
+  </script>
+
+  <!-- ---------- Gemini AI (Firebase AI Logic, Gemini Developer API — bepul tarif) ---------- -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
+    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-ai.js";
+
+    // firebaseConfig — firebase-config.js faylida e'lon qilingan (shu sahifada avvalroq ulangan)
+    const aiApp = initializeApp(firebaseConfig, 'aiApp');
+
+    // AI Logic endi App Check talab qiladi. Mahalliy (localhost/127.0.0.1) test uchun
+    // "debug token" rejimidan foydalanamiz — birinchi ishga tushirishda konsolda
+    // "AppCheck debug token: ..." deb chiqadi, shu tokenni Firebase Console'da
+    // Security > App Check > Apps > (uch nuqta) > Manage debug tokens bo'limiga qo'shing.
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+      // Qat'iy (o'zgarmas) debug token — konsoldan qidirish shart emas,
+      // aynan shu qatorni Firebase Console'ga qo'lda kiritasiz (pastdagi izohga qarang).
+      self.FIREBASE_APPCHECK_DEBUG_TOKEN = "3f9d2a41-8b6c-4e2a-9f31-7c5b0e2d41aa";
+    }
+    initializeAppCheck(aiApp, {
+      // Sayt haqiqiy domenga joylanganda bu yerga o'sha domen uchun
+      // ro'yxatdan o'tkazilgan reCAPTCHA v3 sayt kalitini qo'yish kerak bo'ladi.
+      provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_V3_SITE_KEY_HERE'),
+      isTokenAutoRefreshEnabled: true
+    });
+
+    const aiService = getAI(aiApp, { backend: new GoogleAIBackend() });
+    const model = getGenerativeModel(aiService, {
+      model: 'gemini-3.5-flash',
+      systemInstruction: "Siz AniRudeus Community saytining AI yordamchisisiz. Foydalanuvchilarga o'zbek tilida, qisqa va aniq javob bering. Agar savol boshqa tilda yozilsa, o'sha tilda javob bering."
+    });
+
+    let chatSession = null;
+    function getChatSession(){
+      if(!chatSession){ chatSession = model.startChat({ history: [] }); }
+      return chatSession;
+    }
+
+    const aiBody = document.getElementById('aiBody');
+    const aiEmpty = document.getElementById('aiEmpty');
+    const aiInput = document.getElementById('aiInput');
+    const aiSendBtn = document.getElementById('aiSendBtn');
+
+    // Oddiy va xavfsiz markdown -> HTML (faqat AI javoblari uchun): **qalin**, *kursiv*, ro'yxatlar, qator ko'chirish
+    function escapeHtml(s){
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+    function renderMarkdownLite(raw){
+      const lines = escapeHtml(raw).split('\n');
+      let html = '';
+      let inList = false;
+      lines.forEach(line=>{
+        const bulletMatch = line.match(/^\s*[\*\-]\s+(.*)$/);
+        if(bulletMatch){
+          if(!inList){ html += '<ul>'; inList = true; }
+          html += '<li>' + inlineFormat(bulletMatch[1]) + '</li>';
+        } else {
+          if(inList){ html += '</ul>'; inList = false; }
+          if(line.trim() === ''){ html += '<br>'; }
+          else { html += '<p style="margin:0 0 8px">' + inlineFormat(line) + '</p>'; }
+        }
+      });
+      if(inList) html += '</ul>';
+      return html;
+    }
+    function inlineFormat(text){
+      return text
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+    }
+
+    function addBubble(text, who){
+      if(aiEmpty) aiEmpty.style.display = 'none';
+      const div = document.createElement('div');
+      div.className = 'ai-msg ' + who;
+      if(who === 'bot'){
+        div.innerHTML = renderMarkdownLite(text);
+      } else {
+        div.textContent = text;
+      }
+      aiBody.appendChild(div);
+      aiBody.scrollTop = aiBody.scrollHeight;
+      return div;
+    }
+
+    window.__aiSend = async function(){
+      const text = aiInput.value.trim();
+      if(!text) return;
+      aiInput.value = '';
+      aiInput.disabled = true;
+      aiSendBtn.disabled = true;
+
+      addBubble(text, 'user');
+      const typingEl = addBubble('Yozyapti...', 'typing');
+
+      try{
+        const result = await getChatSession().sendMessage(text);
+        const answer = result.response.text();
+        typingEl.remove();
+        addBubble(answer, 'bot');
+      }catch(err){
+        console.error('Gemini xatosi:', err);
+        typingEl.remove();
+        let msg = "Kechirasiz, AI hozircha javob bera olmadi.";
+        if(String(err && err.message).toLowerCase().includes('permission') || String(err && err.message).toLowerCase().includes('not enabled')){
+          msg = "AI hali sozlanmagan: Firebase Console → AI Logic bo'limida Gemini Developer API'ni yoqib qo'ying.";
+        }
+        addBubble(msg, 'bot error');
+      }finally{
+        aiInput.disabled = false;
+        aiSendBtn.disabled = false;
+        aiInput.focus();
+      }
+    };
+  </script>
+
+</body>
+</html>

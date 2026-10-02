@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yunusov G'olibxon — Full Stack Developer</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap');
+
+:root {
+  --ink: #0E1117;
+  --ink2: #161B24;
+  --ink3: #1D2535;
+  --paper: #F0EDE6;
+  --paper2: #E2DDD4;
+  --accent: #2563EB;
+  --accent-light: #3B82F6;
+  --gold: #C9A84C;
+  --muted: #6B7280;
+  --line: rgba(255,255,255,0.07);
+  --line2: rgba(255,255,255,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 60px;
+  background: rgba(14,17,23,0.85);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+}
+.nav-logo {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 14px;
+  color: var(--paper2);
+  letter-spacing: 0.05em;
+}
+.nav-logo span { color: var(--accent-light); }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: 0.03em;
+  transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--paper); }
+.nav-cta {
+  font-size: 13px;
+  font-family: 'IBM Plex Mono', monospace;
+  padding: 8px 20px;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  color: var(--accent-light);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.nav-cta:hover { background: var(--accent); color: #fff; }
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 60px 80px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute; top: -200px; right: -100px;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--accent-light);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.hero-tag::before {
+  content: '';
+  width: 32px; height: 1px;
+  background: var(--accent-light);
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 7vw, 88px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+.hero h1 em {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(240,237,230,0.3);
+}
+.hero-sub {
+  font-size: clamp(18px, 2.5vw, 24px);
+  font-weight: 300;
+  color: var(--muted);
+  margin-bottom: 40px;
+  max-width: 560px;
+}
+.hero-sub strong { color: var(--paper); font-weight: 500; }
+.hero-btns { display: flex; gap: 16px; flex-wrap: wrap; }
+.btn-primary {
+  padding: 14px 32px;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px; font-weight: 500;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--accent-light); transform: translateY(-1px); }
+.btn-outline {
+  padding: 14px 32px;
+  background: transparent;
+  color: var(--paper);
+  border: 1px solid var(--line2);
+  border-radius: 6px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 15px; font-weight: 400;
+  cursor: pointer; text-decoration: none;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-outline:hover { border-color: var(--paper2); color: var(--paper); }
+.hero-stats {
+  display: flex; gap: 48px; margin-top: 72px;
+  padding-top: 40px;
+  border-top: 1px solid var(--line);
+}
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 36px; font-weight: 700;
+  color: var(--paper);
+}
+.stat-num span { color: var(--accent-light); }
+.stat-label {
+  font-size: 13px; color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* ── SECTION COMMON ── */
+section { padding: 100px 60px; }
+.section-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent-light);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+.section-lead {
+  font-size: 17px;
+  color: var(--muted);
+  max-width: 520px;
+  margin-bottom: 56px;
+  line-height: 1.7;
+}
+
+/* ── ABOUT ── */
+.about { background: var(--ink2); }
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-text p { color: #9CA3AF; margin-bottom: 20px; font-size: 15px; line-height: 1.8; }
+.about-text p:last-child { margin-bottom: 0; }
+.about-text strong { color: var(--paper); }
+.about-langs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 32px;
+}
+.lang-pill {
+  padding: 10px 16px;
+  background: var(--ink3);
+  border: 1px solid var(--line2);
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--paper2);
+  display: flex; align-items: center; gap: 8px;
+}
+.lang-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-light); }
+.about-card {
+  background: var(--ink3);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  padding: 40px;
+}
+.about-card-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+.timeline-item { display: flex; gap: 20px; margin-bottom: 28px; }
+.timeline-item:last-child { margin-bottom: 0; }
+.tl-dot-wrap { display: flex; flex-direction: column; align-items: center; gap: 0; }
+.tl-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 6px; }
+.tl-line { flex: 1; width: 1px; background: var(--line2); margin-top: 6px; }
+.tl-role { font-size: 14px; font-weight: 500; color: var(--paper); }
+.tl-company { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; }
+.tl-year { font-size: 11px; color: var(--accent-light); font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+
+/* ── SKILLS ── */
+.skills { background: var(--ink); }
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  background: var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.skill-block {
+  background: var(--ink2);
+  padding: 36px 32px;
+  transition: background 0.2s;
+}
+.skill-block:hover { background: var(--ink3); }
+.skill-icon {
+  width: 40px; height: 40px;
+  background: rgba(37,99,235,0.12);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px;
+  font-size: 18px;
+}
+.skill-name { font-size: 15px; font-weight: 500; color: var(--paper); margin-bottom: 8px; }
+.skill-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.skill-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 3px;
+  background: rgba(37,99,235,0.1);
+  color: #93B4FF;
+  border: 1px solid rgba(37,99,235,0.2);
+}
+
+/* ── PROJECTS ── */
+.projects { background: var(--ink2); }
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.project-card {
+  background: var(--ink);
+  border: 1px solid var(--line2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, border-color 0.2s;
+  display: flex; flex-direction: column;
+}
+.project-card:hover { transform: translateY(-4px); border-color: rgba(37,99,235,0.4); }
+.project-card.featured {
+  grid-column: span 2;
+  flex-direction: row;
+}
+.project-thumb {
+  background: var(--ink3);
+  height: 200px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+}
+.project-card.featured .project-thumb {
+  width: 340px; height: auto;
+  border-bottom: none;
+  border-right: 1px solid var(--line);
+}
+.project-body { padding: 28px; flex: 1; }
+.project-badge {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 3px;
+  margin-bottom: 14px;
+}
+.badge-blue { background: rgba(37,99,235,0.15); color: #93B4FF; border: 1px solid rgba(37,99,235,0.25); }
+.badge-gold { background: rgba(201,168,76,0.12); color: #D4B96A; border: 1px solid rgba(201,168,76,0.2); }
+.project-title { font-size: 18px; font-weight: 600; color: var(--paper); margin-bottom: 10px; }
+.project-desc { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 20px; }
+.project-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+.stack-item {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 3px 8px;
+  border: 1px solid var(--line2);
+  border-radius: 3px;
+}
+.project-links { display: flex; gap: 12px; }
+.proj-link {
+  font-size: 13px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--accent-light);
+  text-decoration: none;
+  display: flex; align-items: center; gap: 6px;
+}
+.proj-link:hover { color: var(--paper); }
+.proj-link svg { width: 14px; height: 14px; }
+
+/* ── CONTACT ── */
+.contact { background: var(--ink); }
+.contact-inner {
+  max-width: 680px;
+  margin: 0 auto;
+  text-align: center;
+}
+.contact-inner .section-title { font-size: clamp(36px, 5vw, 56px); }
+.contact-inner .section-lead { margin: 0 auto 48px; }
+.contact-email {
+  display: inline-block;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--paper);
+  text-decoration: none;
+  border-bottom: 1px solid var(--line2);
+  padding-bottom: 4px;
+  margin-bottom: 48px;
+  transition: border-color 0.2s;
+}
+.contact-email:hover { border-color: var(--accent-light); color: var(--accent-light); }
+.contact-socials { display: flex; justify-content: center; gap: 16px; }
+.soc-link {
+  width: 44px; height: 44px;
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 18px;
+  transition: all 0.2s;
+}
+.soc-link:hover { border-color: var(--paper2); color: var(--paper); background: var(--ink2); }
+
+/* ── FOOTER ── */
+footer {
+  padding: 32px 60px;
+  border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--ink2);
+}
+.footer-copy { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); }
+.footer-copy span { color: var(--accent-light); }
+
+/* ── LANG SWITCH ── */
+.lang-switch {
+  position: fixed; bottom: 28px; right: 28px;
+  display: flex; gap: 4px;
+  background: var(--ink2);
+  border: 1px solid var(--line2);
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 200;
+}
+.lang-btn {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; letter-spacing: 0.05em;
+  padding: 6px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+  color: var(--muted);
+  background: transparent;
+  transition: all 0.15s;
+}
+.lang-btn.active { background: var(--accent); color: #fff; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  section, .hero { padding: 80px 24px; }
+  .about-grid { grid-template-columns: 1fr; gap: 40px; }
+  .skills-grid { grid-template-columns: 1fr 1fr; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card.featured { flex-direction: column; grid-column: span 1; }
+  .project-card.featured .project-thumb { width: 100%; height: 160px; }
+  .hero-stats { gap: 28px; flex-wrap: wrap; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">&lt;<span>YG</span>/&gt;</div>
+  <ul class="nav-links">
+    <li><a href="#about" data-uz="Haqimda" data-en="About">Haqimda</a></li>
+    <li><a href="#skills" data-uz="Ko'nikmalar" data-en="Skills">Ko'nikmalar</a></li>
+    <li><a href="#projects" data-uz="Loyihalar" data-en="Projects">Loyihalar</a></li>
+    <li><a href="#contact" data-uz="Aloqa" data-en="Contact">Aloqa</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta" data-uz="Bog'lanish" data-en="Get in touch">Bog'lanish</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-tag" data-uz="To'liq stek dasturchi · Toshkent, O'zbekiston" data-en="Full Stack Developer · Tashkent, Uzbekistan">To'liq stek dasturchi · Toshkent, O'zbekiston</div>
+  <h1>G'olibxon<br><em>Yunusov</em></h1>
+  <p class="hero-sub"><strong data-uz="Zamonaviy web ilovalar" data-en="Modern web applications">Zamonaviy web ilovalar</strong> — <span data-uz="muammolarni kod orqali hal qilaman." data-en="solving real problems through code.">muammolarni kod orqali hal qilaman.</span></p>
+  <div class="hero-btns">
+    <a href="#projects" class="btn-primary">
+      <span data-uz="Loyihalarni ko'rish" data-en="View my work">Loyihalarni ko'rish</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+    <a href="#contact" class="btn-outline">
+      <span data-uz="Muloqot qilish" data-en="Let's talk">Muloqot qilish</span>
+    </a>
+  </div>
+  <div class="hero-stats">
+    <div>
+      <div class="stat-num">1<span>+</span></div>
+      <div class="stat-label" data-uz="Yil tajriba" data-en="Years experience">Yil tajriba</div>
+    </div>
+    <div>
+      <div class="stat-num">3<span>+</span></div>
+      <div class="stat-label" data-uz="Yakunlangan loyiha" data-en="Projects delivered">Yakunlangan loyiha</div>
+    </div>
+    <div>
+      <div class="stat-num">1<span>+</span></div>
+      <div class="stat-label" data-uz="Mamnun mijoz" data-en="Happy clients">Mamnun mijoz</div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <div class="section-tag" data-uz="Haqimda" data-en="About me">Haqimda</div>
+      <h2 class="section-title" data-uz="Kod orqali g'oyalarni hayotga tatbiq etaman" data-en="Turning ideas into reality through code">Kod orqali g'oyalarni hayotga tatbiq etaman</h2>
+      <p data-uz="Men 1 yillik tajribaga ega dasturchi. Foydalanuvchiga qulay interfeys va ishonchli backend tizimlarini qurish — mening asosiy yo'nalishim." data-en="I'm a developer with over 1 year of experience building user-friendly interfaces and reliable backend systems.">Men 1 yillik tajribaga ega dasturchi. Foydalanuvchiga qulay interfeys va ishonchli backend tizimlarini qurish — mening asosiy yo'nalishim.</p>
+      <p data-uz="<strong>React, Next.js</strong> va <strong>Node.js</strong> texnologiyalarini o'rganib, amaliy loyihalarda qo'llamoqdaman. Har kuni yangi narsalar o'rgangan holda rivojlanib bormoqdaman." data-en="I'm learning and applying <strong>React, Next.js</strong> and <strong>Node.js</strong> in real projects, growing every day."><strong>React, Next.js</strong> va <strong>Node.js</strong> texnologiyalarini o'rganib, amaliy loyihalarda qo'llamoqdaman. Har kuni yangi narsalar o'rgangan holda rivojlanib bormoqdaman.</p>
+      <div class="about-langs">
+        <div class="lang-pill"><div class="lang-dot"></div><span>O'zbek (ona til)</span></div>
+        <div class="lang-pill"><div class="lang-dot"></div><span>English (B1)</span></div>
+        <div class="lang-pill"><div class="lang-dot" style="background:#6B7280"></div><span>Русский (A1)</span></div>
+        <div class="lang-pill"><div class="lang-dot" style="background:#6B7280"></div><span>JavaScript 💻</span></div>
+      </div>
+    </div>
+    <div class="about-card">
+      <div class="about-card-label" data-uz="Ish tarixi" data-en="Work history">Ish tarixi</div>
+      <div class="timeline-item">
+        <div class="tl-dot-wrap"><div class="tl-dot"></div><div class="tl-line"></div></div>
+        <div>
+          <div class="tl-role" data-uz="Junior Full Stack Developer" data-en="Junior Full Stack Developer">Junior Full Stack Developer</div>
+          <div class="tl-company">Freelance / Shaxsiy loyihalar</div>
+          <div class="tl-year">2025 — hozir</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--muted)"></div><div class="tl-line"></div></div>
+        <div>
+          <div class="tl-role" data-uz="Dasturlash kurslari" data-en="Programming courses">Dasturlash kurslari</div>
+          <div class="tl-company">PDP Academy / IT Park</div>
+          <div class="tl-year">2024 — 2025</div>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-dot-wrap"><div class="tl-dot" style="background:var(--muted)"></div></div>
+        <div>
+          <div class="tl-role" data-uz="O'z-o'zini o'qitish" data-en="Self-learning">O'z-o'zini o'qitish</div>
+          <div class="tl-company">YouTube · freeCodeCamp · Udemy</div>
+          <div class="tl-year">2023 — 2024</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="skills" id="skills">
+  <div class="section-tag" data-uz="Texnologiyalar" data-en="Technologies">Texnologiyalar</div>
+  <h2 class="section-title" data-uz="Ishlaydigan vositalar" data-en="Tools of the trade">Ishlaydigan vositalar</h2>
+  <div class="skills-grid">
+    <div class="skill-block">
+      <div class="skill-icon">⚛</div>
+      <div class="skill-name">Frontend</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="Interaktiv, tez va zamonaviy interfeys" data-en="Interactive, fast, modern interfaces">Interaktiv, tez va zamonaviy interfeys</div>
+      <div class="skill-tags">
+        <span class="skill-tag">React</span>
+        <span class="skill-tag">Next.js</span>
+        <span class="skill-tag">TypeScript</span>
+        <span class="skill-tag">Tailwind</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🛠</div>
+      <div class="skill-name">Backend</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="Ishonchli API va mikroxizmatlar" data-en="Reliable APIs and microservices">Ishonchli API va mikroxizmatlar</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Node.js</span>
+        <span class="skill-tag">Express</span>
+        <span class="skill-tag">NestJS</span>
+        <span class="skill-tag">Python</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🗄</div>
+      <div class="skill-name" data-uz="Ma'lumotlar bazasi" data-en="Database">Ma'lumotlar bazasi</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="Tuzilmali va tahliliy saqlash" data-en="Structured and analytical storage">Tuzilmali va tahliliy saqlash</div>
+      <div class="skill-tags">
+        <span class="skill-tag">PostgreSQL</span>
+        <span class="skill-tag">MongoDB</span>
+        <span class="skill-tag">Redis</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">☁</div>
+      <div class="skill-name">DevOps / Cloud</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="Joylash, monitoring va avtomatlashtirish" data-en="Deploy, monitor, and automate">Joylash, monitoring va avtomatlashtirish</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Docker</span>
+        <span class="skill-tag">AWS</span>
+        <span class="skill-tag">CI/CD</span>
+        <span class="skill-tag">Nginx</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🤖</div>
+      <div class="skill-name">AI / ML</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="AI integratsiya va NLP" data-en="AI integration and NLP">AI integratsiya va NLP</div>
+      <div class="skill-tags">
+        <span class="skill-tag">OpenAI</span>
+        <span class="skill-tag">Anthropic</span>
+        <span class="skill-tag">LangChain</span>
+      </div>
+    </div>
+    <div class="skill-block">
+      <div class="skill-icon">🔧</div>
+      <div class="skill-name" data-uz="Boshqa vositalar" data-en="Other tools">Boshqa vositalar</div>
+      <div style="font-size:13px;color:var(--muted)" data-uz="Jamoaviy ishlash va sifat nazorat" data-en="Team workflow and quality control">Jamoaviy ishlash va sifat nazorat</div>
+      <div class="skill-tags">
+        <span class="skill-tag">Git</span>
+        <span class="skill-tag">Figma</span>
+        <span class="skill-tag">Jest</span>
+        <span class="skill-tag">Scrum</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="projects">
+  <div class="section-tag" data-uz="Tanlangan loyihalar" data-en="Selected work">Tanlangan loyihalar</div>
+  <h2 class="section-title" data-uz="Nima qilganman" data-en="What I've built">Nima qilganman</h2>
+  <div class="projects-grid">
+    <!-- Card 1: E-commerce featured -->
+    <div class="project-card featured">
+      <div class="project-thumb" style="background:linear-gradient(135deg,#0d2617,#1a4f2e);">🛒</div>
+      <div class="project-body">
+        <div class="project-badge badge-gold" data-uz="Asosiy loyiha" data-en="Featured">Asosiy loyiha</div>
+        <div class="project-title" data-uz="Volta Shop — Onlayn do'kon" data-en="Volta Shop — Online store">Volta Shop — Onlayn do'kon</div>
+        <p class="project-desc" data-uz="To'liq funksional onlayn do'kon: mahsulot katalogi, savat, to'lov integratsiyasi va admin panel. React va Node.js asosida qurilgan zamonaviy e-commerce yechim." data-en="A fully functional online store with product catalog, cart, payment integration, and admin panel. A modern e-commerce solution built on React and Node.js.">To'liq funksional onlayn do'kon: mahsulot katalogi, savat, to'lov integratsiyasi va admin panel. React va Node.js asosida qurilgan zamonaviy e-commerce yechim.</p>
+        <div class="project-stack">
+          <span class="stack-item">React</span><span class="stack-item">Node.js</span>
+          <span class="stack-item">MongoDB</span><span class="stack-item">Express</span>
+        </div>
+        <div class="project-links">
+          <a href="volta-shop.html" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span data-uz="Saytni ko'rish" data-en="View site">Saytni ko'rish</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Card 2: AI assistant -->
+    <div class="project-card">
+      <div class="project-thumb" style="background:linear-gradient(135deg,#1a0d2e,#2d1854);">🤖</div>
+      <div class="project-body">
+        <div class="project-badge badge-blue">AI SaaS</div>
+        <div class="project-title" data-uz="AI Yordamchi" data-en="AI Assistant">AI Yordamchi</div>
+        <p class="project-desc" data-uz="Savol-javob, rasm tahlili va ma'lumot bashorati imkoniyatlarini o'z ichiga olgan AI yordamchi vosita." data-en="An AI assistant tool with Q&A, image analysis, and data forecasting. Powered by the Claude API.">Savol-javob, rasm tahlili va ma'lumot bashorati imkoniyatlarini o'z ichiga olgan AI yordamchi vosita. Claude API asosida ishlaydi.</p>
+        <div class="project-stack">
+          <span class="stack-item">HTML/CSS/JS</span><span class="stack-item">Claude API</span>
+        </div>
+        <div class="project-links">
+          <a href="suniy_intelekt.html" class="proj-link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            <span data-uz="Saytni ko'rish" data-en="View site">Saytni ko'rish</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div class="section-tag" data-uz="Aloqa" data-en="Contact">Aloqa</div>
+    <h2 class="section-title" data-uz="Birgalikda ishlaymizmi?" data-en="Let's work together">Birgalikda ishlaymizmi?</h2>
+    <p class="section-lead" data-uz="Yangi loyiha, hamkorlik yoki shunchaki suhbat uchun — har doim ochiqman." data-en="New project, collaboration, or just a chat — I'm always open.">Yangi loyiha, hamkorlik yoki shunchaki suhbat uchun — har doim ochiqman.</p>
+    <a href="mailto:golibxonyunusov9@gmail.com" class="contact-email">golibxonyunusov9@gmail.com</a>
+    <div class="contact-socials">
+      <a href="#" class="soc-link" title="GitHub">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </a>
+      <a href="#" class="soc-link" title="LinkedIn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+      </a>
+      <a href="#" class="soc-link" title="Telegram">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </a>
+      <a href="#" class="soc-link" title="Email">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-copy">© 2026 <span>Yunusov G'olibxon</span>. <span data-uz="Barcha huquqlar himoyalangan." data-en="All rights reserved.">Barcha huquqlar himoyalangan.</span></div>
+  <div class="footer-copy" style="font-size:11px;" data-uz="Claude AI yordamida yaratildi" data-en="Built with Claude AI">Claude AI yordamida yaratildi</div>
+</footer>
+
+<!-- LANG SWITCH -->
+<div class="lang-switch">
+  <button class="lang-btn active" id="btn-uz" onclick="setLang('uz')">UZ</button>
+  <button class="lang-btn" id="btn-en" onclick="setLang('en')">EN</button>
+</div>
+
+<script>
+function setLang(lang) {
+  document.querySelectorAll('[data-uz]').forEach(el => {
+    const text = el.getAttribute('data-' + lang);
+    if (text) el.innerHTML = text;
+  });
+  document.getElementById('btn-uz').classList.toggle('active', lang === 'uz');
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+}
+</script>
+</body>
+</html>
