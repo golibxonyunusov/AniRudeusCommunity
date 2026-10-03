@@ -427,8 +427,15 @@
         q.o.forEach((opt, oi)=>{
           const label = document.createElement('label');
           label.className = 'opt';
-          label.innerHTML = `<input type="radio" name="q${qi}" value="${oi}"> <span>${opt}</span>`;
-          label.querySelector('input').addEventListener('change', ()=>{
+                    const optInput = document.createElement('input');
+          optInput.type = 'radio';
+          optInput.name = 'q' + qi;
+          optInput.value = oi;
+          const optSpan = document.createElement('span');
+          optSpan.textContent = opt;
+          label.appendChild(optInput);
+          label.appendChild(optSpan);
+          optInput.addEventListener('change', ()=>{
             quizAnswers[qi] = oi;
             card.querySelectorAll('.opt').forEach(o=>o.classList.remove('selected'));
             label.classList.add('selected');
