@@ -159,6 +159,7 @@
     </div>
 
     <div class="nav-right">
+      <a id="adminLink" href="admin.html" class="btn ghost" style="display:none">👑 Admin</a>
       <button id="loginBtn" class="btn ghost">Kirish</button>
       <button id="logoutBtn" class="btn ghost" style="display:none">Chiqish</button>
       <span id="displayName" title="Profilni ko'rish" style="margin-left:4px; color:var(--gold); cursor:pointer; font-weight:600;"></span>
@@ -346,6 +347,9 @@
         renderSidebar(data.field);
         showGroup('main');
 
+        const adminLink = document.getElementById('adminLink');
+        if(adminLink) adminLink.style.display = (data.role === 'admin') ? 'inline-flex' : 'none';
+
         // Help sahifasidan admin javobi kelganda nav'da belgi ko'rsatish
         db.collection('support').doc(user.uid).onSnapshot(snap=>{
           const badge = document.getElementById('helpBadge');
@@ -419,7 +423,7 @@
     initializeAppCheck(aiApp, {
       // Sayt haqiqiy domenga joylanganda bu yerga o'sha domen uchun
       // ro'yxatdan o'tkazilgan reCAPTCHA v3 sayt kalitini qo'yish kerak bo'ladi.
-      provider: new ReCaptchaV3Provider('YOUR_RECAPTCHA_V3_SITE_KEY_HERE'),
+      provider: new ReCaptchaV3Provider('6LffD9OtAAAAAOQgdAgwetJTVOzyo5B_O7fDkEIg'),
       isTokenAutoRefreshEnabled: true
     });
 
