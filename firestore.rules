@@ -1,20 +1,53 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth != null && request.auth.uid == userId;
+
+    function signedIn() {
+      return request.auth != null;
     }
+    function userDoc() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    function isAdmin() {
+      return signedIn() && userDoc().role == 'admin';
+    }
+
+    // Foydalanuvchi profillari
+    match /users/{userId} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == userId;
+    }
+
+    // Admin bilan yordam chati
     match /support/{uid} {
-      allow read, write: if request.auth != null && (
-        request.auth.uid == uid ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-      );
+      allow read, write: if signedIn() && (request.auth.uid == uid || isAdmin());
       match /messages/{msgId} {
-        allow read, write: if request.auth != null && (
-          request.auth.uid == uid ||
-          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin'
-        );
+        allow read, write: if signedIn() && (request.auth.uid == uid || isAdmin());
+      }
+    }
+
+    // Guruh chatlari: "main" hamma uchun, soha guruhi faqat shu sohadagilar (va admin) uchun
+    match /groups/{groupId}/messages/{msgId} {
+      allow read: if signedIn() && (groupId == 'main' || isAdmin() || userDoc().field == groupId);
+      allow create: if signedIn()
+        && request.resource.data.senderUid == request.auth.uid
+        && (groupId == 'main' || isAdmin() || userDoc().field == groupId);
+      allow delete: if signedIn() && (resource.data.senderUid == request.auth.uid || isAdmin());
+    }
+
+    // Shaxsiy yozishmalar (People): faqat ikki ishtirokchi ko'radi
+    match /dms/{dmId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.participants;
+      allow create: if signedIn() && request.auth.uid in request.resource.data.participants;
+      allow update: if signedIn() && request.auth.uid in resource.data.participants;
+
+      match /messages/{msgId} {
+        allow read: if signedIn()
+          && request.auth.uid in get(/databases/$(database)/documents/dms/$(dmId)).data.participants;
+        allow create: if signedIn()
+          && request.resource.data.senderUid == request.auth.uid
+          && request.auth.uid in get(/databases/$(database)/documents/dms/$(dmId)).data.participants;
+        allow delete: if signedIn() && resource.data.senderUid == request.auth.uid;
       }
     }
   }

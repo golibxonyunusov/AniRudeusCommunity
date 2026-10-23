@@ -36,6 +36,24 @@
     .sidebar .btn.active{ background:var(--gold); color:#0b1220; border-color:var(--gold); }
     .sidebar .group-list{ display:flex; flex-direction:column; gap:8px; }
 
+    .people-search{
+      width:100%; padding:9px 11px; border-radius:9px; border:1px solid var(--line);
+      background:var(--panel-2); color:var(--text); outline:none; font-size:13px;
+      font-family:'Inter',sans-serif; margin-bottom:6px;
+    }
+    .people-search:focus{ border-color:var(--gold); }
+    .people-results{ display:flex; flex-direction:column; gap:6px; margin-bottom:6px; }
+    .people-result{
+      display:flex; align-items:center; justify-content:space-between; gap:8px;
+      padding:8px 10px; border-radius:8px; background:var(--panel-2); border:1px solid var(--line);
+      font-size:13px;
+    }
+    .people-result button{
+      border:none; background:var(--gold); color:#0b1220; border-radius:7px;
+      padding:4px 9px; font-size:12px; font-weight:700; cursor:pointer;
+    }
+    .people-empty{ color:var(--muted); font-size:12px; padding:4px 6px; }
+
     /* ---------- Chat area ---------- */
     .chat-container{ flex:1; display:flex; flex-direction:column; min-width:0; }
 
@@ -172,6 +190,11 @@
       <div class="group-list" id="groupList">
         <!-- Guruh tugmalari JS orqali, foydalanuvchi sohasiga qarab qo'shiladi -->
       </div>
+      <div class="side-label" style="margin-top:8px">Odamlar</div>
+      <input type="text" id="peopleSearch" class="people-search" placeholder="Nickname qidirish...">
+      <div id="searchResults" class="people-results"></div>
+      <div id="dmList" class="group-list"></div>
+
       <div class="side-label" style="margin-top:8px">Vositalar</div>
       <button id="btn-ai" class="btn">🤖 AI yordamchi</button>
     </aside>
@@ -217,8 +240,14 @@
       other: 'Boshqa dasturchilar'
     };
 
-    let currentGroup = 'main';
+    // Hozirgi suhbat: guruh yoki shaxsiy yozishma (DM) — ikkalasi ham Firestore'da, real-time
+    let currentThread = { type: 'group', id: 'main', label: 'Asosiy' };
     let currentMode = 'chat'; // 'chat' | 'video'
+    let myUid = null;
+    let isAdmin = false;
+    let unsubMessages = null;
+    let unsubDMs = null;
+    let dmCache = {}; // dmId -> { otherUid, otherNick }
     const chatEl = document.getElementById('chat');
     const inputEl = document.getElementById('myInput');
     const inputAreaEl = document.getElementById('inputArea');
@@ -226,6 +255,9 @@
     const videoFrameEl = document.getElementById('videoFrame');
     const groupTitleEl = document.getElementById('groupTitle');
     const groupListEl = document.getElementById('groupList');
+    const dmListEl = document.getElementById('dmList');
+    const peopleSearchEl = document.getElementById('peopleSearch');
+    const searchResultsEl = document.getElementById('searchResults');
     const modeChatBtn = document.getElementById('modeChatBtn');
     const modeVideoBtn = document.getElementById('modeVideoBtn');
 
@@ -233,6 +265,10 @@
     let username = null;
 
     function groupLabel(id){ return id === 'main' ? 'Asosiy' : (FIELD_LABELS[id] || id); }
+
+    function clearActive(){
+      document.querySelectorAll('.group-list .btn').forEach(b => b.classList.remove('active'));
+    }
 
     function renderSidebar(field){
       groupListEl.innerHTML = '';
@@ -250,35 +286,77 @@
       });
     }
 
-    function getStorageKey(group) { return 'chat_' + group; }
-    function loadMessages(group) { const raw = localStorage.getItem(getStorageKey(group)); try { return raw ? JSON.parse(raw) : []; } catch { return []; } }
-    function saveMessages(group, messages) { localStorage.setItem(getStorageKey(group), JSON.stringify(messages)); }
+    function messagesRef(){
+      if (currentThread.type === 'dm') return db.collection('dms').doc(currentThread.id).collection('messages');
+      return db.collection('groups').doc(currentThread.id).collection('messages');
+    }
 
-    function renderMessages() {
-      const messages = loadMessages(currentGroup);
+    function listenMessages(){
+      if (unsubMessages) unsubMessages();
+      chatEl.innerHTML = '<p class="empty">Yuklanmoqda...</p>';
+      unsubMessages = messagesRef().orderBy('time', 'asc').limitToLast(200).onSnapshot(snap => {
+        renderMessages(snap.docs.map(d => Object.assign({ id: d.id }, d.data({ serverTimestamps: 'estimate' }))));
+      }, err => {
+        console.error('Xabarlarni o\'qishda xato:', err);
+        chatEl.innerHTML = '<p class="empty">Xabarlarni yuklab bo\'lmadi (' + (err.code || 'xato') + '). Firestore qoidalarini tekshiring.</p>';
+      });
+    }
+
+    function renderMessages(messages) {
       chatEl.innerHTML = '';
       if (messages.length === 0) { chatEl.innerHTML = '<p class="empty">💬 Bu yerda hali xabar yo\'q — birinchi bo\'lib salom bering.</p>'; return; }
       messages.forEach(msg => {
         const div = document.createElement('div');
         div.className = 'chatMessage';
         const meta = document.createElement('div'); meta.className = 'meta';
-        const authorLink = document.createElement('a'); authorLink.href = 'profile.html?user=' + encodeURIComponent(msg.sender); authorLink.textContent = msg.sender;
-        const timeSpan = document.createElement('span'); timeSpan.textContent = ' · ' + new Date(msg.time).toLocaleString();
+        const nick = msg.senderNickname || 'Foydalanuvchi';
+        const authorLink = document.createElement('a'); authorLink.href = 'profile.html?user=' + encodeURIComponent(nick); authorLink.textContent = nick;
+        const when = msg.time && msg.time.toDate ? msg.time.toDate().toLocaleString() : '';
+        const timeSpan = document.createElement('span'); timeSpan.textContent = ' · ' + when;
         meta.appendChild(authorLink); meta.appendChild(timeSpan);
         const text = document.createElement('div'); text.className = 'msg-text'; text.textContent = msg.text;
-        text.addEventListener('click', ()=>{ window.location.href = 'profile.html?user=' + encodeURIComponent(msg.sender); });
-        const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.title = "O'chirish"; del.onclick = () => deleteMessage(msg.id);
-        div.appendChild(meta); div.appendChild(text); div.appendChild(del); chatEl.appendChild(div);
+        div.appendChild(meta); div.appendChild(text);
+        if (msg.senderUid === myUid || isAdmin) {
+          const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.title = "O'chirish"; del.onclick = () => deleteMessage(msg.id);
+          div.appendChild(del);
+        }
+        chatEl.appendChild(div);
       });
       chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    function sendMessage() { const text = inputEl.value.trim(); if(!text) return; const messages = loadMessages(currentGroup); const message = { id: Date.now() + '_' + Math.random().toString(36).slice(2,7), sender: username, text, time: Date.now() }; messages.push(message); saveMessages(currentGroup, messages); inputEl.value = ''; renderMessages(); }
-    function deleteMessage(id) { let messages = loadMessages(currentGroup); messages = messages.filter(m => m.id !== id); saveMessages(currentGroup, messages); renderMessages(); }
+    async function sendMessage() {
+      const text = inputEl.value.trim();
+      if (!text || !myUid) return;
+      inputEl.value = '';
+      try {
+        await messagesRef().add({
+          senderUid: myUid,
+          senderNickname: username,
+          text: text,
+          time: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        if (currentThread.type === 'dm') {
+          await db.collection('dms').doc(currentThread.id).set({
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastMessageText: text.slice(0, 80)
+          }, { merge: true });
+        }
+      } catch (e) {
+        console.error('Yuborishda xato:', e);
+        inputEl.value = text;
+        alert('Xabar yuborilmadi: ' + (e.code || e.message));
+      }
+    }
 
-    function videoRoomName(group){
-      // Jitsi xona nomi — guruhga xos, taxmin qilish qiyinroq bo'lishi uchun loyiha nomi bilan birga
-      return 'AniRudeusCommunity-' + group.replace(/[^a-zA-Z0-9]/g, '');
+    async function deleteMessage(id) {
+      try { await messagesRef().doc(id).delete(); }
+      catch (e) { alert("O'chirib bo'lmadi: " + (e.code || e.message)); }
+    }
+
+    function videoRoomName(threadId){
+      // Jitsi xona nomi — suhbatga xos, taxmin qilish qiyinroq bo'lishi uchun loyiha nomi bilan birga
+      return 'AniRudeusCommunity-' + threadId.replace(/[^a-zA-Z0-9]/g, '');
     }
 
     function setMode(mode){
@@ -290,20 +368,112 @@
       inputAreaEl.style.display = isVideo ? 'none' : 'flex';
       videoPaneEl.style.display = isVideo ? 'flex' : 'none';
       if (isVideo) {
-        videoFrameEl.src = 'https://meet.jit.si/' + videoRoomName(currentGroup) + '#config.prejoinPageEnabled=true';
+        videoFrameEl.src = 'https://meet.jit.si/' + videoRoomName(currentThread.id) + '#config.prejoinPageEnabled=true';
       } else {
         videoFrameEl.src = 'about:blank';
       }
     }
 
     function showGroup(group) {
-      currentGroup = group;
+      currentThread = { type: 'group', id: group, label: groupLabel(group) };
       groupTitleEl.textContent = 'Guruh: ' + groupLabel(group);
-      document.querySelectorAll('.group-list .btn').forEach(b => b.classList.remove('active'));
+      clearActive();
       const btn = document.getElementById('btn-group-' + group);
       if (btn) btn.classList.add('active');
       setMode('chat');
-      renderMessages();
+      listenMessages();
+    }
+
+    function showDM(dmId, otherNick) {
+      currentThread = { type: 'dm', id: dmId, label: otherNick };
+      groupTitleEl.textContent = '👤 ' + otherNick;
+      clearActive();
+      const btn = document.getElementById('btn-dm-' + dmId);
+      if (btn) btn.classList.add('active');
+      setMode('chat');
+      listenMessages();
+    }
+
+    // ---- People: qidirish va shaxsiy yozishma ----
+    async function openDM(otherUid, otherNick) {
+      const dmId = [myUid, otherUid].sort().join('_');
+      try {
+        if (!dmCache[dmId]) {
+          const names = {}; names[myUid] = username; names[otherUid] = otherNick;
+          await db.collection('dms').doc(dmId).set({
+            participants: [myUid, otherUid].sort(),
+            participantNicknames: names,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            lastMessageText: ''
+          }, { merge: true });
+        }
+      } catch (e) {
+        alert('Suhbatni ochib bo\'lmadi: ' + (e.code || e.message));
+        return;
+      }
+      peopleSearchEl.value = '';
+      searchResultsEl.innerHTML = '';
+      showDM(dmId, otherNick);
+    }
+
+    function listenDMs() {
+      if (unsubDMs) unsubDMs();
+      unsubDMs = db.collection('dms').where('participants', 'array-contains', myUid).onSnapshot(snap => {
+        dmCache = {};
+        const items = [];
+        snap.forEach(d => {
+          const data = d.data();
+          const otherUid = (data.participants || []).find(u => u !== myUid);
+          const nick = (data.participantNicknames || {})[otherUid] || 'Foydalanuvchi';
+          dmCache[d.id] = { otherUid: otherUid, otherNick: nick };
+          const t = data.updatedAt && data.updatedAt.toMillis ? data.updatedAt.toMillis() : 0;
+          items.push({ id: d.id, nick: nick, t: t });
+        });
+        items.sort((a, b) => b.t - a.t);
+        dmListEl.innerHTML = '';
+        items.forEach(it => {
+          const btn = document.createElement('button');
+          btn.className = 'btn' + (currentThread.type === 'dm' && currentThread.id === it.id ? ' active' : '');
+          btn.id = 'btn-dm-' + it.id;
+          btn.textContent = '👤 ' + it.nick;
+          btn.onclick = () => showDM(it.id, it.nick);
+          dmListEl.appendChild(btn);
+        });
+      }, err => console.error('DM ro\'yxatida xato:', err));
+    }
+
+    let searchTimer = null;
+    peopleSearchEl.addEventListener('input', () => {
+      clearTimeout(searchTimer);
+      const term = peopleSearchEl.value.trim().toLowerCase();
+      if (term.length < 2) { searchResultsEl.innerHTML = ''; return; }
+      searchTimer = setTimeout(() => searchPeople(term), 300);
+    });
+
+    async function searchPeople(term) {
+      try {
+        const snap = await db.collection('users')
+          .where('nicknameLower', '>=', term)
+          .where('nicknameLower', '<=', term + '\uf8ff')
+          .limit(8).get();
+        searchResultsEl.innerHTML = '';
+        let shown = 0;
+        snap.forEach(d => {
+          if (d.id === myUid) return;
+          shown++;
+          const data = d.data();
+          const row = document.createElement('div');
+          row.className = 'people-result';
+          const name = document.createElement('span'); name.textContent = data.nickname || 'Foydalanuvchi';
+          const btn = document.createElement('button'); btn.textContent = 'Yozish';
+          btn.onclick = () => openDM(d.id, data.nickname || 'Foydalanuvchi');
+          row.appendChild(name); row.appendChild(btn);
+          searchResultsEl.appendChild(row);
+        });
+        if (shown === 0) searchResultsEl.innerHTML = '<div class="people-empty">Hech kim topilmadi.</div>';
+      } catch (e) {
+        searchResultsEl.innerHTML = '<div class="people-empty">Qidirishda xato: ' + (e.code || e.message) + '</div>';
+      }
     }
 
     const loginBtn = document.getElementById('loginBtn');
@@ -342,10 +512,13 @@
         }
         const data = doc.data();
         username = data.nickname;
+        myUid = user.uid;
+        isAdmin = (data.role === 'admin');
         localStorage.setItem('chat_username', username);
         updateAuthButtons(username);
         renderSidebar(data.field);
         showGroup('main');
+        listenDMs();
 
         const adminLink = document.getElementById('adminLink');
         if(adminLink) adminLink.style.display = (data.role === 'admin') ? 'inline-flex' : 'none';
