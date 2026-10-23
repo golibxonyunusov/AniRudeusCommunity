@@ -578,25 +578,17 @@
   <!-- ---------- Gemini AI (Firebase AI Logic, Gemini Developer API — bepul tarif) ---------- -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
+    import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
     import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-ai.js";
 
     // firebaseConfig — firebase-config.js faylida e'lon qilingan (shu sahifada avvalroq ulangan)
     const aiApp = initializeApp(firebaseConfig, 'aiApp');
 
-    // AI Logic endi App Check talab qiladi. Mahalliy (localhost/127.0.0.1) test uchun
-    // "debug token" rejimidan foydalanamiz — birinchi ishga tushirishda konsolda
-    // "AppCheck debug token: ..." deb chiqadi, shu tokenni Firebase Console'da
-    // Security > App Check > Apps > (uch nuqta) > Manage debug tokens bo'limiga qo'shing.
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      // Qat'iy (o'zgarmas) debug token — konsoldan qidirish shart emas,
-      // aynan shu qatorni Firebase Console'ga qo'lda kiritasiz (pastdagi izohga qarang).
-      self.FIREBASE_APPCHECK_DEBUG_TOKEN = "3f9d2a41-8b6c-4e2a-9f31-7c5b0e2d41aa";
-    }
+    // AI Logic App Check talab qiladi. Bu yerda faqat OMMAVIY "site key" turadi
+    // (maxfiy "secret key" kodga hech qachon yozilmaydi — u faqat Firebase Console'da).
+    // Debug token kodga yozilmaydi.
     initializeAppCheck(aiApp, {
-      // Sayt haqiqiy domenga joylanganda bu yerga o'sha domen uchun
-      // ro'yxatdan o'tkazilgan reCAPTCHA v3 sayt kalitini qo'yish kerak bo'ladi.
-      provider: new ReCaptchaV3Provider('6LffD9OtAAAAAOQgdAgwetJTVOzyo5B_O7fDkEIg'),
+      provider: new ReCaptchaEnterpriseProvider('6LdTk_wtAAAAAJAu1lmJlCz6Brvjl0ai9swMjJZQ'),
       isTokenAutoRefreshEnabled: true
     });
 
