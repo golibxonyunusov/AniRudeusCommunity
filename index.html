@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat — AniRudeus Community</title>
+  <title>Chat — IT-Community</title>
+  <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="theme.css">
   <style>
     body{ display:flex; flex-direction:column; height:100vh; overflow:hidden; }
@@ -167,7 +168,7 @@
 <body>
 
   <nav class="site-nav">
-    <a href="index.html" class="brand">AniRudeus<span>.</span></a>
+    <a href="index.html" class="brand" style="display:flex;align-items:center"><img src="logo.png" alt="IT-Community" style="height:40px;width:40px;border-radius:10px;vertical-align:middle;display:block"></a>
 
     <div class="nav-links">
       <a href="index.html" id="link-home" class="active">Home</a>
@@ -595,7 +596,7 @@
     const aiService = getAI(aiApp, { backend: new GoogleAIBackend() });
     const model = getGenerativeModel(aiService, {
       model: 'gemini-3.6-flash',
-      systemInstruction: "Siz AniRudeus Community saytining AI yordamchisisiz. Foydalanuvchilarga o'zbek tilida, qisqa va aniq javob bering. Agar savol boshqa tilda yozilsa, o'sha tilda javob bering."
+      systemInstruction: "Siz IT-Community saytining AI yordamchisisiz. Foydalanuvchilarga o'zbek tilida, qisqa va aniq javob bering. Agar savol boshqa tilda yozilsa, o'sha tilda javob bering."
     });
 
     let chatSession = null;
