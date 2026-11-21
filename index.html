@@ -554,7 +554,7 @@
   </div>
 
   <script>
-    // AI tugmasi -> modalni ochish/yopish (xabar yuborish quyidagi Gemini modul skriptida)
+    // AI tugmasi -> modalni ochish/yopish (xabar yuborish quyidagi AI modul skriptida)
     (function(){
       const btn = document.getElementById('btn-ai');
       const modal = document.getElementById('aiModal');
@@ -576,34 +576,14 @@
     })();
   </script>
 
-  <!-- ---------- Gemini AI (Firebase AI Logic, Gemini Developer API — bepul tarif) ---------- -->
+  <!-- ---------- AI yordamchi (Groq, Cloudflare Worker orqali) ---------- -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-    import { initializeAppCheck, ReCaptchaEnterpriseProvider } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app-check.js";
-    import { getAI, getGenerativeModel, GoogleAIBackend } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-ai.js";
+    // Cloudflare Worker manzili (worker.js ni deploy qilgach shu yerga qo'ying).
+    // API kalit sahifada EMAS, faqat Worker'ning maxfiy sozlamalarida turadi.
+    const AI_PROXY_URL = "https://silent-leaf-63ba.golibxonyunusov9.workers.dev";
 
-    // firebaseConfig — firebase-config.js faylida e'lon qilingan (shu sahifada avvalroq ulangan)
-    const aiApp = initializeApp(firebaseConfig, 'aiApp');
-
-    // AI Logic App Check talab qiladi. Bu yerda faqat OMMAVIY "site key" turadi
-    // (maxfiy "secret key" kodga hech qachon yozilmaydi — u faqat Firebase Console'da).
-    // Debug token kodga yozilmaydi.
-    initializeAppCheck(aiApp, {
-      provider: new ReCaptchaEnterpriseProvider('6LcJk_wtAAAAAEZdFqJLtMiItfW9yj9pUBQtBAtm'),
-      isTokenAutoRefreshEnabled: true
-    });
-
-    const aiService = getAI(aiApp, { backend: new GoogleAIBackend() });
-    const model = getGenerativeModel(aiService, {
-      model: 'gemini-3.6-flash',
-      systemInstruction: "Siz IT-Community saytining AI yordamchisisiz. Foydalanuvchilarga o'zbek tilida, qisqa va aniq javob bering. Agar savol boshqa tilda yozilsa, o'sha tilda javob bering."
-    });
-
-    let chatSession = null;
-    function getChatSession(){
-      if(!chatSession){ chatSession = model.startChat({ history: [] }); }
-      return chatSession;
-    }
+    // Suhbat tarixi (oxirgi xabarlar Worker'ga yuboriladi)
+    let chatHistory = [];
 
     const aiBody = document.getElementById('aiBody');
     const aiEmpty = document.getElementById('aiEmpty');
@@ -663,16 +643,29 @@
       const typingEl = addBubble('Yozyapti...', 'typing');
 
       try{
-        const result = await getChatSession().sendMessage(text);
-        const answer = result.response.text();
+        chatHistory.push({ role: 'user', content: text });
+        if(chatHistory.length > 12) chatHistory = chatHistory.slice(-12);
+
+        const res = await fetch(AI_PROXY_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messages: chatHistory })
+        });
+        const data = await res.json().catch(()=> ({}));
+        if(!res.ok || !data.reply){ throw new Error(data.error || ('HTTP ' + res.status)); }
+
+        chatHistory.push({ role: 'assistant', content: data.reply });
         typingEl.remove();
-        addBubble(answer, 'bot');
+        addBubble(data.reply, 'bot');
       }catch(err){
-        console.error('Gemini xatosi:', err);
+        console.error('AI xatosi:', err);
         typingEl.remove();
-        let msg = "Kechirasiz, AI hozircha javob bera olmadi.";
-        if(String(err && err.message).toLowerCase().includes('permission') || String(err && err.message).toLowerCase().includes('not enabled')){
-          msg = "AI hali sozlanmagan: Firebase Console → AI Logic bo'limida Gemini Developer API'ni yoqib qo'ying.";
+        chatHistory.pop(); // muvaffaqiyatsiz so'rovni tarixdan olib tashlaymiz
+        let msg = "Kechirasiz, AI hozircha javob bera olmadi. Birozdan keyin qayta urinib ko'ring.";
+        if(AI_PROXY_URL.includes('SHU-YERGA')){
+          msg = "AI hali sozlanmagan: index.html ichidagi AI_PROXY_URL ga Worker manzilini yozing.";
+        } else if(String(err && err.message).includes('429')){
+          msg = "Hozir so'rovlar ko'p, bir daqiqadan keyin qayta urinib ko'ring.";
         }
         addBubble(msg, 'bot error');
       }finally{
