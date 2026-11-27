@@ -230,6 +230,9 @@
   .vid img,.vid iframe{width:100%;height:100%;border:0;object-fit:cover;display:block}
   .vid .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
   .work a.ext{display:inline-block;color:var(--gold);font-weight:600;font-size:13.5px;text-decoration:none}
+
+  .shot{width:100%;border-radius:10px;display:block;border:1px solid var(--line)}
+  .prev{max-width:100%;max-height:200px;border-radius:10px;margin-top:8px;display:none;border:1px solid var(--line)}
 </style>
 </head>
 <body>
@@ -530,7 +533,14 @@
       const box = document.createElement('div'); box.className = 'work';
       const t = document.createElement('div'); t.className = 'wt'; t.textContent = w.title || ''; box.appendChild(t);
       const id = ytId(w.url);
-      if(id){
+      if(w.image && /^data:image\//.test(w.image)){
+        const im = document.createElement('img'); im.className = 'shot'; im.src = w.image; im.alt = w.title || '';
+        if(safeUrl(w.url)){
+          const a = document.createElement('a'); a.href = w.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.appendChild(im); box.appendChild(a);
+          const b = document.createElement('a'); b.className = 'ext'; b.href = w.url; b.target = '_blank'; b.rel = 'noopener noreferrer';
+          b.style.display = 'inline-block'; b.style.marginTop = '8px'; b.textContent = 'Saytni / dasturni ochish ↗'; box.appendChild(b);
+        } else box.appendChild(im);
+      } else if(id){
         const v = document.createElement('div'); v.className = 'vid';
         const im = document.createElement('img'); im.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; im.alt = ''; im.loading = 'lazy';
         const pl = document.createElement('div'); pl.className = 'play'; pl.textContent = '▶';
@@ -545,7 +555,7 @@
         box.appendChild(v);
       } else if(safeUrl(w.url)){
         const a = document.createElement('a'); a.className = 'ext'; a.href = w.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
-        a.textContent = 'Ishni ochish ↗'; box.appendChild(a);
+        a.textContent = 'Videoni ochish ↗'; box.appendChild(a);
       }
       if(w.desc){ const d = document.createElement('div'); d.className = 'wd'; d.textContent = w.desc; box.appendChild(d); }
       return box;
@@ -591,7 +601,7 @@
           };
           const mine = worksBy[doc.id] || [];
           const wbtn = document.createElement('button'); wbtn.type='button'; wbtn.className='works-btn';
-          wbtn.textContent = mine.length ? ('🎬 Ishlarini ko\'rish (' + mine.length + ')') : 'Hali ish joylamagan';
+          wbtn.textContent = mine.length ? ('Ishlarini ko\'rish (' + mine.length + ')') : 'Hali ish joylamagan';
           wbtn.disabled = !mine.length; if(!mine.length){ wbtn.style.opacity='.55'; wbtn.style.cursor='default'; }
           info.appendChild(wbtn);
           const wrap = document.createElement('div'); wrap.className='works';

@@ -35,19 +35,26 @@
   .vid .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
   .work a.ext{color:var(--gold);font-weight:600;font-size:14px;text-decoration:none;word-break:break-all}
   .empty{color:var(--muted);text-align:center;padding:24px 0;font-size:14px}
+
+  .shot{width:100%;border-radius:10px;display:block;border:1px solid var(--line)}
+  .prev{max-width:100%;max-height:200px;border-radius:10px;margin-top:8px;display:none;border:1px solid var(--line)}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><h1>Ishlarim</h1><a href="index.html">← Chatga qaytish</a></div>
-  <p class="lead">Dastur yoki ishingiz videosini joylang. Buyurtma bermoqchi bo'lganlar sizning sohangizdagi ro'yxatda shularni ko'rib, sizni tanlaydi.</p>
+  <p class="lead"><span id="leadText">Ishingizni joylang. Buyurtma bermoqchi bo'lganlar sizning sohangizdagi ro'yxatda shularni ko'rib, sizni tanlaydi.</span></p>
 
   <div class="card">
     <div class="field"><label for="wTitle">Sarlavha</label>
       <input id="wTitle" type="text" maxlength="80" placeholder="Masalan: Do'kon sayti, Telegram bot demo"></div>
-    <div class="field"><label for="wUrl">Video yoki ish havolasi</label>
-      <input id="wUrl" type="url" maxlength="300" placeholder="https://youtube.com/watch?v=...">
-      <div class="hint">YouTube havolasi bo'lsa video shu yerning o'zida ochiladi. Boshqa havola (Google Drive, Telegram, GitHub, sayt) "Ishni ochish" tugmasi bo'lib chiqadi.</div></div>
+    <div class="field"><label for="wUrl" id="wUrlLabel">Havola</label>
+      <input id="wUrl" type="url" maxlength="300" placeholder="https://...">
+      <div class="hint" id="wUrlHint"></div></div>
+    <div class="field" id="imgBlock" style="display:none"><label for="wImg">Saytning / dasturning rasmi (skrinshot)</label>
+      <input id="wImg" type="file" accept="image/*">
+      <div class="hint">Rasm avtomatik kichraytiriladi. Asosiy oynangiz skrinshotini yuklang.</div>
+      <img id="wPrev" class="prev" alt=""></div>
     <div class="field"><label for="wDesc">Ma'lumot (ixtiyoriy)</label>
       <textarea id="wDesc" maxlength="500" placeholder="Qaysi texnologiyalar, qancha vaqt, narx va hokazo"></textarea></div>
     <button class="btn" id="wAdd">Joylash</button>
@@ -76,28 +83,36 @@
   }
   function safeUrl(u){ return /^https?:\/\//i.test(u||'') ? u : null; }
   function renderWork(w){
-    const box = document.createElement('div'); box.className = 'work';
-    const t = document.createElement('div'); t.className = 'wt'; t.textContent = w.title || ''; box.appendChild(t);
-    const id = ytId(w.url);
-    if(id){
-      const v = document.createElement('div'); v.className = 'vid';
-      const im = document.createElement('img'); im.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; im.alt=''; im.loading='lazy';
-      const pl = document.createElement('div'); pl.className = 'play'; pl.textContent = '▶';
-      v.append(im, pl);
-      v.onclick = ()=>{
-        v.innerHTML=''; const f = document.createElement('iframe');
-        f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
-        f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
-        v.appendChild(f); v.style.cursor='default';
-      };
-      box.appendChild(v);
-    } else if(safeUrl(w.url)){
-      const a = document.createElement('a'); a.className='ext'; a.href=w.url; a.target='_blank'; a.rel='noopener noreferrer';
-      a.textContent = 'Ishni ochish ↗'; box.appendChild(a);
+      const box = document.createElement('div'); box.className = 'work';
+      const t = document.createElement('div'); t.className = 'wt'; t.textContent = w.title || ''; box.appendChild(t);
+      const id = ytId(w.url);
+      if(w.image && /^data:image\//.test(w.image)){
+        const im = document.createElement('img'); im.className = 'shot'; im.src = w.image; im.alt = w.title || '';
+        if(safeUrl(w.url)){
+          const a = document.createElement('a'); a.href = w.url; a.target = '_blank'; a.rel = 'noopener noreferrer'; a.appendChild(im); box.appendChild(a);
+          const b = document.createElement('a'); b.className = 'ext'; b.href = w.url; b.target = '_blank'; b.rel = 'noopener noreferrer';
+          b.style.display = 'inline-block'; b.style.marginTop = '8px'; b.textContent = 'Saytni / dasturni ochish ↗'; box.appendChild(b);
+        } else box.appendChild(im);
+      } else if(id){
+        const v = document.createElement('div'); v.className = 'vid';
+        const im = document.createElement('img'); im.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; im.alt = ''; im.loading = 'lazy';
+        const pl = document.createElement('div'); pl.className = 'play'; pl.textContent = '▶';
+        v.append(im, pl);
+        v.onclick = ()=>{
+          v.innerHTML = '';
+          const f = document.createElement('iframe');
+          f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+          f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+          v.appendChild(f); v.style.cursor = 'default';
+        };
+        box.appendChild(v);
+      } else if(safeUrl(w.url)){
+        const a = document.createElement('a'); a.className = 'ext'; a.href = w.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.textContent = 'Videoni ochish ↗'; box.appendChild(a);
+      }
+      if(w.desc){ const d = document.createElement('div'); d.className = 'wd'; d.textContent = w.desc; box.appendChild(d); }
+      return box;
     }
-    if(w.desc){ const d = document.createElement('div'); d.className='wd'; d.textContent = w.desc; box.appendChild(d); }
-    return box;
-  }
 
   let me = null, myNick = '', myField = null;
   function msg(t, ok){ const m=document.getElementById('wMsg'); m.textContent=t; m.className='msg show '+(ok?'ok':'err'); }
@@ -108,6 +123,7 @@
     const doc = await db.collection('users').doc(user.uid).get();
     if(!doc.exists || !doc.data().profileComplete){ location.href='onboarding.html'; return; }
     myNick = doc.data().nickname || ''; myField = doc.data().field;
+    configureForm();
 
     db.collection('portfolio').where('ownerUid','==',user.uid).onSnapshot(snap=>{
       const list = document.getElementById('list');
@@ -127,6 +143,61 @@
     }, err=>{ document.getElementById('list').innerHTML='<div class="empty">Xatolik: '+err.message+'</div>'; });
   });
 
+  const IT_FIELDS = ['web','app','other'];
+  let isIT = false, pickedImage = '';
+
+  function configureForm(){
+    isIT = IT_FIELDS.indexOf(myField) > -1;
+    const L = document.getElementById('wUrlLabel'), H = document.getElementById('wUrlHint'), U = document.getElementById('wUrl');
+    if(isIT){
+      document.getElementById('leadText').textContent = "Saytingiz yoki dasturingiz havolasi va rasmini joylang. Buyurtmachilar shuni ko'rib sizni tanlaydi.";
+      L.textContent = 'Sayt yoki dastur havolasi';
+      H.textContent = "Sayt manzili, Play Market, GitHub yoki boshqa havola.";
+      U.placeholder = 'https://sizning-saytingiz.uz';
+      document.getElementById('imgBlock').style.display = 'block';
+    } else {
+      document.getElementById('leadText').textContent = "Ishingiz videosini joylang. Buyurtmachilar shuni ko'rib sizni tanlaydi.";
+      L.textContent = 'Video havolasi';
+      H.textContent = "YouTube havolasi bo'lsa video shu yerning o'zida ochiladi. Boshqa havola (Google Drive, Telegram va hokazo) tugma bo'lib chiqadi.";
+      U.placeholder = 'https://youtube.com/watch?v=...';
+      document.getElementById('imgBlock').style.display = 'none';
+    }
+  }
+
+  // Rasmni kichraytirib, matn (data URL) ko'rinishiga o'tkazish
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      const fr = new FileReader();
+      fr.onerror = ()=>reject(new Error('Faylni o\'qib bo\'lmadi'));
+      fr.onload = ()=>{
+        const img = new Image();
+        img.onerror = ()=>reject(new Error('Bu rasm emas yoki buzilgan'));
+        img.onload = ()=>{
+          const maxW = 900, k = Math.min(1, maxW / img.width);
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          let q = 0.75, out = c.toDataURL('image/jpeg', q);
+          while(out.length > 380000 && q > 0.3){ q -= 0.1; out = c.toDataURL('image/jpeg', q); }
+          if(out.length > 380000) return reject(new Error('Rasm juda katta'));
+          resolve(out);
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+
+  document.getElementById('wImg').onchange = async (e)=>{
+    const f = e.target.files[0]; pickedImage = '';
+    const pv = document.getElementById('wPrev'); pv.style.display = 'none';
+    if(!f) return;
+    try{
+      pickedImage = await compressImage(f);
+      pv.src = pickedImage; pv.style.display = 'block';
+    }catch(err){ msg(err.message, false); e.target.value=''; }
+  };
+
   document.getElementById('wAdd').onclick = async ()=>{
     const title = document.getElementById('wTitle').value.trim();
     const url = document.getElementById('wUrl').value.trim();
@@ -134,15 +205,19 @@
     const btn = document.getElementById('wAdd');
     if(!title){ msg('Sarlavha yozing.', false); return; }
     if(!safeUrl(url)){ msg('Havola https:// bilan boshlanishi kerak.', false); return; }
+    if(isIT && !pickedImage){ msg('Saytning rasmini (skrinshot) tanlang.', false); return; }
     if(!myField){ msg('Soha aniqlanmadi, qayta kiring.', false); return; }
     btn.disabled = true; btn.textContent = 'Joylanmoqda...';
     try{
       await db.collection('portfolio').add({
         ownerUid: me.uid, ownerNickname: myNick, field: myField,
+        kind: isIT ? 'it' : 'video',
         title: title, url: url, desc: desc,
+        image: isIT ? pickedImage : '',
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      ['wTitle','wUrl','wDesc'].forEach(i=>document.getElementById(i).value='');
+      ['wTitle','wUrl','wDesc','wImg'].forEach(i=>document.getElementById(i).value='');
+      pickedImage = ''; document.getElementById('wPrev').style.display = 'none';
       msg('Joylandi! Endi buyurtmachilar buni ko\'radi.', true);
     }catch(e){ msg('Xatolik: '+e.message, false); }
     finally{ btn.disabled=false; btn.textContent='Joylash'; }

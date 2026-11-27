@@ -1,24 +1,24 @@
-// Firestore Rules ichida, "match /databases/{database}/documents { ... }" ichiga,
-// orders blokidan keyin (yopuvchi qavslardan OLDIN) qo'shing:
+// Firebase Rules ichida eski "match /portfolio/{workId} { ... }" blokini
+// butunlay shu bilan ALMASHTIRING (documents { } ichida, orders blokidan keyin):
 
     match /portfolio/{workId} {
-      // Hamma ko'ra oladi (buyurtmachilar mehmon bo'lgani uchun)
       allow read: if true;
 
-      // Faqat tizimga kirgan odam, faqat o'z nomidan joylaydi
       allow create: if signedIn()
         && request.resource.data.ownerUid == request.auth.uid
         && request.resource.data.keys().hasOnly(
-             ['ownerUid','ownerNickname','field','title','url','desc','createdAt'])
+             ['ownerUid','ownerNickname','field','kind','title','url','desc','image','createdAt'])
+        && request.resource.data.kind in ['it','video']
         && request.resource.data.title is string
         && request.resource.data.title.size() >= 1 && request.resource.data.title.size() <= 80
         && request.resource.data.url is string
         && request.resource.data.url.size() <= 300
         && request.resource.data.url.matches('https?://.*')
         && request.resource.data.desc is string && request.resource.data.desc.size() <= 500
+        && request.resource.data.image is string && request.resource.data.image.size() <= 400000
+        && (request.resource.data.kind == 'video' || request.resource.data.image.size() > 0)
         && request.resource.data.createdAt == request.time;
 
-      // O'z ishini o'zi o'chiradi (admin ham o'chira oladi)
       allow delete: if signedIn() && (resource.data.ownerUid == request.auth.uid || isAdmin());
       allow update: if false;
     }
