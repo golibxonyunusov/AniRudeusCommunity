@@ -180,6 +180,43 @@
     .brand-panel{display:none}
     .auth-panel{padding:24px}
   }
+
+  /* ---------- Buyurtma berish ---------- */
+  .order-open-btn{
+    width:100%;padding:14px;margin-bottom:14px;border-radius:12px;cursor:pointer;
+    background:rgba(53,230,160,0.1);border:1px solid rgba(53,230,160,0.45);color:var(--mint);
+    font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px;
+    transition:transform .12s ease, background .15s ease;
+  }
+  .order-open-btn:hover{transform:translateY(-2px);background:rgba(53,230,160,0.18)}
+  .ov{position:fixed;inset:0;z-index:50;background:rgba(2,8,16,0.82);display:none;align-items:center;justify-content:center;padding:16px}
+  .ov.show{display:flex}
+  .ov-box{width:100%;max-width:560px;max-height:90vh;overflow:auto;background:var(--bg-1);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .ov-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .ov-head h3{font-family:'Space Grotesk',sans-serif;font-size:21px;margin:0;flex:1}
+  .ov-x,.ov-back{background:none;border:1px solid var(--line);color:var(--muted);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:13px}
+  .ov-x:hover,.ov-back:hover{color:var(--text)}
+  .ov-sub{color:var(--muted);font-size:14px;margin:0 0 18px}
+  .ov-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .ov-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:left;color:var(--text);cursor:pointer;font-family:inherit;transition:border-color .15s ease}
+  .ov-card:hover{border-color:var(--gold)}
+  .ov-card b{display:block;font-size:15px;margin-bottom:3px}
+  .ov-card span{font-size:12.5px;color:var(--muted)}
+  .person{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}
+  .avatar{width:46px;height:46px;border-radius:50%;flex:none;background:var(--gold);color:#0b1220;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;overflow:hidden}
+  .avatar img{width:100%;height:100%;object-fit:cover}
+  .person .info{flex:1;min-width:0}
+  .person .nm{font-weight:600;font-size:15px}
+  .person .tag{display:inline-block;margin-left:6px;font-size:11.5px;color:var(--mint);border:1px solid rgba(53,230,160,0.35);border-radius:20px;padding:1px 8px}
+  .person .bio{color:var(--muted);font-size:13px;margin-top:4px;line-height:1.45;word-break:break-word}
+  .person .pick{background:var(--gold);color:#0b1220;border:none;border-radius:8px;padding:9px 12px;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap}
+  .ov-empty{color:var(--muted);text-align:center;padding:26px 0;font-size:14px}
+  .ov textarea{width:100%;min-height:110px;resize:vertical;padding:13px 14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:15px;outline:none}
+  .ov textarea:focus{border-color:var(--gold)}
+  .ov .field input{width:100%}
+  .ov-to{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:16px}
+  .ov-to b{color:var(--gold)}
+  @media(max-width:480px){.ov-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -226,6 +263,7 @@
 
     <div class="auth-panel">
       <div class="auth-card">
+        <button type="button" class="order-open-btn" onclick="openOrder()">🛒 Buyurtma berish</button>
         <div class="tabs">
           <button id="tabLogin" class="active" onclick="switchTab('login')">Kirish</button>
           <button id="tabRegister" onclick="switchTab('register')">Ro'yxatdan o'tish</button>
@@ -275,6 +313,34 @@
 
           <div class="switch-line">Akkountingiz bormi? <button type="button" onclick="switchTab('login')">Kirish</button></div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- BUYURTMA OYNASI -->
+  <div class="ov" id="orderOv" onclick="if(event.target===this)closeOrder()">
+    <div class="ov-box">
+      <div class="ov-head">
+        <button class="ov-back" id="ovBack" onclick="orderBack()" style="display:none">← Orqaga</button>
+        <h3 id="ovTitle">Buyurtma berish</h3>
+        <button class="ov-x" onclick="closeOrder()">✕</button>
+      </div>
+      <p class="ov-sub" id="ovSub"></p>
+
+      <div id="ovStep1"><div class="ov-grid" id="ovFields"></div></div>
+
+      <div id="ovStep2" style="display:none"><div id="ovPeople"></div></div>
+
+      <div id="ovStep3" style="display:none">
+        <div class="ov-to" id="ovTo"></div>
+        <div class="field"><label for="ordName">Ismingiz</label>
+          <input id="ordName" type="text" maxlength="40" placeholder="Ismingiz"></div>
+        <div class="field"><label for="ordContact">Aloqa (Telegram @username yoki telefon)</label>
+          <input id="ordContact" type="text" maxlength="60" placeholder="@username yoki +998..."></div>
+        <div class="field"><label for="ordText">Buyurtma tavsifi</label>
+          <textarea id="ordText" maxlength="1000" placeholder="Nima kerak? Muddati va byudjetini ham yozing."></textarea></div>
+        <button class="submit-btn" id="ordSend" onclick="sendOrder()">Buyurtmani yuborish</button>
+        <div class="msg" id="ordMsg"></div>
       </div>
     </div>
   </div>
@@ -396,6 +462,109 @@
         }).catch(()=>{});
       }
     });
+  
+    // ================= BUYURTMA BERISH =================
+    const ORDER_FIELDS = [
+      {key:'web', label:'Web dasturchi', desc:'Sayt va veb-ilovalar'},
+      {key:'designer', label:'Dizayner', desc:'UI/UX va vizual dizayn'},
+      {key:'app', label:'App dasturchi', desc:'Mobil ilovalar'},
+      {key:'gamer', label:'Gamer', desc:'Jamoaviy o\'yin'},
+      {key:'streamer', label:'Streamer', desc:'Jonli translyatsiya'},
+      {key:'other', label:'Boshqa dasturchi', desc:'Boshqa tillarda'}
+    ];
+    const SUB_LABELS = {frontend:'Frontend', backend:'Backend'};
+    let ordField = null, ordPerson = null, ordStep = 1;
+
+    function ordShow(step){
+      ordStep = step;
+      [1,2,3].forEach(n=>document.getElementById('ovStep'+n).style.display = n===step ? 'block':'none');
+      document.getElementById('ovBack').style.display = step>1 ? 'inline-block':'none';
+      const t = document.getElementById('ovTitle'), sub = document.getElementById('ovSub');
+      if(step===1){ t.textContent='Buyurtma berish'; sub.textContent='Qaysi sohadagi mutaxassis kerak?'; }
+      if(step===2){ t.textContent=ORDER_FIELDS.find(f=>f.key===ordField).label; sub.textContent='Odamni tanlang va unga buyurtma bering.'; }
+      if(step===3){ t.textContent='Buyurtma'; sub.textContent='Ma\'lumotlarni to\'ldiring — buyurtma tanlangan odamga boradi.'; }
+    }
+    function openOrder(){
+      const g = document.getElementById('ovFields'); g.innerHTML='';
+      ORDER_FIELDS.forEach(f=>{
+        const b = document.createElement('button'); b.type='button'; b.className='ov-card';
+        const n = document.createElement('b'); n.textContent=f.label;
+        const d = document.createElement('span'); d.textContent=f.desc;
+        b.append(n,d); b.onclick=()=>loadPeople(f.key); g.appendChild(b);
+      });
+      ordShow(1);
+      document.getElementById('orderOv').classList.add('show');
+    }
+    function closeOrder(){ document.getElementById('orderOv').classList.remove('show'); }
+    function orderBack(){ if(ordStep===3) ordShow(2); else if(ordStep===2) ordShow(1); }
+
+    async function loadPeople(fieldKey){
+      ordField = fieldKey; ordShow(2);
+      const box = document.getElementById('ovPeople');
+      box.innerHTML = '<div class="ov-empty">Yuklanmoqda...</div>';
+      try{
+        const snap = await db.collection('users')
+          .where('field','==',fieldKey).where('profileComplete','==',true).get();
+        box.innerHTML = '';
+        if(snap.empty){ box.innerHTML = '<div class="ov-empty">Bu sohada hozircha odam yo\'q.</div>'; return; }
+        snap.forEach(doc=>{
+          const u = doc.data();
+          const row = document.createElement('div'); row.className='person';
+          const av = document.createElement('div'); av.className='avatar';
+          if(u.photo){ const im=document.createElement('img'); im.src=u.photo; im.alt=''; av.appendChild(im); }
+          else av.textContent = (u.nickname||'?').charAt(0).toUpperCase();
+          const info = document.createElement('div'); info.className='info';
+          const nm = document.createElement('div'); nm.className='nm'; nm.textContent = u.nickname||'Noma\'lum';
+          const sub = u.subfield ? (SUB_LABELS[u.subfield]||u.subfield) : '';
+          if(sub){ const tg=document.createElement('span'); tg.className='tag'; tg.textContent=sub; nm.appendChild(tg); }
+          info.appendChild(nm);
+          const bio = document.createElement('div'); bio.className='bio';
+          bio.textContent = u.bio ? u.bio : 'Hali o\'zi haqida yozmagan.';
+          info.appendChild(bio);
+          const pick = document.createElement('button'); pick.type='button'; pick.className='pick'; pick.textContent='Buyurtma berish';
+          pick.onclick = ()=>{
+            ordPerson = {uid:doc.id, nickname:u.nickname||''};
+            const to = document.getElementById('ovTo'); to.textContent='';
+            to.append('Qabul qiluvchi: ');
+            const bb=document.createElement('b'); bb.textContent=ordPerson.nickname; to.appendChild(bb);
+            document.getElementById('ordMsg').className='msg';
+            ordShow(3);
+          };
+          row.append(av,info,pick); box.appendChild(row);
+        });
+      }catch(err){
+        box.innerHTML = '<div class="ov-empty">Ro\'yxatni yuklab bo\'lmadi. (' + (err.message||'xato') + ')</div>';
+      }
+    }
+
+    async function sendOrder(){
+      const name = document.getElementById('ordName').value.trim();
+      const contact = document.getElementById('ordContact').value.trim();
+      const text = document.getElementById('ordText').value.trim();
+      const btn = document.getElementById('ordSend');
+      if(!name || !contact || text.length < 10){
+        showMsg('ordMsg', "Ism, aloqa va kamida 10 belgilik tavsifni yozing.", 'error'); return;
+      }
+      btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
+      try{
+        await db.collection('orders').add({
+          toUid: ordPerson.uid,
+          toNickname: ordPerson.nickname,
+          field: ordField,
+          fromName: name,
+          contact: contact,
+          text: text,
+          status: 'new',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        showMsg('ordMsg', "Buyurtma yuborildi! " + ordPerson.nickname + " siz bilan bog'lanadi.", 'success');
+        document.getElementById('ordText').value = '';
+      }catch(err){
+        showMsg('ordMsg', "Yuborib bo'lmadi: " + (err.message||'xato'), 'error');
+      }finally{
+        btn.disabled = false; btn.textContent = 'Buyurtmani yuborish';
+      }
+    }
   </script>
 </body>
 </html>
