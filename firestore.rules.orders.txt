@@ -1,0 +1,29 @@
+git status
+git add auth.html orders.html firestore.rules
+git commit -m "Buyurtma berish funksiyasi qo'shildi"
+git push
+
+// Ro'yxatdan o'tmagan mehmonlar ham sohadagi odamlar ro'yxatini ko'ra olishi uchun
+// (agar sizda users uchun read allaqachon ochiq bo'lsa, buni qo'shmang):
+match /users/{uid} {
+  allow read: if true;
+}
+
+match /orders/{orderId} {
+  // Hamma buyurtma yubora oladi, lekin faqat shu shakldagi hujjatni
+  allow create: if request.resource.data.keys().hasOnly(
+        ['toUid','toNickname','field','fromName','contact','text','status','createdAt'])
+    && request.resource.data.status == 'new'
+    && request.resource.data.toUid is string
+    && request.resource.data.fromName is string && request.resource.data.fromName.size() <= 40
+    && request.resource.data.contact is string && request.resource.data.contact.size() <= 60
+    && request.resource.data.text is string
+    && request.resource.data.text.size() >= 10 && request.resource.data.text.size() <= 1000
+    && request.resource.data.createdAt == request.time;
+
+  // Faqat qabul qiluvchining o'zi o'qiydi va holatini o'zgartiradi
+  allow read: if request.auth != null && resource.data.toUid == request.auth.uid;
+  allow update: if request.auth != null && resource.data.toUid == request.auth.uid
+    && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+  allow delete: if false;
+}
