@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="logo.png">
+<title>Buyurtmalarim — IT-Community</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg-0:#040f1c;--bg-1:#071c30;--panel:#0b2540;--line:rgba(255,255,255,0.08);--gold:#ffd400;--mint:#35e6a0;--text:#eaf2fb;--muted:#8ca3bd}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:'Inter',system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,var(--bg-0),var(--bg-1))}
+  .wrap{max-width:720px;margin:0 auto;padding:28px 16px 60px}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:26px;margin:0}
+  .top a{color:var(--gold);text-decoration:none;font-weight:600;font-size:14px}
+  .order{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+  .order.new{border-color:rgba(255,212,0,0.5)}
+  .row{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--muted);margin-bottom:8px}
+  .badge{font-size:11.5px;border-radius:20px;padding:2px 9px;border:1px solid var(--line)}
+  .badge.new{color:var(--gold);border-color:rgba(255,212,0,0.5)}
+  .badge.accepted{color:var(--mint);border-color:rgba(53,230,160,0.5)}
+  .badge.done{color:var(--muted)}
+  .who{font-weight:600;font-size:16px;margin-bottom:4px}
+  .contact{color:var(--mint);font-size:14px;margin-bottom:8px;word-break:break-all}
+  .text{font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+  .acts{display:flex;gap:8px;margin-top:12px}
+  .acts button{border:none;border-radius:8px;padding:8px 12px;font-weight:600;font-size:13px;cursor:pointer}
+  .b1{background:var(--gold);color:#0b1220}.b2{background:transparent;color:var(--muted);border:1px solid var(--line)!important}
+  .empty{color:var(--muted);text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Buyurtmalarim</h1><a href="index.html">← Chatga qaytish</a></div>
+  <div id="list"><div class="empty">Yuklanmoqda...</div></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  const ST = {new:'Yangi', accepted:'Qabul qilindi', done:'Bajarildi'};
+  auth.onAuthStateChanged(user=>{
+    if(!user){ location.href='auth.html'; return; }
+    db.collection('orders').where('toUid','==',user.uid).onSnapshot(snap=>{
+      const list = document.getElementById('list');
+      const docs = snap.docs.slice().sort((a,b)=>{
+        const ta=a.data().createdAt, tb=b.data().createdAt;
+        return (tb?tb.toMillis():Date.now()) - (ta?ta.toMillis():Date.now());
+      });
+      list.innerHTML='';
+      if(!docs.length){ list.innerHTML='<div class="empty">Hozircha buyurtma yo\'q.</div>'; return; }
+      docs.forEach(d=>{
+        const o=d.data(), st=o.status||'new';
+        const card=document.createElement('div'); card.className='order '+(st==='new'?'new':'');
+        const row=document.createElement('div'); row.className='row';
+        const dt=document.createElement('span'); dt.textContent=o.createdAt?o.createdAt.toDate().toLocaleString('uz-UZ'):'';
+        const bd=document.createElement('span'); bd.className='badge '+st; bd.textContent=ST[st]||st;
+        row.append(dt,bd);
+        const who=document.createElement('div'); who.className='who'; who.textContent=o.fromName||'';
+        const ct=document.createElement('div'); ct.className='contact'; ct.textContent=o.contact||'';
+        const tx=document.createElement('div'); tx.className='text'; tx.textContent=o.text||'';
+        card.append(row,who,ct,tx);
+        const acts=document.createElement('div'); acts.className='acts';
+        if(st==='new') acts.appendChild(mk('Qabul qilish','b1',()=>setSt(d.id,'accepted')));
+        if(st!=='done') acts.appendChild(mk('Bajarildi','b2',()=>setSt(d.id,'done')));
+        if(acts.children.length) card.appendChild(acts);
+        list.appendChild(card);
+      });
+    }, err=>{ document.getElementById('list').innerHTML='<div class="empty">Xatolik: '+err.message+'</div>'; });
+  });
+  function mk(t,c,fn){ const b=document.createElement('button'); b.textContent=t; b.className=c; b.onclick=fn; return b; }
+  function setSt(id,status){ db.collection('orders').doc(id).update({status}); }
+</script>
+</body>
+</html>
