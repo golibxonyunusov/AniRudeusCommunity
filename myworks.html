@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="logo.png">
+<title>Ishlarim — IT-Community</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg-0:#040f1c;--bg-1:#071c30;--panel:#0b2540;--line:rgba(255,255,255,0.08);--gold:#ffd400;--mint:#35e6a0;--text:#eaf2fb;--muted:#8ca3bd;--danger:#ff6b6b}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:'Inter',system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,var(--bg-0),var(--bg-1))}
+  .wrap{max-width:720px;margin:0 auto;padding:28px 16px 60px}
+  .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:26px;margin:0}
+  .top a{color:var(--gold);text-decoration:none;font-weight:600;font-size:14px}
+  .lead{color:var(--muted);font-size:14px;margin:0 0 20px;line-height:1.5}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+  .field input,.field textarea{width:100%;padding:12px 14px;background:var(--bg-1);border:1px solid var(--line);border-radius:10px;color:var(--text);font:inherit;font-size:15px;outline:none}
+  .field textarea{min-height:90px;resize:vertical}
+  .field input:focus,.field textarea:focus{border-color:var(--gold)}
+  .hint{font-size:12px;color:var(--muted);margin-top:5px}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14.5px;cursor:pointer;background:var(--gold);color:#0b1220}
+  .btn:disabled{opacity:.55;cursor:default}
+  .del{background:transparent;border:1px solid rgba(255,107,107,0.4);color:var(--danger);border-radius:8px;padding:6px 10px;font-size:12.5px;cursor:pointer;margin-top:10px}
+  .msg{margin-top:12px;font-size:13.5px;display:none}
+  .msg.show{display:block}.msg.err{color:#ffb3b3}.msg.ok{color:#a8f5d6}
+  h2{font-family:'Space Grotesk',sans-serif;font-size:18px;margin:26px 0 12px}
+  .work .wt{font-weight:600;font-size:15px;margin-bottom:8px}
+  .work .wd{color:var(--muted);font-size:13.5px;line-height:1.5;margin-top:8px;white-space:pre-wrap;word-break:break-word}
+  .vid{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000;cursor:pointer}
+  .vid img,.vid iframe{width:100%;height:100%;border:0;object-fit:cover;display:block}
+  .vid .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .work a.ext{color:var(--gold);font-weight:600;font-size:14px;text-decoration:none;word-break:break-all}
+  .empty{color:var(--muted);text-align:center;padding:24px 0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Ishlarim</h1><a href="index.html">← Chatga qaytish</a></div>
+  <p class="lead">Dastur yoki ishingiz videosini joylang. Buyurtma bermoqchi bo'lganlar sizning sohangizdagi ro'yxatda shularni ko'rib, sizni tanlaydi.</p>
+
+  <div class="card">
+    <div class="field"><label for="wTitle">Sarlavha</label>
+      <input id="wTitle" type="text" maxlength="80" placeholder="Masalan: Do'kon sayti, Telegram bot demo"></div>
+    <div class="field"><label for="wUrl">Video yoki ish havolasi</label>
+      <input id="wUrl" type="url" maxlength="300" placeholder="https://youtube.com/watch?v=...">
+      <div class="hint">YouTube havolasi bo'lsa video shu yerning o'zida ochiladi. Boshqa havola (Google Drive, Telegram, GitHub, sayt) "Ishni ochish" tugmasi bo'lib chiqadi.</div></div>
+    <div class="field"><label for="wDesc">Ma'lumot (ixtiyoriy)</label>
+      <textarea id="wDesc" maxlength="500" placeholder="Qaysi texnologiyalar, qancha vaqt, narx va hokazo"></textarea></div>
+    <button class="btn" id="wAdd">Joylash</button>
+    <div class="msg" id="wMsg"></div>
+  </div>
+
+  <h2>Joylangan ishlarim</h2>
+  <div id="list"><div class="empty">Yuklanmoqda...</div></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  function ytId(u){
+    try{
+      const x = new URL(u); let id = null;
+      if(x.hostname.indexOf('youtu.be') > -1) id = x.pathname.slice(1).split('/')[0];
+      else if(x.hostname.indexOf('youtube.com') > -1){
+        id = x.searchParams.get('v');
+        if(!id){ const m = x.pathname.match(/\/(shorts|embed|live)\/([\w-]+)/); if(m) id = m[2]; }
+      }
+      return (id && /^[\w-]{6,15}$/.test(id)) ? id : null;
+    }catch(e){ return null; }
+  }
+  function safeUrl(u){ return /^https?:\/\//i.test(u||'') ? u : null; }
+  function renderWork(w){
+    const box = document.createElement('div'); box.className = 'work';
+    const t = document.createElement('div'); t.className = 'wt'; t.textContent = w.title || ''; box.appendChild(t);
+    const id = ytId(w.url);
+    if(id){
+      const v = document.createElement('div'); v.className = 'vid';
+      const im = document.createElement('img'); im.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; im.alt=''; im.loading='lazy';
+      const pl = document.createElement('div'); pl.className = 'play'; pl.textContent = '▶';
+      v.append(im, pl);
+      v.onclick = ()=>{
+        v.innerHTML=''; const f = document.createElement('iframe');
+        f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+        f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+        v.appendChild(f); v.style.cursor='default';
+      };
+      box.appendChild(v);
+    } else if(safeUrl(w.url)){
+      const a = document.createElement('a'); a.className='ext'; a.href=w.url; a.target='_blank'; a.rel='noopener noreferrer';
+      a.textContent = 'Ishni ochish ↗'; box.appendChild(a);
+    }
+    if(w.desc){ const d = document.createElement('div'); d.className='wd'; d.textContent = w.desc; box.appendChild(d); }
+    return box;
+  }
+
+  let me = null, myNick = '', myField = null;
+  function msg(t, ok){ const m=document.getElementById('wMsg'); m.textContent=t; m.className='msg show '+(ok?'ok':'err'); }
+
+  auth.onAuthStateChanged(async user=>{
+    if(!user){ location.href='auth.html'; return; }
+    me = user;
+    const doc = await db.collection('users').doc(user.uid).get();
+    if(!doc.exists || !doc.data().profileComplete){ location.href='onboarding.html'; return; }
+    myNick = doc.data().nickname || ''; myField = doc.data().field;
+
+    db.collection('portfolio').where('ownerUid','==',user.uid).onSnapshot(snap=>{
+      const list = document.getElementById('list');
+      const docs = snap.docs.slice().sort((a,b)=>{
+        const ta=a.data().createdAt, tb=b.data().createdAt;
+        return (tb?tb.toMillis():Date.now()) - (ta?ta.toMillis():Date.now());
+      });
+      list.innerHTML='';
+      if(!docs.length){ list.innerHTML='<div class="empty">Hali ish joylamagansiz.</div>'; return; }
+      docs.forEach(d=>{
+        const card=document.createElement('div'); card.className='card';
+        card.appendChild(renderWork(d.data()));
+        const del=document.createElement('button'); del.className='del'; del.textContent='O\'chirish';
+        del.onclick=()=>{ if(confirm('Bu ishni o\'chiraymi?')) db.collection('portfolio').doc(d.id).delete(); };
+        card.appendChild(del); list.appendChild(card);
+      });
+    }, err=>{ document.getElementById('list').innerHTML='<div class="empty">Xatolik: '+err.message+'</div>'; });
+  });
+
+  document.getElementById('wAdd').onclick = async ()=>{
+    const title = document.getElementById('wTitle').value.trim();
+    const url = document.getElementById('wUrl').value.trim();
+    const desc = document.getElementById('wDesc').value.trim();
+    const btn = document.getElementById('wAdd');
+    if(!title){ msg('Sarlavha yozing.', false); return; }
+    if(!safeUrl(url)){ msg('Havola https:// bilan boshlanishi kerak.', false); return; }
+    if(!myField){ msg('Soha aniqlanmadi, qayta kiring.', false); return; }
+    btn.disabled = true; btn.textContent = 'Joylanmoqda...';
+    try{
+      await db.collection('portfolio').add({
+        ownerUid: me.uid, ownerNickname: myNick, field: myField,
+        title: title, url: url, desc: desc,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+      ['wTitle','wUrl','wDesc'].forEach(i=>document.getElementById(i).value='');
+      msg('Joylandi! Endi buyurtmachilar buni ko\'radi.', true);
+    }catch(e){ msg('Xatolik: '+e.message, false); }
+    finally{ btn.disabled=false; btn.textContent='Joylash'; }
+  };
+</script>
+</body>
+</html>

@@ -1,3 +1,3 @@
 git add .
-git commit -m "Logo IT-Community ga almashtirildi"
+git commit -m "Buyurtma qismi tayyor"
 git push

@@ -217,6 +217,19 @@
   .ov-to{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:14px;margin-bottom:16px}
   .ov-to b{color:var(--gold)}
   @media(max-width:480px){.ov-grid{grid-template-columns:1fr}}
+
+  .works-btn{background:transparent;border:1px solid var(--line);color:var(--mint);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:8px}
+  .works-btn:hover{border-color:var(--mint)}
+  .works{margin:-4px 0 12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:12px;display:none}
+  .works.show{display:block}
+  .work{margin-bottom:14px}
+  .work:last-child{margin-bottom:0}
+  .work .wt{font-weight:600;font-size:14px;margin-bottom:6px}
+  .work .wd{color:var(--muted);font-size:13px;line-height:1.5;margin-top:6px;white-space:pre-wrap;word-break:break-word}
+  .vid{position:relative;width:100%;aspect-ratio:16/9;border-radius:10px;overflow:hidden;background:#000;cursor:pointer}
+  .vid img,.vid iframe{width:100%;height:100%;border:0;object-fit:cover;display:block}
+  .vid .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:44px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.6)}
+  .work a.ext{display:inline-block;color:var(--gold);font-weight:600;font-size:13.5px;text-decoration:none}
 </style>
 </head>
 <body>
@@ -498,6 +511,46 @@
     function closeOrder(){ document.getElementById('orderOv').classList.remove('show'); }
     function orderBack(){ if(ordStep===3) ordShow(2); else if(ordStep===2) ordShow(1); }
 
+
+    // ---- Ishlar (portfolio) yordamchilari ----
+    function ytId(u){
+      try{
+        const x = new URL(u);
+        let id = null;
+        if(x.hostname.indexOf('youtu.be') > -1) id = x.pathname.slice(1).split('/')[0];
+        else if(x.hostname.indexOf('youtube.com') > -1){
+          id = x.searchParams.get('v');
+          if(!id){ const m = x.pathname.match(/\/(shorts|embed|live)\/([\w-]+)/); if(m) id = m[2]; }
+        }
+        return (id && /^[\w-]{6,15}$/.test(id)) ? id : null;
+      }catch(e){ return null; }
+    }
+    function safeUrl(u){ return /^https?:\/\//i.test(u||'') ? u : null; }
+    function renderWork(w){
+      const box = document.createElement('div'); box.className = 'work';
+      const t = document.createElement('div'); t.className = 'wt'; t.textContent = w.title || ''; box.appendChild(t);
+      const id = ytId(w.url);
+      if(id){
+        const v = document.createElement('div'); v.className = 'vid';
+        const im = document.createElement('img'); im.src = 'https://img.youtube.com/vi/' + id + '/hqdefault.jpg'; im.alt = ''; im.loading = 'lazy';
+        const pl = document.createElement('div'); pl.className = 'play'; pl.textContent = '▶';
+        v.append(im, pl);
+        v.onclick = ()=>{
+          v.innerHTML = '';
+          const f = document.createElement('iframe');
+          f.src = 'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1';
+          f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen'; f.allowFullscreen = true;
+          v.appendChild(f); v.style.cursor = 'default';
+        };
+        box.appendChild(v);
+      } else if(safeUrl(w.url)){
+        const a = document.createElement('a'); a.className = 'ext'; a.href = w.url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+        a.textContent = 'Ishni ochish ↗'; box.appendChild(a);
+      }
+      if(w.desc){ const d = document.createElement('div'); d.className = 'wd'; d.textContent = w.desc; box.appendChild(d); }
+      return box;
+    }
+
     async function loadPeople(fieldKey){
       ordField = fieldKey; ordShow(2);
       const box = document.getElementById('ovPeople');
@@ -507,6 +560,12 @@
           .where('field','==',fieldKey).where('profileComplete','==',true).get();
         box.innerHTML = '';
         if(snap.empty){ box.innerHTML = '<div class="ov-empty">Bu sohada hozircha odam yo\'q.</div>'; return; }
+        const worksBy = {};
+        try{
+          const ws = await db.collection('portfolio').where('field','==',fieldKey).get();
+          ws.forEach(w=>{ const d = w.data(); (worksBy[d.ownerUid] = worksBy[d.ownerUid] || []).push(d); });
+          Object.keys(worksBy).forEach(k=>worksBy[k].sort((a,b)=>(b.createdAt?b.createdAt.toMillis():0)-(a.createdAt?a.createdAt.toMillis():0)));
+        }catch(e){ console.warn('Ishlarni yuklab bo\'lmadi', e); }
         snap.forEach(doc=>{
           const u = doc.data();
           const row = document.createElement('div'); row.className='person';
@@ -530,7 +589,15 @@
             document.getElementById('ordMsg').className='msg';
             ordShow(3);
           };
-          row.append(av,info,pick); box.appendChild(row);
+          const mine = worksBy[doc.id] || [];
+          const wbtn = document.createElement('button'); wbtn.type='button'; wbtn.className='works-btn';
+          wbtn.textContent = mine.length ? ('🎬 Ishlarini ko\'rish (' + mine.length + ')') : 'Hali ish joylamagan';
+          wbtn.disabled = !mine.length; if(!mine.length){ wbtn.style.opacity='.55'; wbtn.style.cursor='default'; }
+          info.appendChild(wbtn);
+          const wrap = document.createElement('div'); wrap.className='works';
+          mine.forEach(w=>wrap.appendChild(renderWork(w)));
+          wbtn.onclick = ()=>{ wrap.classList.toggle('show'); };
+          row.append(av,info,pick); box.appendChild(row); box.appendChild(wrap);
         });
       }catch(err){
         box.innerHTML = '<div class="ov-empty">Ro\'yxatni yuklab bo\'lmadi. (' + (err.message||'xato') + ')</div>';
