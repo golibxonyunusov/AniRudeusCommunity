@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" type="image/png" href="logo.png">
 <title>Kirish — IT-Community</title>
+<link rel="stylesheet" href="theme.css">
+<script src="site.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -166,8 +168,8 @@
     display:none;
   }
   .msg.show{display:block}
-  .msg.error{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:#ffb3b3}
-  .msg.success{background:rgba(53,230,160,0.1);border:1px solid rgba(53,230,160,0.3);color:#a8f5d6}
+  .msg.error{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);color:var(--danger-ink)}
+  .msg.success{background:rgba(53,230,160,0.1);border:1px solid rgba(53,230,160,0.3);color:var(--mint)}
 
   .switch-line{text-align:center;margin-top:20px;font-size:13.5px;color:var(--muted)}
   .switch-line button{background:none;border:none;color:var(--gold);font-weight:600;cursor:pointer;font-size:13.5px}
@@ -220,7 +222,7 @@
 
   .works-btn{background:transparent;border:1px solid var(--line);color:var(--mint);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:600;cursor:pointer;margin-top:8px}
   .works-btn:hover{border-color:var(--mint)}
-  .works{margin:-4px 0 12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:12px;display:none}
+  .works{margin:-4px 0 12px;padding:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;display:none}
   .works.show{display:block}
   .work{margin-bottom:14px}
   .work:last-child{margin-bottom:0}
@@ -292,7 +294,7 @@
 
           <div class="field">
             <label for="loginNick">Nickname</label>
-            <input id="loginNick" type="text" autocomplete="username" placeholder="masalan: anirudeus" required>
+            <input id="loginNick" type="text" autocomplete="username" placeholder="masalan: coder_01" required>
           </div>
           <div class="field">
             <label for="loginPass">Parol</label>
@@ -312,7 +314,7 @@
 
           <div class="field">
             <label for="regNick">Nickname</label>
-            <input id="regNick" type="text" autocomplete="username" placeholder="masalan: anirudeus" minlength="3" maxlength="20" required>
+            <input id="regNick" type="text" autocomplete="username" placeholder="masalan: coder_01" minlength="3" maxlength="20" required>
             <div class="hint">Faqat lotin harflari, raqam va pastki chiziq (_). Kamida 3 belgi.</div>
           </div>
           <div class="field">
@@ -403,7 +405,7 @@
       if(!doc.exists || !doc.data().profileComplete){
         window.location.href = 'onboarding.html';
       } else {
-        window.location.href = 'index.html';
+        window.location.href = 'chat.html';
       }
     }
 
@@ -471,7 +473,7 @@
       if(user){
         db.collection('users').doc(user.uid).get().then(doc=>{
           if(doc.exists && doc.data().profileComplete){
-            window.location.href = 'index.html';
+            window.location.href = 'chat.html';
           } else if(doc.exists){
             window.location.href = 'onboarding.html';
           }

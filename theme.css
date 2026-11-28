@@ -1,7 +1,8 @@
 /* ============================================================
-   AniRudeus — umumiy dizayn tizimi (onboarding.html bilan bir xil)
+   IC — umumiy dizayn tizimi (onboarding.html bilan bir xil)
    Bu faylni har bir sahifaga <link rel="stylesheet" href="theme.css">
    orqali ulang, undan keyin sahifaga xos <style> qo'shing.
+   Rejim/til tugmalari uchun <script src="site.js"></script> ham ulang.
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -16,6 +17,34 @@
   --text:#eaf2fb;
   --muted:#8ca3bd;
   --danger:#ff6b6b;
+  --nav-bg:rgba(4,15,28,0.75);
+  --overlay-soft:rgba(4,15,28,0.4);
+  --overlay:rgba(4,15,28,0.5);
+  --ai-bg:#061824;
+  --danger-ink:#ffb3b3;
+  --shadow-lg:0 16px 44px rgba(0,0,0,0.5);
+  color-scheme:dark;
+}
+
+/* ---------- Yorug' rejim (site.js <html data-theme="light"> qo'yadi) ---------- */
+:root[data-theme="light"]{
+  --bg-0:#f4f7fb;
+  --bg-1:#e8eef6;
+  --panel:#ffffff;
+  --panel-2:#eef3fa;
+  --line:rgba(11,32,64,0.14);
+  --gold:#a67900;
+  --mint:#0d9f6b;
+  --text:#0f1b2d;
+  --muted:#4a5f7a;
+  --danger:#d63a3a;
+  --nav-bg:rgba(255,255,255,0.85);
+  --overlay-soft:rgba(255,255,255,0.55);
+  --overlay:rgba(255,255,255,0.7);
+  --ai-bg:#eef3fa;
+  --danger-ink:#a12626;
+  --shadow-lg:0 16px 44px rgba(15,27,45,0.18);
+  color-scheme:light;
 }
 
 *{box-sizing:border-box}
@@ -37,7 +66,7 @@ h1,h2,h3,h4{font-family:'Space Grotesk',sans-serif;font-weight:600;margin:0}
   display:flex;align-items:center;justify-content:space-between;
   padding:14px 28px;
   border-bottom:1px solid var(--line);
-  background:rgba(4,15,28,0.75);
+  background:var(--nav-bg);
   backdrop-filter:blur(8px);
   position:sticky;top:0;z-index:50;
   flex-wrap:wrap;
@@ -127,3 +156,18 @@ footer.site-footer h2{color:var(--gold);font-size:20px;margin-bottom:10px}
 footer.site-footer .footer-links{margin-top:12px;display:flex;gap:18px;justify-content:center;flex-wrap:wrap}
 footer.site-footer .footer-links a{color:var(--muted);text-decoration:none;font-weight:600;font-size:14px}
 footer.site-footer .footer-links a:hover{color:var(--gold)}
+
+/* ---------- Til va rejim tugmalari (site.js qo'shadi) ---------- */
+.nav-tools{display:flex;align-items:center;gap:6px;margin-right:4px}
+.icon-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:5px;
+  height:36px;min-width:36px;padding:0 11px;border-radius:9px;
+  border:1px solid var(--line);background:transparent;color:var(--text);
+  font:600 13px 'Inter',sans-serif;cursor:pointer;
+  transition:border-color .15s ease,color .15s ease,background .15s ease;
+}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Yorug' rejimda faol havola oq fonda ko'rinmay qolmasligi uchun */
+:root[data-theme="light"] .site-nav .nav-links a:hover,
+:root[data-theme="light"] .site-nav .nav-links a.active{background:var(--panel-2)}
