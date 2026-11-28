@@ -147,7 +147,19 @@
     refreshToolButtons();
   }
 
-  function init() { injectTools(); applyI18n(); }
+  function injectNavToggle() {
+    var nav = document.querySelector('.site-nav');
+    var links = nav && nav.querySelector('.nav-links');
+    if (!nav || !links || nav.querySelector('.nav-toggle')) return;
+    var b = document.createElement('button');
+    b.type = 'button'; b.className = 'nav-toggle'; b.textContent = '☰'; b.setAttribute('aria-label', 'Menu');
+    function close() { links.classList.remove('open'); b.textContent = '☰'; }
+    b.addEventListener('click', function (e) { e.stopPropagation(); var o = links.classList.toggle('open'); b.textContent = o ? '✕' : '☰'; });
+    document.addEventListener('click', function (e) { if (!nav.contains(e.target)) close(); });
+    nav.appendChild(b);
+  }
+
+  function init() { injectTools(); injectNavToggle(); applyI18n(); }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 

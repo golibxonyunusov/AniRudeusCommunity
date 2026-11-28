@@ -405,7 +405,7 @@
       if(!doc.exists || !doc.data().profileComplete){
         window.location.href = 'onboarding.html';
       } else {
-        window.location.href = 'chat.html';
+        window.location.href = 'index.html';
       }
     }
 
@@ -473,7 +473,7 @@
       if(user){
         db.collection('users').doc(user.uid).get().then(doc=>{
           if(doc.exists && doc.data().profileComplete){
-            window.location.href = 'chat.html';
+            window.location.href = 'index.html';
           } else if(doc.exists){
             window.location.href = 'onboarding.html';
           }

@@ -284,7 +284,7 @@
       userDocRef = db.collection('users').doc(user.uid);
       const doc = await userDocRef.get();
       if(doc.exists && doc.data().profileComplete){
-        window.location.href = 'chat.html';
+        window.location.href = 'index.html';
         return;
       }
       const nickname = (doc.exists && doc.data().nickname) || localStorage.getItem('chat_username') || 'foydalanuvchi';
@@ -499,7 +499,7 @@
           testPassed: true,
           completedAt: firebase.firestore.FieldValue.serverTimestamp()
         }, { merge: true });
-        window.location.href = 'chat.html';
+        window.location.href = 'index.html';
       }catch(e){
         alert("Saqlashda xatolik: " + e.message);
         btn.disabled = false; btn.textContent = "Chatga o'tish";

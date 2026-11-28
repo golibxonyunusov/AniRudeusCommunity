@@ -2,7 +2,7 @@
    IC — umumiy dizayn tizimi (onboarding.html bilan bir xil)
    Bu faylni har bir sahifaga <link rel="stylesheet" href="theme.css">
    orqali ulang, undan keyin sahifaga xos <style> qo'shing.
-   Sayt faqat qorong'i rejimda ishlaydi. Til tugmasi uchun <script src="site.js"></script> ni ulang.
+   Rejim/til tugmalari uchun <script src="site.js"></script> ham ulang.
    ============================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
 
@@ -24,6 +24,27 @@
   --danger-ink:#ffb3b3;
   --shadow-lg:0 16px 44px rgba(0,0,0,0.5);
   color-scheme:dark;
+}
+
+/* ---------- Yorug' rejim (site.js <html data-theme="light"> qo'yadi) ---------- */
+:root[data-theme="light"]{
+  --bg-0:#f4f7fb;
+  --bg-1:#e8eef6;
+  --panel:#ffffff;
+  --panel-2:#eef3fa;
+  --line:rgba(11,32,64,0.14);
+  --gold:#a67900;
+  --mint:#0d9f6b;
+  --text:#0f1b2d;
+  --muted:#4a5f7a;
+  --danger:#d63a3a;
+  --nav-bg:rgba(255,255,255,0.85);
+  --overlay-soft:rgba(255,255,255,0.55);
+  --overlay:rgba(255,255,255,0.7);
+  --ai-bg:#eef3fa;
+  --danger-ink:#a12626;
+  --shadow-lg:0 16px 44px rgba(15,27,45,0.18);
+  color-scheme:light;
 }
 
 *{box-sizing:border-box}
@@ -146,3 +167,27 @@ footer.site-footer .footer-links a:hover{color:var(--gold)}
   transition:border-color .15s ease,color .15s ease,background .15s ease;
 }
 .icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Yorug' rejimda faol havola oq fonda ko'rinmay qolmasligi uchun */
+:root[data-theme="light"] .site-nav .nav-links a:hover,
+:root[data-theme="light"] .site-nav .nav-links a.active{background:var(--panel-2)}
+
+
+/* ---------- Telefon: ixcham navbar + ☰ menyu (site.js tugmani qo'shadi) ---------- */
+.nav-toggle{display:none;width:40px;height:40px;flex:none;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--text);font-size:20px;cursor:pointer;align-items:center;justify-content:center}
+@media(max-width:760px){
+  .site-nav{padding:8px 12px;flex-wrap:nowrap;gap:8px}
+  .site-nav .brand img{height:34px!important;width:34px!important}
+  .nav-toggle{display:inline-flex}
+  .site-nav .nav-links{display:none;position:absolute;top:100%;left:0;right:0;flex-direction:column;align-items:stretch;flex-wrap:nowrap;gap:2px;padding:8px 12px 12px;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:var(--shadow-lg)}
+  .site-nav .nav-links.open{display:flex}
+  .site-nav .nav-links a{padding:13px 14px;font-size:16px}
+  .site-nav .nav-right{margin-left:auto;gap:6px}
+  .site-nav .nav-right .btn{padding:8px 11px;font-size:13px}
+  .site-nav .nav-right #adminLink{font-size:0;padding:8px 10px}
+  .site-nav .nav-right #adminLink::before{content:'👑';font-size:16px}
+  .icon-btn{height:34px;min-width:34px;padding:0 9px;font-size:12px}
+  .nav-tools{margin-right:0}
+  .page-hero{padding:28px 16px}
+  .page-hero h1{font-size:24px}
+}
