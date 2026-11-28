@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/png" href="logo.png">
+<title>Buyurtma holati — IT-Community</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+  :root{--bg-0:#040f1c;--bg-1:#071c30;--panel:#0b2540;--line:rgba(255,255,255,0.08);--gold:#ffd400;--mint:#35e6a0;--text:#eaf2fb;--muted:#8ca3bd}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;font-family:'Inter',system-ui,sans-serif;color:var(--text);background:linear-gradient(180deg,var(--bg-0),var(--bg-1))}
+  .wrap{max-width:640px;margin:0 auto;padding:28px 16px 60px}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:22px}
+  h1{font-family:'Space Grotesk',sans-serif;font-size:24px;margin:0}
+  .top a{color:var(--gold);text-decoration:none;font-weight:600;font-size:14px;white-space:nowrap}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+  .to{font-weight:600;font-size:17px;margin-bottom:2px}
+  .date{color:var(--muted);font-size:12.5px;margin-bottom:16px}
+  .steps{display:flex;margin:6px 0 18px}
+  .step{flex:1;text-align:center;font-size:12.5px;color:var(--muted);position:relative}
+  .step .dot{width:28px;height:28px;border-radius:50%;margin:0 auto 6px;display:flex;align-items:center;justify-content:center;background:#0e2c4c;border:2px solid var(--line);font-weight:700;color:var(--muted);position:relative;z-index:1}
+  .step:not(:last-child)::after{content:'';position:absolute;top:13px;left:50%;width:100%;height:2px;background:var(--line)}
+  .step.on{color:var(--text)} .step.on .dot{background:var(--gold);border-color:var(--gold);color:#0b1220}
+  .step.on:not(:last-child)::after{background:var(--gold)}
+  .text{font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;color:var(--text)}
+  h2{font-family:'Space Grotesk',sans-serif;font-size:17px;margin:0 0 10px}
+  .stars{display:flex;gap:6px;margin-bottom:12px}
+  .stars button{background:none;border:none;font-size:34px;line-height:1;cursor:pointer;color:#33506f;padding:2px}
+  .stars button.on{color:var(--gold)}
+  textarea{width:100%;min-height:80px;resize:vertical;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg-1);color:var(--text);font:inherit;font-size:16px;outline:none}
+  textarea:focus{border-color:var(--gold)}
+  .btn{border:none;border-radius:10px;padding:12px 18px;font-weight:700;font-size:14.5px;cursor:pointer;background:var(--gold);color:#0b1220;margin-top:12px}
+  .btn:disabled{opacity:.55;cursor:default}
+  .note{color:var(--muted);font-size:13.5px;line-height:1.5}
+  .err{color:#ffb3b3;font-size:13.5px;margin-top:10px}
+  .rv-stars{color:var(--gold);font-size:22px;letter-spacing:2px}
+  a.item{display:block;text-decoration:none;color:var(--text)}
+  a.item small{display:block;color:var(--muted);margin-top:3px}
+  .empty{color:var(--muted);text-align:center;padding:40px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><h1>Buyurtma holati</h1><a href="index.html">← Bosh sahifa</a></div>
+  <div id="view"><div class="empty">Yuklanmoqda...</div></div>
+</div>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+  const view = document.getElementById('view');
+  const id = new URLSearchParams(location.search).get('id');
+  let order = null, review = null, picked = 0;
+
+  function el(tag, cls, text){ const e = document.createElement(tag); if(cls) e.className = cls; if(text != null) e.textContent = text; return e; }
+  function stars(n){ n = Math.max(0, Math.min(5, Number(n) || 0)); return '★'.repeat(n) + '☆'.repeat(5 - n); }
+
+  // ID berilmagan bo'lsa — shu qurilmada saqlangan buyurtmalar ro'yxati
+  function renderList(){
+    view.innerHTML = '';
+    let list = [];
+    try{ list = JSON.parse(localStorage.getItem('ic_my_orders') || '[]'); }catch(e){}
+    if(!Array.isArray(list) || !list.length){ view.appendChild(el('div', 'empty', "Bu qurilmada buyurtma topilmadi. Buyurtma yuborganingizda holat havolasi shu yerda saqlanadi.")); return; }
+    list.forEach(o => {
+      if(!o || !/^[A-Za-z0-9]{10,40}$/.test(o.id || '')) return;
+      const a = el('a', 'card item'); a.href = 'order.html?id=' + o.id;
+      a.appendChild(el('div', 'to', String(o.to || '')));
+      a.appendChild(el('small', '', o.t ? new Date(o.t).toLocaleString('uz-UZ') : ''));
+      view.appendChild(a);
+    });
+  }
+
+  function render(){
+    view.innerHTML = '';
+    if(!order){ view.appendChild(el('div', 'empty', 'Buyurtma topilmadi.')); return; }
+    const st = order.status || 'new';
+    const rank = st === 'done' ? 3 : (st === 'accepted' ? 2 : 1);
+    const card = el('div', 'card');
+    card.appendChild(el('div', 'to', order.toNickname || ''));
+    card.appendChild(el('div', 'date', order.createdAt && order.createdAt.toDate ? order.createdAt.toDate().toLocaleString('uz-UZ') : ''));
+    const steps = el('div', 'steps');
+    ['Yuborildi', 'Qabul qilindi', 'Bajarildi'].forEach((t, i) => {
+      const s = el('div', 'step' + (rank > i ? ' on' : ''));
+      s.appendChild(el('div', 'dot', rank > i ? '✓' : String(i + 1))); s.appendChild(document.createTextNode(t)); steps.appendChild(s);
+    });
+    card.appendChild(steps);
+    card.appendChild(el('div', 'text', order.text || ''));
+    view.appendChild(card);
+
+    const box = el('div', 'card');
+    if(review){
+      box.appendChild(el('h2', '', 'Sizning bahoyingiz'));
+      box.appendChild(el('div', 'rv-stars', stars(review.rating)));
+      if(review.text) box.appendChild(el('p', 'text', review.text));
+    } else if(st === 'done'){
+      box.appendChild(el('h2', '', 'Ishdan mamnunmisiz? Baho bering'));
+      const row = el('div', 'stars');
+      for(let i = 1; i <= 5; i++){
+        const b = el('button', picked >= i ? 'on' : '', '★'); b.type = 'button'; b.setAttribute('aria-label', i + ' yulduz');
+        b.onclick = () => { picked = i; render(); }; row.appendChild(b);
+      }
+      box.appendChild(row);
+      const ta = el('textarea'); ta.maxLength = 300; ta.placeholder = 'Fikringiz (ixtiyoriy)'; ta.id = 'rvText'; box.appendChild(ta);
+      const btn = el('button', 'btn', 'Yuborish'); btn.onclick = submitReview; box.appendChild(btn);
+      box.appendChild(el('div', 'err', '')).id = 'rvErr';
+    } else {
+      box.appendChild(el('div', 'note', "Mutaxassis ishni bajargach, shu yerda baho bera olasiz. Sahifa o'zi yangilanadi."));
+    }
+    view.appendChild(box);
+  }
+
+  async function submitReview(){
+    const err = document.getElementById('rvErr');
+    if(!picked){ err.textContent = 'Avval yulduzni tanlang.'; return; }
+    const text = (document.getElementById('rvText').value || '').trim().slice(0, 300);
+    try{
+      await db.collection('reviews').doc(id).set({
+        toUid: order.toUid, fromName: String(order.fromName || '').slice(0, 40), rating: picked, text: text,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }catch(e){ err.textContent = 'Yuborib bo\'lmadi: ' + (e.code || e.message); }
+  }
+
+  if(!id){ renderList(); }
+  else if(!/^[A-Za-z0-9]{10,40}$/.test(id)){ view.innerHTML = ''; view.appendChild(el('div', 'empty', 'Havola noto\'g\'ri.')); }
+  else {
+    db.collection('orders').doc(id).onSnapshot(s => { order = s.exists ? s.data() : null; render(); },
+      e => { view.innerHTML = ''; view.appendChild(el('div', 'empty', 'Xatolik: ' + (e.code || e.message))); });
+    db.collection('reviews').doc(id).onSnapshot(s => { review = s.exists ? s.data() : null; if(order) render(); }, () => {});
+  }
+</script>
+</body>
+</html>

@@ -626,7 +626,7 @@
       }
       btn.disabled = true; btn.textContent = 'Yuborilmoqda...';
       try{
-        await db.collection('orders').add({
+        const ref = await db.collection('orders').add({
           toUid: ordPerson.uid,
           toNickname: ordPerson.nickname,
           field: ordField,
@@ -637,6 +637,14 @@
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
         showMsg('ordMsg', "Buyurtma yuborildi! " + ordPerson.nickname + " siz bilan bog'lanadi.", 'success');
+        try{
+          const k = 'ic_my_orders', l = JSON.parse(localStorage.getItem(k) || '[]');
+          l.unshift({ id: ref.id, to: ordPerson.nickname, t: Date.now() });
+          localStorage.setItem(k, JSON.stringify(l.slice(0, 20)));
+        }catch(e){}
+        const trk = document.createElement('a'); trk.href = 'order.html?id=' + ref.id; trk.textContent = 'Buyurtma holatini kuzatish va baho berish →';
+        trk.style.cssText = 'display:block;margin-top:8px;font-weight:700;color:var(--gold)';
+        document.getElementById('ordMsg').appendChild(trk);
         document.getElementById('ordText').value = '';
       }catch(err){
         showMsg('ordMsg', "Yuborib bo'lmadi: " + (err.message||'xato'), 'error');

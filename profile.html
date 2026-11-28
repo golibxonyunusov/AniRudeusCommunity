@@ -54,6 +54,12 @@
     .p-field input{ width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); font-family:'Inter',sans-serif; font-size:14px; outline:none; }
     .p-field input:focus{ border-color:var(--gold); }
     @media(max-width:560px){ .profile-wrap{ padding:24px 12px 50px; } .profile-card{ padding:26px 16px; } .p-meta{ gap:16px; } }
+    .p-reviews{ text-align:left; margin:0 0 22px; }
+    .p-reviews h3{ font-size:14px; margin-bottom:8px; }
+    .rv{ background:var(--panel-2); border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
+    .rv-top{ display:flex; justify-content:space-between; gap:8px; font-size:13px; }
+    .rv-top span{ color:var(--gold); letter-spacing:1px; }
+    .rv p{ margin:6px 0 0; font-size:13.5px; color:var(--muted); line-height:1.5; white-space:pre-wrap; word-break:break-word; }
     .gate{ text-align:center; color:var(--muted); padding:70px 20px; }
     .gate .btn{ margin-top:14px; }
   </style>
@@ -95,7 +101,7 @@
         'p.photoTip': "Rasm o'zgartirish", 'p.skills': "Ko'nikmalar", 'p.skillsPh': "Masalan: HTML, CSS, Python (vergul bilan, 8 tagacha)",
         'p.github': "GitHub", 'p.githubPh': "GitHub username (masalan: octocat)", 'p.githubBad': "GitHub username noto'g'ri.",
         'p.saveErr': "Saqlashda xatolik: ", 'p.photoErr': "Rasm saqlashda xatolik: ", 'p.err': "Xatolik: ",
-        'p.f.web': "Web dasturchi", 'p.f.designer': "Dizayner", 'p.f.app': "App dasturchi", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Dasturchi"
+        'p.reviews': "Sharhlar", 'p.f.web': "Web dasturchi", 'p.f.designer': "Dizayner", 'p.f.app': "App dasturchi", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Dasturchi"
       },
       en: {
         'p.back': "← Back", 'p.loading': "Loading...", 'p.loginNeed': "Log in to view profiles",
@@ -106,12 +112,12 @@
         'p.photoTip': "Change photo", 'p.skills': "Skills", 'p.skillsPh': "e.g. HTML, CSS, Python (comma-separated, up to 8)",
         'p.github': "GitHub", 'p.githubPh': "GitHub username (e.g. octocat)", 'p.githubBad': "Invalid GitHub username.",
         'p.saveErr': "Save error: ", 'p.photoErr': "Could not save photo: ", 'p.err': "Error: ",
-        'p.f.web': "Web developer", 'p.f.designer': "Designer", 'p.f.app': "App developer", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Developer"
+        'p.reviews': "Reviews", 'p.f.web': "Web developer", 'p.f.designer': "Designer", 'p.f.app': "App developer", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Developer"
       }
     });
     const tr = IC.t;
     const wrap = document.getElementById('profileWrap');
-    let me = null, viewingData = null, isOwn = false, editing = false, signedIn = false;
+    let me = null, viewingData = null, isOwn = false, editing = false, signedIn = false, reviews = null;
 
     // Foydalanuvchi yozgan HAR BIR qiymat innerHTML'ga faqat shu orqali o'tadi (XSS'dan himoya)
     function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -131,6 +137,7 @@
       if(d.subfield) label += ' · ' + ((d.field === 'web') ? (d.subfield === 'frontend' ? 'Frontend' : 'Backend') : d.subfield);
       return label;
     }
+    function starsTxt(n){ n = Math.max(0, Math.min(5, Number(n) || 0)); return '★'.repeat(n) + '☆'.repeat(5 - n); }
     function initials(n){ return (n || '?').trim().slice(0,2).toUpperCase(); }
 
     function renderGateLoggedOut(){
@@ -150,6 +157,11 @@
       const photo = (typeof d.photo === 'string' && d.photo.indexOf('data:image/') === 0) ? d.photo : '';
       const skills = Array.isArray(d.skills) ? d.skills.slice(0, 8) : [];
       const gh = (typeof d.github === 'string' && GH_RE.test(d.github)) ? d.github : '';
+      const rv = reviews || [];
+      const avg = rv.length ? rv.reduce((s, r) => s + (Number(r.rating) || 0), 0) / rv.length : 0;
+      const ratingBadge = rv.length ? `<span class="tag">⭐ ${avg.toFixed(1)} · ${rv.length}</span>` : '';
+      const reviewsHtml = (!editing && rv.length) ? `<div class="p-reviews"><h3>${esc(tr('p.reviews'))}</h3>${rv.slice(0, 5).map(r =>
+        `<div class="rv"><div class="rv-top"><b>${esc(r.fromName || '')}</b><span>${starsTxt(r.rating)}</span></div>${r.text ? `<p>${esc(r.text)}</p>` : ''}</div>`).join('')}</div>` : '';
       const roleBadge = d.role === 'admin' ? '<span class="tag">👑 Admin</span>' : '';
       const fieldBadge = fieldLine(d) ? `<span class="tag">${esc(fieldLine(d))}</span>` : '';
 
@@ -170,13 +182,14 @@
             ${isOwn ? `<button class="avatar-edit" id="avatarEditBtn" title="${esc(tr('p.photoTip'))}">📷</button>` : ''}
           </div>
           <div class="p-name">${esc(d.nickname)}</div>
-          <div class="p-badges">${fieldBadge}${roleBadge}</div>
+          <div class="p-badges">${fieldBadge}${roleBadge}${ratingBadge}</div>
           <div id="bioArea" class="p-bio ${d.bio || editing ? '' : 'empty'}">${bioHtml}</div>
           ${extra}
           <div class="p-meta">
             <div class="item"><b>${esc(joined)}</b><span>${esc(tr('p.joined'))}</span></div>
             <div class="item"><b>${d.testPassed ? esc(tr('p.testDone')) : '—'}</b><span>${esc(tr('p.status'))}</span></div>
           </div>
+          ${reviewsHtml}
           ${isOwn ? (editing
             ? `<div class="p-actions"><button class="btn primary" id="saveBtn">${esc(tr('p.save'))}</button><button class="btn ghost" id="cancelBtn">${esc(tr('p.cancel'))}</button></div>`
             : `<div class="p-actions"><button class="btn primary" id="editBtn">${esc(tr('p.edit'))}</button></div>`) : ''}
@@ -236,16 +249,25 @@
       }catch(e){ alert(tr('p.photoErr') + e.message); }
     }
 
+    async function loadReviews(uid){
+      try{
+        const s = await db.collection('reviews').where('toUid', '==', uid).get();
+        const ms = r => (r.createdAt && r.createdAt.toMillis) ? r.createdAt.toMillis() : 0;
+        reviews = s.docs.map(d => d.data()).sort((a, b) => ms(b) - ms(a));
+        if(viewingData && !editing) renderProfile();
+      }catch(e){ /* sharhlarsiz ham profil ishlayveradi */ }
+    }
+
     async function loadProfile(){
       const requestedNick = new URLSearchParams(window.location.search).get('user');
       if(!requestedNick || requestedNick.toLowerCase() === (me.nickname || '').toLowerCase()){
-        isOwn = true; viewingData = me; renderProfile(); return;
+        isOwn = true; viewingData = me; renderProfile(); loadReviews(me.uid); return;
       }
       try{
         const snap = await db.collection('users').where('nicknameLower', '==', requestedNick.toLowerCase()).limit(1).get();
         if(snap.empty){ renderNotFound(requestedNick); return; }
         const doc = snap.docs[0];
-        isOwn = (doc.id === me.uid); viewingData = doc.data(); renderProfile();
+        isOwn = (doc.id === me.uid); viewingData = doc.data(); renderProfile(); loadReviews(doc.id);
       }catch(e){ wrap.innerHTML = `<div class="gate"><p>${esc(tr('p.err') + e.message)}</p></div>`; }
     }
 

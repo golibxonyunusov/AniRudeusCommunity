@@ -1,7 +1,9 @@
-git status
-git add auth.html orders.html firestore.rules
-git commit -m "Buyurtma berish funksiyasi qo'shildi"
-git push
+// ============================================================
+// Buyurtma, baho va foydalanuvchilar uchun Firestore qoidalari.
+// Ularni firestore.rules faylidagi `match /databases/{database}/documents { ... }`
+// ICHIGA qo'ying. Eski `match /orders/...` blokini shu yangisiga ALMASHTIRING.
+// Keyin Firebase Console -> Firestore -> Rules -> Publish.
+// ============================================================
 
 // Ro'yxatdan o'tmagan mehmonlar ham sohadagi odamlar ro'yxatini ko'ra olishi uchun
 // (agar sizda users uchun read allaqachon ochiq bo'lsa, buni qo'shmang):
@@ -21,9 +23,30 @@ match /orders/{orderId} {
     && request.resource.data.text.size() >= 10 && request.resource.data.text.size() <= 1000
     && request.resource.data.createdAt == request.time;
 
-  // Faqat qabul qiluvchining o'zi o'qiydi va holatini o'zgartiradi
-  allow read: if request.auth != null && resource.data.toUid == request.auth.uid;
+  // YANGI: buyurtma ID si tasodifiy va yashirin (faqat buyurtmachi va qabul qiluvchi biladi).
+  // ID ni bilgan kishi bitta buyurtmaning holatini ko'ra oladi (order.html), ro'yxatni emas.
+  allow get: if true;
+
+  // Ro'yxat (list) faqat qabul qiluvchining o'ziga
+  allow list: if request.auth != null && resource.data.toUid == request.auth.uid;
+
+  // Faqat qabul qiluvchi holatni o'zgartiradi
   allow update: if request.auth != null && resource.data.toUid == request.auth.uid
     && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
   allow delete: if false;
+}
+
+// YANGI: baholar. Hujjat ID si = buyurtma ID si, shuning uchun har buyurtmaga faqat BITTA baho.
+match /reviews/{orderId} {
+  allow read: if true;   // profilda hamma ko'radi
+  allow create: if exists(/databases/$(database)/documents/orders/$(orderId))
+    && get(/databases/$(database)/documents/orders/$(orderId)).data.status == 'done'
+    && request.resource.data.keys().hasOnly(['toUid','fromName','rating','text','createdAt'])
+    && request.resource.data.toUid == get(/databases/$(database)/documents/orders/$(orderId)).data.toUid
+    && request.resource.data.rating is int
+    && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+    && request.resource.data.fromName is string && request.resource.data.fromName.size() <= 40
+    && request.resource.data.text is string && request.resource.data.text.size() <= 300
+    && request.resource.data.createdAt == request.time;
+  allow update, delete: if false;   // baho o'zgartirilmaydi va o'chirilmaydi
 }

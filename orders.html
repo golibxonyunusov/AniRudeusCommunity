@@ -28,11 +28,17 @@
   .acts button{border:none;border-radius:8px;padding:8px 12px;font-weight:600;font-size:13px;cursor:pointer}
   .b1{background:var(--gold);color:#0b1220}.b2{background:transparent;color:var(--muted);border:1px solid var(--line)!important}
   .empty{color:var(--muted);text-align:center;padding:40px 0}
+  .sum{display:none;background:var(--panel);border:1px solid rgba(255,212,0,0.35);color:var(--gold);border-radius:12px;padding:12px 16px;margin-bottom:16px;font-weight:700}
+  .rev{margin-top:12px;padding-top:12px;border-top:1px solid var(--line);font-size:14px}
+  .rev .st{color:var(--gold);font-size:18px;letter-spacing:2px}
+  .rev p{margin:6px 0 0;color:var(--muted);line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .acts button{min-height:40px}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="top"><h1>Buyurtmalarim</h1><a href="index.html">← Chatga qaytish</a></div>
+  <div class="sum" id="sum"></div>
   <div id="list"><div class="empty">Yuklanmoqda...</div></div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -41,37 +47,59 @@
 <script src="firebase-config.js"></script>
 <script>
   const ST = {new:'Yangi', accepted:'Qabul qilindi', done:'Bajarildi'};
+  let docs = [], reviews = {};
+  const listEl = document.getElementById('list'), sumEl = document.getElementById('sum');
+  function stars(n){ n = Math.max(0, Math.min(5, Number(n) || 0)); return '★'.repeat(n) + '☆'.repeat(5 - n); }
+  function mk(t,c,fn){ const b=document.createElement('button'); b.textContent=t; b.className=c; b.onclick=fn; return b; }
+  function setSt(id,status){ db.collection('orders').doc(id).update({status}); }
+
+  function render(){
+    const rs = Object.values(reviews);
+    if(rs.length){
+      const avg = rs.reduce((s,r)=>s+(Number(r.rating)||0),0) / rs.length;
+      sumEl.textContent = '⭐ ' + avg.toFixed(1) + ' — ' + rs.length + ' ta baho'; sumEl.style.display = 'block';
+    } else sumEl.style.display = 'none';
+    listEl.innerHTML = '';
+    if(!docs.length){ listEl.innerHTML = '<div class="empty">Hozircha buyurtma yo\'q.</div>'; return; }
+    docs.forEach(d=>{
+      const o=d.data(), st=o.status||'new';
+      const card=document.createElement('div'); card.className='order '+(st==='new'?'new':'');
+      const row=document.createElement('div'); row.className='row';
+      const dt=document.createElement('span'); dt.textContent=o.createdAt?o.createdAt.toDate().toLocaleString('uz-UZ'):'';
+      const bd=document.createElement('span'); bd.className='badge '+st; bd.textContent=ST[st]||st;
+      row.append(dt,bd);
+      const who=document.createElement('div'); who.className='who'; who.textContent=o.fromName||'';
+      const ct=document.createElement('div'); ct.className='contact'; ct.textContent=o.contact||'';
+      const tx=document.createElement('div'); tx.className='text'; tx.textContent=o.text||'';
+      card.append(row,who,ct,tx);
+      const acts=document.createElement('div'); acts.className='acts';
+      if(st==='new') acts.appendChild(mk('Qabul qilish','b1',()=>setSt(d.id,'accepted')));
+      if(st!=='done') acts.appendChild(mk('Bajarildi','b2',()=>setSt(d.id,'done')));
+      if(acts.children.length) card.appendChild(acts);
+      const r = reviews[d.id];
+      if(r){
+        const rv=document.createElement('div'); rv.className='rev';
+        const s=document.createElement('div'); s.className='st'; s.textContent=stars(r.rating); rv.appendChild(s);
+        if(r.text){ const p=document.createElement('p'); p.textContent=r.text; rv.appendChild(p); }
+        card.appendChild(rv);
+      }
+      listEl.appendChild(card);
+    });
+  }
+
   auth.onAuthStateChanged(user=>{
     if(!user){ location.href='auth.html'; return; }
     db.collection('orders').where('toUid','==',user.uid).onSnapshot(snap=>{
-      const list = document.getElementById('list');
-      const docs = snap.docs.slice().sort((a,b)=>{
+      docs = snap.docs.slice().sort((a,b)=>{
         const ta=a.data().createdAt, tb=b.data().createdAt;
         return (tb?tb.toMillis():Date.now()) - (ta?ta.toMillis():Date.now());
       });
-      list.innerHTML='';
-      if(!docs.length){ list.innerHTML='<div class="empty">Hozircha buyurtma yo\'q.</div>'; return; }
-      docs.forEach(d=>{
-        const o=d.data(), st=o.status||'new';
-        const card=document.createElement('div'); card.className='order '+(st==='new'?'new':'');
-        const row=document.createElement('div'); row.className='row';
-        const dt=document.createElement('span'); dt.textContent=o.createdAt?o.createdAt.toDate().toLocaleString('uz-UZ'):'';
-        const bd=document.createElement('span'); bd.className='badge '+st; bd.textContent=ST[st]||st;
-        row.append(dt,bd);
-        const who=document.createElement('div'); who.className='who'; who.textContent=o.fromName||'';
-        const ct=document.createElement('div'); ct.className='contact'; ct.textContent=o.contact||'';
-        const tx=document.createElement('div'); tx.className='text'; tx.textContent=o.text||'';
-        card.append(row,who,ct,tx);
-        const acts=document.createElement('div'); acts.className='acts';
-        if(st==='new') acts.appendChild(mk('Qabul qilish','b1',()=>setSt(d.id,'accepted')));
-        if(st!=='done') acts.appendChild(mk('Bajarildi','b2',()=>setSt(d.id,'done')));
-        if(acts.children.length) card.appendChild(acts);
-        list.appendChild(card);
-      });
-    }, err=>{ document.getElementById('list').innerHTML='<div class="empty">Xatolik: '+err.message+'</div>'; });
+      render();
+    }, err=>{ listEl.innerHTML='<div class="empty">Xatolik: '+err.message+'</div>'; });
+    db.collection('reviews').where('toUid','==',user.uid).onSnapshot(snap=>{
+      reviews = {}; snap.forEach(d=>{ reviews[d.id] = d.data(); }); render();
+    }, ()=>{});
   });
-  function mk(t,c,fn){ const b=document.createElement('button'); b.textContent=t; b.className=c; b.onclick=fn; return b; }
-  function setSt(id,status){ db.collection('orders').doc(id).update({status}); }
 </script>
 </body>
 </html>
