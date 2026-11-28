@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="logo.png">
   <link rel="stylesheet" href="theme.css">
+  <script src="site.js"></script>
   <title>Profil — IT-Community</title>
   <style>
     .profile-wrap{ display:flex; justify-content:center; padding:48px 20px 70px; }
@@ -46,6 +47,12 @@
     .p-meta .item span{ font-size:11.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
     .p-actions{ display:flex; gap:10px; justify-content:center; }
     .p-actions .btn{ padding:11px 20px; }
+    .p-skills{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:0 0 20px; }
+    .p-link{ margin:0 0 20px; }
+    .p-field{ text-align:left; max-width:440px; margin:0 auto 14px; }
+    .p-field label{ display:block; font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:6px; }
+    .p-field input{ width:100%; padding:11px 13px; border-radius:10px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); font-family:'Inter',sans-serif; font-size:14px; outline:none; }
+    .p-field input:focus{ border-color:var(--gold); }
     .gate{ text-align:center; color:var(--muted); padding:70px 20px; }
     .gate .btn{ margin-top:14px; }
   </style>
@@ -55,19 +62,20 @@
   <nav class="site-nav">
     <a href="index.html" class="brand" style="display:flex;align-items:center"><img src="logo.png" alt="IT-Community" style="height:40px;width:40px;border-radius:10px;vertical-align:middle;display:block"></a>
     <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="web.html">Web</a>
-      <a href="Game.html">Game</a>
-      <a href="help.html">Help</a>
+      <a href="index.html" data-i18n="nav.home">Home</a>
+      <a href="chat.html" data-i18n="nav.chat">Chat</a>
+      <a href="web.html" data-i18n="nav.web">Web</a>
+      <a href="Game.html" data-i18n="nav.game">Game</a>
+      <a href="help.html" data-i18n="nav.help">Help</a>
     </div>
     <div class="nav-right">
       <a id="adminLink" href="admin.html" class="btn ghost" style="display:none">👑 Admin</a>
-      <a href="index.html" class="btn ghost btn-back" onclick="if(window.history.length>1){history.back();return false;}">← Orqaga</a>
+      <a href="chat.html" class="btn ghost btn-back" data-i18n="p.back" onclick="if(window.history.length>1){history.back();return false;}">← Orqaga</a>
     </div>
   </nav>
 
   <div class="profile-wrap" id="profileWrap">
-    <div class="gate">Yuklanmoqda...</div>
+    <div class="gate" data-i18n="p.loading">Yuklanmoqda...</div>
   </div>
 
   <input type="file" id="photoFile" accept="image/*" style="display:none">
@@ -77,106 +85,128 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script>
-    const FIELD_LABELS = {
-      web: 'Web dasturchi', designer: 'Dizayner', app: 'App dasturchi',
-      gamer: 'Gamer', streamer: 'Streamer', other: 'Dasturchi'
-    };
-    const wrap = document.getElementById('profileWrap');
-    let me = null;          // { uid, ...docData }
-    let viewing = null;     // uid of the profile being shown
-    let viewingData = null;
-    let isOwn = false;
-
-    function fieldLine(data){
-      if(!data.field) return '';
-      let label = FIELD_LABELS[data.field] || data.field;
-      if(data.subfield){
-        const sub = (data.field === 'web') ? (data.subfield === 'frontend' ? 'Frontend' : 'Backend') : data.subfield;
-        label += ' · ' + sub;
+    IC.extend({
+      uz: {
+        'p.back': "← Orqaga", 'p.loading': "Yuklanmoqda...", 'p.loginNeed': "Profilni ko'rish uchun tizimga kiring",
+        'p.notFound': "Foydalanuvchi topilmadi", 'p.notFoundMsg': "Bunday foydalanuvchi mavjud emas: ", 'p.toChat': "Chatga qaytish",
+        'p.testDone': "✅ Test topshirilgan", 'p.joined': "A'zo bo'lgan", 'p.status': "Holat",
+        'p.bioOwn': "O'zingiz haqingizda yozing...", 'p.bioNone': "Bio yo'q.", 'p.bioPh': "O'zingiz haqingizda qisqacha yozing...",
+        'p.edit': "✏️ Profilni tahrirlash", 'p.save': "Saqlash", 'p.saving': "Saqlanmoqda...", 'p.cancel': "Bekor qilish",
+        'p.photoTip': "Rasm o'zgartirish", 'p.skills': "Ko'nikmalar", 'p.skillsPh': "Masalan: HTML, CSS, Python (vergul bilan, 8 tagacha)",
+        'p.github': "GitHub", 'p.githubPh': "GitHub username (masalan: octocat)", 'p.githubBad': "GitHub username noto'g'ri.",
+        'p.saveErr': "Saqlashda xatolik: ", 'p.photoErr': "Rasm saqlashda xatolik: ", 'p.err': "Xatolik: ",
+        'p.f.web': "Web dasturchi", 'p.f.designer': "Dizayner", 'p.f.app': "App dasturchi", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Dasturchi"
+      },
+      en: {
+        'p.back': "← Back", 'p.loading': "Loading...", 'p.loginNeed': "Log in to view profiles",
+        'p.notFound': "User not found", 'p.notFoundMsg': "No such user: ", 'p.toChat': "Back to chat",
+        'p.testDone': "✅ Test passed", 'p.joined': "Member since", 'p.status': "Status",
+        'p.bioOwn': "Write about yourself...", 'p.bioNone': "No bio yet.", 'p.bioPh': "Write a short bio...",
+        'p.edit': "✏️ Edit profile", 'p.save': "Save", 'p.saving': "Saving...", 'p.cancel': "Cancel",
+        'p.photoTip': "Change photo", 'p.skills': "Skills", 'p.skillsPh': "e.g. HTML, CSS, Python (comma-separated, up to 8)",
+        'p.github': "GitHub", 'p.githubPh': "GitHub username (e.g. octocat)", 'p.githubBad': "Invalid GitHub username.",
+        'p.saveErr': "Save error: ", 'p.photoErr': "Could not save photo: ", 'p.err': "Error: ",
+        'p.f.web': "Web developer", 'p.f.designer': "Designer", 'p.f.app': "App developer", 'p.f.gamer': "Gamer", 'p.f.streamer': "Streamer", 'p.f.other': "Developer"
       }
+    });
+    const tr = IC.t;
+    const wrap = document.getElementById('profileWrap');
+    let me = null, viewingData = null, isOwn = false, editing = false, signedIn = false;
+
+    // Foydalanuvchi yozgan HAR BIR qiymat innerHTML'ga faqat shu orqali o'tadi (XSS'dan himoya)
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+    const GH_RE = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
+    function cleanGithub(raw){ return String(raw || '').trim().replace(/^https?:\/\/(www\.)?github\.com\//i, '').replace(/^@/, '').replace(/\/.*$/, ''); }
+    function parseSkills(raw){
+      const seen = {}, out = [];
+      String(raw || '').split(/[,;\n]/).forEach(s => {
+        s = s.trim().slice(0, 20); const k = s.toLowerCase();
+        if(s && !seen[k]){ seen[k] = 1; out.push(s); }
+      });
+      return out.slice(0, 8);
+    }
+    function fieldLine(d){
+      if(!d.field) return '';
+      let label = ['web','designer','app','gamer','streamer','other'].indexOf(d.field) !== -1 ? tr('p.f.' + d.field) : d.field;
+      if(d.subfield) label += ' · ' + ((d.field === 'web') ? (d.subfield === 'frontend' ? 'Frontend' : 'Backend') : d.subfield);
       return label;
     }
-
-    function initials(nick){
-      return (nick || '?').trim().slice(0,2).toUpperCase();
-    }
+    function initials(n){ return (n || '?').trim().slice(0,2).toUpperCase(); }
 
     function renderGateLoggedOut(){
-      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Profilni ko'rish uchun tizimga kiring</h2>
-        <button class="btn primary" onclick="window.location.href='auth.html'">Kirish</button></div>`;
+      signedIn = false;
+      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">${esc(tr('p.loginNeed'))}</h2>
+        <button class="btn primary" onclick="window.location.href='auth.html'">${esc(tr('nav.login'))}</button></div>`;
     }
-
     function renderNotFound(nick){
-      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">Foydalanuvchi topilmadi</h2>
-        <p>"${nick}" nomli foydalanuvchi mavjud emas.</p>
-        <button class="btn primary" onclick="window.location.href='index.html'">Bosh sahifaga qaytish</button></div>`;
+      wrap.innerHTML = `<div class="gate"><h2 style="color:var(--text)">${esc(tr('p.notFound'))}</h2>
+        <p>${esc(tr('p.notFoundMsg'))}${esc(nick)}</p>
+        <button class="btn primary" onclick="window.location.href='chat.html'">${esc(tr('p.toChat'))}</button></div>`;
     }
 
     function renderProfile(){
-      const data = viewingData;
-      const joined = data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString() : '—';
-      const testBadge = data.testPassed ? '✅ Test topshirilgan' : '—';
-      const roleBadge = data.role === 'admin' ? '<span class="tag">👑 Admin</span>' : '';
-      const fieldBadge = fieldLine(data) ? `<span class="tag">${fieldLine(data)}</span>` : '';
+      const d = viewingData;
+      const joined = d.createdAt && d.createdAt.toDate ? d.createdAt.toDate().toLocaleDateString() : '—';
+      const photo = (typeof d.photo === 'string' && d.photo.indexOf('data:image/') === 0) ? d.photo : '';
+      const skills = Array.isArray(d.skills) ? d.skills.slice(0, 8) : [];
+      const gh = (typeof d.github === 'string' && GH_RE.test(d.github)) ? d.github : '';
+      const roleBadge = d.role === 'admin' ? '<span class="tag">👑 Admin</span>' : '';
+      const fieldBadge = fieldLine(d) ? `<span class="tag">${esc(fieldLine(d))}</span>` : '';
+
+      const bioHtml = editing
+        ? `<textarea id="bioInput" maxlength="300" placeholder="${esc(tr('p.bioPh'))}">${esc(d.bio || '')}</textarea>`
+        : (d.bio ? esc(d.bio) : esc(isOwn ? tr('p.bioOwn') : tr('p.bioNone')));
+
+      const extra = editing ? `
+          <div class="p-field"><label>${esc(tr('p.skills'))}</label><input id="skillsInput" type="text" maxlength="200" value="${esc(skills.join(', '))}" placeholder="${esc(tr('p.skillsPh'))}"></div>
+          <div class="p-field"><label>${esc(tr('p.github'))}</label><input id="githubInput" type="text" maxlength="60" value="${esc(gh)}" placeholder="${esc(tr('p.githubPh'))}"></div>`
+        : `${skills.length ? `<div class="p-skills">${skills.map(s => `<span class="tag mint">${esc(s)}</span>`).join('')}</div>` : ''}
+          ${gh ? `<div class="p-link"><a class="btn ghost" href="https://github.com/${esc(gh)}" target="_blank" rel="noopener noreferrer">GitHub · ${esc(gh)}</a></div>` : ''}`;
 
       wrap.innerHTML = `
         <div class="profile-card">
           <div class="avatar-wrap">
-            ${data.photo
-              ? `<img class="avatar" src="${data.photo}" alt="${data.nickname}">`
-              : `<div class="avatar">${initials(data.nickname)}</div>`}
-            ${isOwn ? '<button class="avatar-edit" id="avatarEditBtn" title="Rasm o\'zgartirish">📷</button>' : ''}
+            ${photo ? `<img class="avatar" src="${photo}" alt="${esc(d.nickname)}">` : `<div class="avatar">${esc(initials(d.nickname))}</div>`}
+            ${isOwn ? `<button class="avatar-edit" id="avatarEditBtn" title="${esc(tr('p.photoTip'))}">📷</button>` : ''}
           </div>
-          <div class="p-name">${data.nickname}</div>
+          <div class="p-name">${esc(d.nickname)}</div>
           <div class="p-badges">${fieldBadge}${roleBadge}</div>
-
-          <div id="bioArea" class="p-bio ${data.bio ? '' : 'empty'}">${data.bio ? escapeHtml(data.bio) : (isOwn ? "O'zingiz haqingizda yozing..." : 'Bio yo\'q.')}</div>
-
+          <div id="bioArea" class="p-bio ${d.bio || editing ? '' : 'empty'}">${bioHtml}</div>
+          ${extra}
           <div class="p-meta">
-            <div class="item"><b>${joined}</b><span>A'zo bo'lgan</span></div>
-            <div class="item"><b>${testBadge}</b><span>Holat</span></div>
+            <div class="item"><b>${esc(joined)}</b><span>${esc(tr('p.joined'))}</span></div>
+            <div class="item"><b>${d.testPassed ? esc(tr('p.testDone')) : '—'}</b><span>${esc(tr('p.status'))}</span></div>
           </div>
-
-          ${isOwn ? `
-          <div class="p-actions" id="viewActions">
-            <button class="btn primary" id="editBtn">✏️ Profilni tahrirlash</button>
-          </div>
-          <div class="p-actions" id="editActions" style="display:none; margin-top:10px;">
-            <button class="btn primary" id="saveBtn">Saqlash</button>
-            <button class="btn ghost" id="cancelBtn">Bekor qilish</button>
-          </div>` : ''}
+          ${isOwn ? (editing
+            ? `<div class="p-actions"><button class="btn primary" id="saveBtn">${esc(tr('p.save'))}</button><button class="btn ghost" id="cancelBtn">${esc(tr('p.cancel'))}</button></div>`
+            : `<div class="p-actions"><button class="btn primary" id="editBtn">${esc(tr('p.edit'))}</button></div>`) : ''}
         </div>`;
 
       if(isOwn){
-        document.getElementById('avatarEditBtn').addEventListener('click', ()=> document.getElementById('photoFile').click());
-        document.getElementById('editBtn').addEventListener('click', enterEditMode);
+        document.getElementById('avatarEditBtn').addEventListener('click', () => document.getElementById('photoFile').click());
+        if(editing){
+          document.getElementById('saveBtn').addEventListener('click', saveProfile);
+          document.getElementById('cancelBtn').addEventListener('click', () => { editing = false; renderProfile(); });
+        } else {
+          document.getElementById('editBtn').addEventListener('click', () => { editing = true; renderProfile(); });
+        }
       }
     }
 
-    function escapeHtml(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-    function enterEditMode(){
-      const bioArea = document.getElementById('bioArea');
-      const currentBio = viewingData.bio || '';
-      bioArea.innerHTML = `<textarea id="bioInput" maxlength="300" placeholder="O'zingiz haqingizda qisqacha yozing...">${escapeHtml(currentBio)}</textarea>`;
-      document.getElementById('viewActions').style.display = 'none';
-      document.getElementById('editActions').style.display = 'flex';
-      document.getElementById('saveBtn').addEventListener('click', saveProfile);
-      document.getElementById('cancelBtn').addEventListener('click', renderProfile);
-    }
-
     async function saveProfile(){
-      const bioInput = document.getElementById('bioInput');
-      const newBio = bioInput.value.trim();
-      const saveBtn = document.getElementById('saveBtn');
-      saveBtn.disabled = true; saveBtn.textContent = 'Saqlanmoqda...';
+      const bio = document.getElementById('bioInput').value.trim().slice(0, 300);
+      const skills = parseSkills(document.getElementById('skillsInput').value);
+      const github = cleanGithub(document.getElementById('githubInput').value);
+      if(github && !GH_RE.test(github)){ alert(tr('p.githubBad')); return; }
+      const btn = document.getElementById('saveBtn');
+      btn.disabled = true; btn.textContent = tr('p.saving');
       try{
-        await db.collection('users').doc(me.uid).set({ bio: newBio }, { merge: true });
-        viewingData.bio = newBio;
-        renderProfile();
+        await db.collection('users').doc(me.uid).set({ bio: bio, skills: skills, github: github }, { merge: true });
+        Object.assign(viewingData, { bio: bio, skills: skills, github: github });
+        editing = false; renderProfile();
       }catch(e){
-        alert('Saqlashda xatolik: ' + e.message);
-        saveBtn.disabled = false; saveBtn.textContent = 'Saqlash';
+        alert(tr('p.saveErr') + e.message);
+        btn.disabled = false; btn.textContent = tr('p.save');
       }
     }
 
@@ -188,15 +218,11 @@
       reader.onload = function(ev){
         const img = new Image();
         img.onload = function(){
-          const size = 220;
-          const canvas = document.createElement('canvas');
+          const size = 220, canvas = document.createElement('canvas');
           canvas.width = size; canvas.height = size;
-          const ctx = canvas.getContext('2d');
-          const scale = Math.max(size / img.width, size / img.height);
-          const w = img.width * scale, h = img.height * scale;
-          ctx.drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-          savePhoto(dataUrl);
+          const scale = Math.max(size / img.width, size / img.height), w = img.width * scale, h = img.height * scale;
+          canvas.getContext('2d').drawImage(img, (size - w) / 2, (size - h) / 2, w, h);
+          savePhoto(canvas.toDataURL('image/jpeg', 0.75));
         };
         img.src = ev.target.result;
       };
@@ -206,56 +232,36 @@
     async function savePhoto(dataUrl){
       try{
         await db.collection('users').doc(me.uid).set({ photo: dataUrl }, { merge: true });
-        viewingData.photo = dataUrl;
-        renderProfile();
-      }catch(e){
-        alert('Rasm saqlashda xatolik: ' + e.message);
-      }
+        viewingData.photo = dataUrl; renderProfile();
+      }catch(e){ alert(tr('p.photoErr') + e.message); }
     }
 
     async function loadProfile(){
-      const params = new URLSearchParams(window.location.search);
-      const requestedNick = params.get('user');
-
+      const requestedNick = new URLSearchParams(window.location.search).get('user');
       if(!requestedNick || requestedNick.toLowerCase() === (me.nickname || '').toLowerCase()){
-        isOwn = true;
-        viewing = me.uid;
-        viewingData = me;
-        renderProfile();
-        return;
+        isOwn = true; viewingData = me; renderProfile(); return;
       }
-
-      // Boshqa birovning profilini nickname bo'yicha qidirish
       try{
-        const snap = await db.collection('users')
-          .where('nicknameLower', '==', requestedNick.toLowerCase())
-          .limit(1).get();
+        const snap = await db.collection('users').where('nicknameLower', '==', requestedNick.toLowerCase()).limit(1).get();
         if(snap.empty){ renderNotFound(requestedNick); return; }
         const doc = snap.docs[0];
-        isOwn = (doc.id === me.uid);
-        viewing = doc.id;
-        viewingData = doc.data();
-        renderProfile();
-      }catch(e){
-        wrap.innerHTML = `<div class="gate"><p>Xatolik: ${e.message}</p></div>`;
-      }
+        isOwn = (doc.id === me.uid); viewingData = doc.data(); renderProfile();
+      }catch(e){ wrap.innerHTML = `<div class="gate"><p>${esc(tr('p.err') + e.message)}</p></div>`; }
     }
+
+    window.addEventListener('ic:lang', function(){ if(viewingData) renderProfile(); else if(!signedIn && !me) renderGateLoggedOut(); });
 
     auth.onAuthStateChanged(async function(user){
       if(!user){ renderGateLoggedOut(); return; }
+      signedIn = true;
       try{
         const doc = await db.collection('users').doc(user.uid).get();
-        if(!doc.exists || !doc.data().profileComplete){
-          window.location.href = 'onboarding.html';
-          return;
-        }
+        if(!doc.exists || !doc.data().profileComplete){ window.location.href = 'onboarding.html'; return; }
         me = Object.assign({ uid: user.uid }, doc.data());
         const adminLink = document.getElementById('adminLink');
         if(adminLink) adminLink.style.display = (me.role === 'admin') ? 'inline-flex' : 'none';
         loadProfile();
-      }catch(e){
-        wrap.innerHTML = `<div class="gate"><p>Xatolik: ${e.message}</p></div>`;
-      }
+      }catch(e){ wrap.innerHTML = `<div class="gate"><p>${esc(tr('p.err') + e.message)}</p></div>`; }
     });
   </script>
 

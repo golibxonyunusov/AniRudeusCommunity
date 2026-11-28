@@ -1,3 +1,3 @@
 git add .
-git commit -m "Buyurtma qismi tayyor"
+git commit -m "ko'p qoshimchalar"
 git push
