@@ -15,7 +15,7 @@
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
 
-  var theme = get(LS_THEME) === 'light' ? 'light' : 'dark';
+  var theme = 'dark'; // yorug' rejim olib tashlandi — sayt faqat qorong'i
   var lang = get(LS_LANG) === 'en' ? 'en' : 'uz';
   // Sahifa chizilishidan oldin qo'yamiz — "yaltirash" bo'lmasligi uchun
   root.setAttribute('data-theme', theme);
@@ -142,10 +142,7 @@
     langBtn = document.createElement('button');
     langBtn.type = 'button'; langBtn.className = 'icon-btn';
     langBtn.addEventListener('click', function () { setLang(lang === 'uz' ? 'en' : 'uz'); });
-    themeBtn = document.createElement('button');
-    themeBtn.type = 'button'; themeBtn.className = 'icon-btn';
-    themeBtn.addEventListener('click', function () { setTheme(theme === 'dark' ? 'light' : 'dark'); });
-    box.appendChild(langBtn); box.appendChild(themeBtn);
+    box.appendChild(langBtn);
     host.insertBefore(box, host.firstChild);
     refreshToolButtons();
   }

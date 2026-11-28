@@ -77,92 +77,57 @@
     .group-title .mode-toggle{ display:flex; gap:8px; }
     .group-title .mode-toggle .btn{ padding:8px 14px; font-size:13px; }
 
-    .chat-box{ flex:1; padding:18px 26px; overflow-y:auto; display:flex; flex-direction:column; gap:2px; }
-    .chat-box > :first-child{ margin-top:auto; }
-    .chat-box .empty{ color:var(--muted); font-size:14px; text-align:center; }
+    .chat-box{ flex:1; padding:16px 26px; overflow-y:auto; display:flex; flex-direction:column; gap:3px; }
+    .chat-box .empty{ color:var(--muted); font-size:14px; }
 
-    .day-sep{ align-self:center; margin:12px 0 6px; padding:4px 12px; border-radius:999px; background:var(--panel); border:1px solid var(--line); color:var(--muted); font-size:12px; font-weight:600; }
-
-    .msg-row{ display:flex; align-items:flex-end; gap:8px; }
-    .msg-row.mine{ justify-content:flex-end; }
-    .msg-row.first{ margin-top:8px; }
-    .avatar-slot{ width:34px; height:34px; flex-shrink:0; }
-    .avatar{ width:34px; height:34px; border-radius:50%; object-fit:cover; display:block; background:var(--panel-2); cursor:pointer; }
-
-    .bubble{
-      position:relative; max-width:min(560px,78%);
-      padding:7px 12px 6px; border-radius:16px;
-      font-size:14.5px; line-height:1.45;
-      overflow-wrap:anywhere; word-wrap:break-word;
-    }
-    .theirs .bubble{ background:var(--panel); border:1px solid var(--line); color:var(--text); }
-    .mine .bubble{ background:var(--gold); color:#0b1220; }
-    .theirs:not(.first) .bubble{ border-top-left-radius:5px; }
-    .theirs.last .bubble{ border-bottom-left-radius:5px; }
-    .mine:not(.first) .bubble{ border-top-right-radius:5px; }
-    .mine.last .bubble{ border-bottom-right-radius:5px; }
-
-    .bubble .author{ display:block; font-size:12.5px; font-weight:700; color:var(--gold); text-decoration:none; margin-bottom:2px; }
-    .bubble .msg-text{ white-space:pre-wrap; }
-    .bubble .msg-time{ float:right; margin:7px 0 0 10px; font-size:11px; line-height:1; color:var(--muted); }
-    .mine .bubble .msg-time{ color:rgba(11,18,32,0.6); }
-
-    .bubble.media{ padding:4px; }
-    .bubble.media .author{ padding:3px 8px 0; }
-    .bubble.media .msg-time{ float:none; display:block; text-align:right; margin:3px 6px 1px 0; }
-    .gif-img{ display:block; max-width:100%; max-height:260px; border-radius:12px; }
-
-    .sticker-row .bubble{ background:none !important; border:none !important; padding:0; }
-    .sticker-row .sticker{ font-size:76px; line-height:1.1; }
-    .sticker-row .msg-time{ float:none; display:block; text-align:right; margin:0; }
-
-    .bubble button.del{
-      position:absolute; top:-8px; right:-6px; width:20px; height:20px; border-radius:50%;
-      border:none; background:var(--danger); color:#fff; cursor:pointer;
-      font-size:11px; line-height:1; display:none;
-    }
-    .bubble:hover button.del{ display:block; }
-    @media(hover:none){ .bubble button.del{ display:block; opacity:.85; } }
-
-    .nav-avatar{ display:none; width:36px; height:36px; border-radius:50%; object-fit:cover; cursor:pointer; border:2px solid var(--gold); background:var(--panel-2); }
+    .day-sep{ align-self:center; background:var(--panel); border:1px solid var(--line); color:var(--muted); font-size:12px; padding:3px 12px; border-radius:999px; margin:12px 0 6px; }
+    .row{ display:flex; gap:8px; align-items:flex-end; }
+    .row.first{ margin-top:8px; }
+    .row.me{ flex-direction:row-reverse; }
+    .av{ width:36px; height:36px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px; color:#fff; background-size:cover; background-position:center; text-decoration:none; }
+    .av-spacer{ width:36px; flex:none; }
+    .bubble{ position:relative; max-width:min(560px,78%); padding:7px 12px 5px; border-radius:14px; background:var(--panel); border:1px solid var(--line); }
+    .row:not(.me) .bubble{ border-bottom-left-radius:4px; }
+    .row.me .bubble{ background:rgba(255,212,0,0.15); border-color:rgba(255,212,0,0.35); border-bottom-right-radius:4px; }
+    .bubble.media{ background:transparent; border:none; padding:0; }
+    .bubble .who{ display:inline-block; font-size:12.5px; font-weight:700; color:var(--gold); text-decoration:none; margin-bottom:2px; }
+    .bubble .txt{ line-height:1.45; word-wrap:break-word; white-space:pre-wrap; }
+    .bubble .stk{ font-size:84px; line-height:1.1; }
+    .bubble img.gif{ display:block; max-width:260px; max-height:260px; border-radius:12px; }
+    .bubble .time{ font-size:10.5px; color:var(--muted); text-align:right; margin-top:2px; }
+    .bubble .del{ position:absolute; top:-8px; right:-8px; display:none; width:20px; height:20px; border-radius:50%; border:none; background:rgba(255,107,107,0.9); color:#fff; cursor:pointer; font-size:11px; line-height:1; }
+    .bubble:hover .del{ display:block; }
+    .nav-avatar{ display:none; width:38px; height:38px; border-radius:50%; border:2px solid var(--gold); align-items:center; justify-content:center; font-weight:700; font-size:14px; color:#fff; text-decoration:none; background-size:cover; background-position:center; flex-shrink:0; }
+    .tool-btn{ width:44px; height:44px; flex:none; border-radius:10px; border:1px solid var(--line); background:var(--panel); color:var(--text); font-size:20px; cursor:pointer; }
+    .tool-btn:hover{ border-color:var(--gold); }
+    .picker{ position:absolute; left:26px; bottom:calc(100% + 8px); width:360px; max-width:calc(100vw - 32px); height:340px; background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow-lg); display:none; flex-direction:column; overflow:hidden; z-index:60; }
+    .picker.open{ display:flex; }
+    .p-tabs{ display:flex; border-bottom:1px solid var(--line); }
+    .p-tabs button{ flex:1; padding:10px; background:none; border:none; color:var(--muted); font-weight:700; font-size:14px; cursor:pointer; }
+    .p-tabs button.on{ color:var(--gold); box-shadow:inset 0 -2px 0 var(--gold); }
+    .p-body{ flex:1; overflow-y:auto; padding:10px; }
+    .emoji-grid{ display:grid; grid-template-columns:repeat(8,1fr); gap:2px; }
+    .sticker-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+    .emoji-grid button, .sticker-grid button{ background:none; border:none; border-radius:8px; cursor:pointer; padding:4px; font-size:22px; }
+    .sticker-grid button{ font-size:44px; }
+    .emoji-grid button:hover, .sticker-grid button:hover{ background:var(--panel-2); }
+    .gif-bar{ display:flex; gap:6px; margin-bottom:8px; }
+    .gif-bar input{ flex:1; padding:9px 11px; border-radius:9px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); outline:none; font-size:13px; }
+    .gif-grid{ columns:2; column-gap:6px; }
+    .gif-grid img{ width:100%; margin-bottom:6px; border-radius:8px; cursor:pointer; display:block; }
+    .p-note{ color:var(--muted); font-size:12.5px; line-height:1.5; }
 
     .input-area{
-      position:relative; display:flex; align-items:center; gap:8px; padding:12px 26px;
-      border-top:1px solid var(--line); background:var(--overlay);
+      display:flex; gap:10px; padding:16px 26px; position:relative; align-items:center;
+      border-top:1px solid var(--line);
+      background:var(--overlay);
     }
     .input-area input{
-      flex:1; padding:12px 16px; border-radius:22px; border:1px solid var(--line);
+      flex:1; padding:13px 16px; border-radius:10px; border:1px solid var(--line);
       background:var(--panel); color:var(--text); outline:none; font-size:14.5px;
       font-family:'Inter',sans-serif;
     }
     .input-area input:focus{ border-color:var(--gold); }
-    .tool-btn{ width:40px; height:40px; flex-shrink:0; border-radius:50%; border:1px solid var(--line); background:var(--panel); font-size:20px; cursor:pointer; line-height:1; }
-    .tool-btn:hover{ border-color:var(--gold); }
-    .send-btn{ width:42px; height:42px; flex-shrink:0; border-radius:50%; border:none; background:var(--gold); color:#0b1220; font-size:18px; cursor:pointer; }
-    .send-btn:hover{ transform:translateY(-1px); }
-
-    .picker{
-      position:absolute; left:26px; bottom:calc(100% + 8px);
-      width:min(360px, calc(100% - 52px)); height:320px;
-      background:var(--panel); border:1px solid var(--line); border-radius:14px;
-      box-shadow:var(--shadow-lg); display:flex; flex-direction:column; overflow:hidden; z-index:30;
-    }
-    .picker[hidden]{ display:none; }
-    .picker-tabs{ display:flex; border-bottom:1px solid var(--line); }
-    .picker-tabs button{ flex:1; padding:10px 6px; background:none; border:none; border-bottom:2px solid transparent; color:var(--muted); font:600 13px 'Inter',sans-serif; cursor:pointer; }
-    .picker-tabs button.on{ color:var(--gold); border-bottom-color:var(--gold); }
-    .picker-body{ flex:1; overflow-y:auto; padding:8px; }
-    .emoji-grid{ display:grid; grid-template-columns:repeat(8,1fr); gap:2px; }
-    .emoji-grid button{ font-size:22px; background:none; border:none; padding:4px; border-radius:8px; cursor:pointer; line-height:1.2; }
-    .emoji-grid button:hover{ background:var(--panel-2); }
-    .emoji-grid.big{ grid-template-columns:repeat(4,1fr); }
-    .emoji-grid.big button{ font-size:44px; }
-    .gif-form{ display:flex; gap:6px; margin-bottom:8px; }
-    .gif-form input{ flex:1; min-width:0; padding:8px 10px; border-radius:8px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); outline:none; font-size:13px; }
-    .gif-form button{ border:none; background:var(--gold); color:#0b1220; border-radius:8px; padding:0 12px; font-weight:700; cursor:pointer; }
-    .gif-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:6px; }
-    .gif-grid img{ width:100%; border-radius:8px; cursor:pointer; display:block; }
-    .gif-hint{ font-size:12px; color:var(--muted); line-height:1.5; }
 
     /* ---------- Guruh video-chati ---------- */
     .video-pane{ flex:1; display:flex; flex-direction:column; min-height:0; }
@@ -238,7 +203,7 @@
       <a id="adminLink" href="admin.html" class="btn ghost" style="display:none">👑 Admin</a>
       <button id="loginBtn" class="btn ghost" data-i18n="nav.login">Kirish</button>
       <button id="logoutBtn" class="btn ghost" style="display:none" data-i18n="nav.logout">Chiqish</button>
-      <img id="navAvatar" class="nav-avatar" alt="" src=""><span id="displayName" style="display:none"></span>
+      <a id="navAvatar" class="nav-avatar" href="profile.html"></a>
     </div>
   </nav>
 
@@ -269,17 +234,17 @@
       <div id="chat" class="chat-box"></div>
 
       <div class="input-area" id="inputArea">
-        <div class="picker" id="picker" hidden>
-          <div class="picker-tabs">
-            <button type="button" data-tab="emoji" class="on">😀 Emoji</button>
-            <button type="button" data-tab="sticker">🎭 Stiker</button>
+        <div class="picker" id="picker">
+          <div class="p-tabs">
+            <button type="button" data-tab="emoji">😊</button>
+            <button type="button" data-tab="sticker">🎭</button>
             <button type="button" data-tab="gif">GIF</button>
           </div>
-          <div class="picker-body" id="pickerBody"></div>
+          <div class="p-body" id="pBody"></div>
         </div>
-        <button type="button" class="tool-btn" id="pickerBtn" title="Emoji, stiker, GIF">😊</button>
-        <input type="text" id="myInput" placeholder="Xabar yozing..." data-i18n-placeholder="chat.placeholder" autocomplete="off" onkeydown="if(event.key==='Enter'){ sendMessage(); }">
-        <button type="button" class="send-btn" onclick="sendMessage()" aria-label="Yuborish" title="Yuborish">➤</button>
+        <button type="button" class="tool-btn" id="pickerBtn" title="Emoji / Sticker / GIF">😊</button>
+        <input type="text" id="myInput" placeholder="Xabar yozing..." data-i18n-placeholder="chat.placeholder" onkeydown="if(event.key==='Enter'){ sendMessage(); }">
+        <button class="btn primary" onclick="sendMessage()" data-i18n="chat.send">Yuborish</button>
       </div>
 
       <div class="video-pane" id="videoPane" style="display:none">
@@ -299,31 +264,6 @@
   <script>
     // ---- Guruhlar: "main" (Asosiy, hammada bor) + foydalanuvchining sohasi ----
     const tr = IC.t; // tarjima funksiyasi (site.js)
-    // Yangi matnlar uchun: tarjima topilmasa o'zbekcha matn ishlatiladi
-    function T(key, fallback){ const v = tr(key); return (!v || v === key) ? fallback : v; }
-
-    // Standart profil rasmi (rasm qo'yilmagan bo'lsa)
-    const DEFAULT_AVATAR = 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#3a4a5e"/><circle cx="50" cy="38" r="18" fill="#9fb2c8"/><path d="M13 100c0-22 17-37 37-37s37 15 37 37z" fill="#9fb2c8"/></svg>');
-    let myAvatar = DEFAULT_AVATAR;
-    let stickBottom = true;     // yangi suhbat ochilganda yoki xabar yuborilganda pastga tushish
-    const userCache = {};       // uid -> { avatar }
-    const userPending = {};
-
-    // Foydalanuvchi hujjatidagi rasm maydoni (sizning profile.html qaysi nomni ishlatsa, shu topiladi)
-    function avatarOf(data){
-      if (!data) return DEFAULT_AVATAR;
-      const u = data.photoURL || data.avatar || data.avatarUrl || data.photo || data.profilePhoto || data.profileImage || data.imageUrl;
-      return (typeof u === 'string' && /^(https?:\/\/|data:image\/)/i.test(u)) ? u : DEFAULT_AVATAR;
-    }
-    function ensureUser(uid){
-      if (!uid || userCache[uid] || userPending[uid]) return;
-      userPending[uid] = true;
-      db.collection('users').doc(uid).get()
-        .then(d => { userCache[uid] = { avatar: d.exists ? avatarOf(d.data()) : DEFAULT_AVATAR }; })
-        .catch(() => { userCache[uid] = { avatar: DEFAULT_AVATAR }; })
-        .then(() => { delete userPending[uid]; if (lastMessages) renderMessages(lastMessages); });
-    }
-
     const FIELDS = ['web', 'designer', 'app', 'gamer', 'streamer', 'other'];
     function fieldLabel(k){ return tr('field.' + k); }
 
@@ -333,6 +273,7 @@
     let currentField = null;   // foydalanuvchi sohasi (til almashganda sidebar'ni qayta chizish uchun)
     let lastMessages = null;   // oxirgi xabarlar (bo'sh holat matnini qayta chizish uchun)
     let myUid = null;
+    let myPhoto = '';
     let isAdmin = false;
     let unsubMessages = null;
     let unsubDMs = null;
@@ -382,7 +323,6 @@
 
     function listenMessages(){
       if (unsubMessages) unsubMessages();
-      stickBottom = true;
       chatEl.innerHTML = '<p class="empty">' + tr('chat.loading') + '</p>';
       unsubMessages = messagesRef().orderBy('time', 'asc').limitToLast(200).onSnapshot(snap => {
         renderMessages(snap.docs.map(d => Object.assign({ id: d.id }, d.data({ serverTimestamps: 'estimate' }))));
@@ -392,114 +332,78 @@
       });
     }
 
+    function msgDate(m){ return m.time && m.time.toDate ? m.time.toDate() : new Date(); }
+    function dayLabel(d){
+      const now = new Date(), y = new Date(); y.setDate(now.getDate() - 1);
+      if (d.toDateString() === now.toDateString()) return tr('chat.today');
+      if (d.toDateString() === y.toDateString()) return tr('chat.yesterday');
+      return d.toLocaleDateString();
+    }
     function renderMessages(messages) {
-      const wasNear = chatEl.scrollHeight - chatEl.scrollTop - chatEl.clientHeight < 140;
-      const prevTop = chatEl.scrollTop;
       lastMessages = messages;
       chatEl.innerHTML = '';
       if (messages.length === 0) { chatEl.innerHTML = '<p class="empty">' + tr('chat.empty') + '</p>'; return; }
-
-      const isGroup = currentThread.type === 'group';
-      const dateOf = m => (m.time && m.time.toDate) ? m.time.toDate() : null;
-      let lastDay = '';
-
+      const GAP = 5 * 60000;
       messages.forEach((msg, i) => {
-        const d = dateOf(msg);
-        const prev = messages[i - 1], next = messages[i + 1];
-
-        // Kun ajratgichi
-        if (d && d.toDateString() !== lastDay) {
-          lastDay = d.toDateString();
-          const sep = document.createElement('div'); sep.className = 'day-sep';
-          sep.textContent = d.toLocaleDateString(undefined, { day: 'numeric', month: 'long' });
-          chatEl.appendChild(sep);
+        const d = msgDate(msg), prev = messages[i - 1], next = messages[i + 1];
+        const pd = prev ? msgDate(prev) : null, nd = next ? msgDate(next) : null;
+        if (!pd || pd.toDateString() !== d.toDateString()) {
+          const sep = document.createElement('div'); sep.className = 'day-sep'; sep.textContent = dayLabel(d); chatEl.appendChild(sep);
         }
-
-        // Ketma-ket bir odamning xabarlarini guruhlaymiz (5 daqiqagacha)
-        const near = (a, b) => {
-          const da = dateOf(a), db2 = dateOf(b);
-          return a && b && a.senderUid === b.senderUid && da && db2 &&
-                 da.toDateString() === db2.toDateString() && Math.abs(da - db2) < 5 * 60 * 1000;
-        };
-        const first = !near(prev, msg);
-        const last = !near(msg, next);
-
+        const sameAsPrev = !!prev && pd.toDateString() === d.toDateString() && prev.senderUid === msg.senderUid && (d - pd) < GAP;
+        const sameAsNext = !!next && nd.toDateString() === d.toDateString() && next.senderUid === msg.senderUid && (nd - d) < GAP;
         const mine = msg.senderUid === myUid;
         const nick = msg.senderNickname || tr('chat.user');
-        const isSticker = msg.type === 'sticker';
-        const isGif = msg.type === 'gif' && typeof msg.gif === 'string' && /^https:\/\//i.test(msg.gif);
+        const type = msg.type || 'text';
 
         const row = document.createElement('div');
-        row.className = 'msg-row ' + (mine ? 'mine' : 'theirs') + (first ? ' first' : '') + (last ? ' last' : '') + (isSticker ? ' sticker-row' : '');
-
-        // Boshqalarning rasmi (guruhning oxirgi xabari yonida)
+        row.className = 'row' + (mine ? ' me' : '') + (sameAsPrev ? '' : ' first');
         if (!mine) {
-          const slot = document.createElement('div'); slot.className = 'avatar-slot';
-          if (last) {
-            ensureUser(msg.senderUid);
-            const img = document.createElement('img'); img.className = 'avatar'; img.alt = nick; img.title = nick;
-            img.src = (userCache[msg.senderUid] || {}).avatar || DEFAULT_AVATAR;
-            img.onerror = () => { img.onerror = null; img.src = DEFAULT_AVATAR; };
-            img.onclick = () => { window.location.href = 'profile.html?user=' + encodeURIComponent(nick); };
-            slot.appendChild(img);
-          }
-          row.appendChild(slot);
+          if (!sameAsNext) {
+            const av = document.createElement('a'); av.className = 'av';
+            av.href = 'profile.html?user=' + encodeURIComponent(nick); av.title = nick;
+            paintAvatar(av, nick, '');
+            userInfo(msg.senderUid).then(u => paintAvatar(av, nick, u.photo));
+            row.appendChild(av);
+          } else { const sp = document.createElement('div'); sp.className = 'av-spacer'; row.appendChild(sp); }
         }
-
-        const bubble = document.createElement('div');
-        bubble.className = 'bubble' + (isGif ? ' media' : '');
-
-        if (!mine && first && isGroup && !isSticker) {
-          const a = document.createElement('a'); a.className = 'author';
-          a.href = 'profile.html?user=' + encodeURIComponent(nick); a.textContent = nick;
-          bubble.appendChild(a);
+        const bub = document.createElement('div'); bub.className = 'bubble' + (type !== 'text' ? ' media' : '');
+        if (!mine && !sameAsPrev) {
+          const who = document.createElement('a'); who.className = 'who'; who.href = 'profile.html?user=' + encodeURIComponent(nick); who.textContent = nick;
+          bub.appendChild(who); bub.appendChild(document.createElement('br'));
         }
-
-        if (isGif) {
-          const g = document.createElement('img'); g.className = 'gif-img'; g.src = msg.gif; g.alt = 'GIF'; g.loading = 'lazy';
-          g.onerror = () => { const s = document.createElement('span'); s.textContent = 'GIF'; g.replaceWith(s); };
-          bubble.appendChild(g);
-        } else if (isSticker) {
-          const s = document.createElement('div'); s.className = 'sticker'; s.textContent = msg.text;
-          bubble.appendChild(s);
+        if (type === 'gif' && okGif(msg.gif)) {
+          const img = document.createElement('img'); img.className = 'gif'; img.src = okGif(msg.gif); img.loading = 'lazy'; img.referrerPolicy = 'no-referrer'; img.alt = 'GIF';
+          bub.appendChild(img);
+        } else if (type === 'sticker') {
+          const s = document.createElement('div'); s.className = 'stk'; s.textContent = String(msg.sticker || '').slice(0, 16); bub.appendChild(s);
         } else {
-          const t = document.createElement('span'); t.className = 'msg-text'; t.textContent = msg.text;
-          bubble.appendChild(t);
+          const t = document.createElement('div'); t.className = 'txt'; t.textContent = msg.text; bub.appendChild(t);
         }
-
-        const tm = document.createElement('span'); tm.className = 'msg-time';
-        tm.textContent = d ? d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-        bubble.appendChild(tm);
-
+        const tm = document.createElement('div'); tm.className = 'time'; tm.textContent = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        bub.appendChild(tm);
         if (mine || isAdmin) {
-          const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕';
-          del.title = tr('chat.delete'); del.onclick = () => deleteMessage(msg.id);
-          bubble.appendChild(del);
+          const del = document.createElement('button'); del.className = 'del'; del.textContent = '✕'; del.title = tr('chat.delete'); del.onclick = () => deleteMessage(msg.id);
+          bub.appendChild(del);
         }
-
-        row.appendChild(bubble);
-        chatEl.appendChild(row);
+        row.appendChild(bub); chatEl.appendChild(row);
       });
-
-      chatEl.scrollTop = (wasNear || stickBottom) ? chatEl.scrollHeight : prevTop;
-      stickBottom = false;
+      chatEl.scrollTop = chatEl.scrollHeight;
     }
 
-    async function postMessage(payload, preview) {
+    async function sendPayload(extra, preview) {
       if (!myUid) return false;
       try {
         await messagesRef().add(Object.assign({
-          senderUid: myUid,
-          senderNickname: username,
+          senderUid: myUid, senderNickname: username, text: preview,
           time: firebase.firestore.FieldValue.serverTimestamp()
-        }, payload));
+        }, extra || {}));
         if (currentThread.type === 'dm') {
           await db.collection('dms').doc(currentThread.id).set({
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-            lastMessageText: preview
+            lastMessageText: String(preview).slice(0, 80)
           }, { merge: true });
         }
-        stickBottom = true;
         return true;
       } catch (e) {
         console.error('Yuborishda xato:', e);
@@ -507,114 +411,12 @@
         return false;
       }
     }
-
     async function sendMessage() {
       const text = inputEl.value.trim();
-      if (!text || !myUid) return;
+      if (!text) return;
       inputEl.value = '';
-      const ok = await postMessage({ text: text }, text.slice(0, 80));
-      if (!ok) inputEl.value = text;
+      if (!(await sendPayload({}, text))) inputEl.value = text;
     }
-
-    function sendSticker(emoji) { return postMessage({ type: 'sticker', text: emoji }, emoji); }
-    function sendGif(url) { return postMessage({ type: 'gif', gif: url, text: 'GIF' }, 'GIF'); }
-
-    // ---- Emoji / stiker / GIF paneli ----
-    const GIPHY_KEY = ''; // ixtiyoriy: developers.giphy.com dan bepul kalit olib shu yerga qo'ying — GIF qidiruvi ishlaydi
-    const EMOJIS = '😀 😃 😄 😁 😆 😅 😂 🤣 😊 😇 🙂 😉 😍 🥰 😘 😋 😛 😜 🤪 😎 🤓 🥳 🤩 😏 😒 😞 😔 😟 😕 🙁 😣 😢 😭 😤 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 🤗 🤔 🤭 🤫 😐 😶 🙄 😬 😴 🤤 😷 🤒 🤕 🤠 😈 👻 💀 🤖 🎃 👍 👎 👏 🙌 🙏 🤝 💪 👌 ✌️ 🤞 👋 🤙 👀 💯 🔥 ✨ ⭐ 🎉 🎁 ❤️ 🧡 💛 💚 💙 💜 🖤 💔 💬 🚀 💻 🎮 🎧 📱'.split(' ');
-    const STICKERS = '😂 😍 🔥 👍 🎉 😎 🥳 😭 ❤️ 🙏 💯 🤝 😴 🤯 🚀 👀'.split(' ');
-    const pickerEl = document.getElementById('picker');
-    const pickerBodyEl = document.getElementById('pickerBody');
-    const pickerBtn = document.getElementById('pickerBtn');
-    let pickerTab = 'emoji';
-
-    function insertAtCursor(text) {
-      const s = inputEl.selectionStart == null ? inputEl.value.length : inputEl.selectionStart;
-      const e = inputEl.selectionEnd == null ? s : inputEl.selectionEnd;
-      inputEl.value = inputEl.value.slice(0, s) + text + inputEl.value.slice(e);
-      inputEl.focus();
-      inputEl.setSelectionRange(s + text.length, s + text.length);
-    }
-    function closePicker() { pickerEl.hidden = true; }
-
-    function emojiGrid(list, big, onPick) {
-      const grid = document.createElement('div'); grid.className = 'emoji-grid' + (big ? ' big' : '');
-      list.forEach(em => {
-        const b = document.createElement('button'); b.type = 'button'; b.textContent = em;
-        b.onclick = () => onPick(em);
-        grid.appendChild(b);
-      });
-      return grid;
-    }
-
-    async function loadGiphy(q, gridEl) {
-      gridEl.innerHTML = '<div class="gif-hint">...</div>';
-      try {
-        const base = 'https://api.giphy.com/v1/gifs/' + (q ? 'search' : 'trending');
-        const url = base + '?api_key=' + encodeURIComponent(GIPHY_KEY) + '&limit=24&rating=g' + (q ? '&q=' + encodeURIComponent(q) : '');
-        const res = await fetch(url);
-        const json = await res.json();
-        gridEl.innerHTML = '';
-        (json.data || []).forEach(g => {
-          const img = document.createElement('img');
-          img.src = g.images.fixed_height_small.url; img.alt = 'GIF'; img.loading = 'lazy';
-          img.onclick = () => { sendGif(g.images.fixed_height.url); closePicker(); };
-          gridEl.appendChild(img);
-        });
-        if (!gridEl.children.length) gridEl.innerHTML = '<div class="gif-hint">' + T('gif.none', 'Hech narsa topilmadi') + '</div>';
-      } catch (e) {
-        gridEl.innerHTML = '<div class="gif-hint">' + T('gif.err', 'GIF yuklanmadi') + '</div>';
-      }
-    }
-
-    function renderPicker() {
-      pickerEl.querySelectorAll('.picker-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === pickerTab));
-      pickerBodyEl.innerHTML = '';
-      if (pickerTab === 'emoji') {
-        pickerBodyEl.appendChild(emojiGrid(EMOJIS, false, insertAtCursor));
-      } else if (pickerTab === 'sticker') {
-        pickerBodyEl.appendChild(emojiGrid(STICKERS, true, em => { sendSticker(em); closePicker(); }));
-      } else {
-        const form = document.createElement('div'); form.className = 'gif-form';
-        const inp = document.createElement('input'); inp.type = 'text';
-        const btn = document.createElement('button'); btn.type = 'button';
-        form.appendChild(inp); form.appendChild(btn);
-        pickerBodyEl.appendChild(form);
-        if (GIPHY_KEY) {
-          inp.placeholder = T('gif.search', 'GIF qidirish...'); btn.textContent = '🔍';
-          const grid = document.createElement('div'); grid.className = 'gif-grid';
-          pickerBodyEl.appendChild(grid);
-          let t = null;
-          inp.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => loadGiphy(inp.value.trim(), grid), 400); });
-          btn.onclick = () => loadGiphy(inp.value.trim(), grid);
-          loadGiphy('', grid);
-        } else {
-          inp.placeholder = 'https://....gif'; btn.textContent = '➤';
-          const send = () => {
-            const u = inp.value.trim();
-            if (!/^https:\/\/\S+$/i.test(u)) { inp.focus(); return; }
-            sendGif(u); closePicker();
-          };
-          btn.onclick = send;
-          inp.addEventListener('keydown', ev => { if (ev.key === 'Enter') send(); });
-          const hint = document.createElement('div'); hint.className = 'gif-hint';
-          hint.textContent = T('gif.hint', "GIF'ning to'g'ridan-to'g'ri havolasini (https://... .gif) joylang.");
-          pickerBodyEl.appendChild(hint);
-        }
-      }
-    }
-
-    pickerBtn.addEventListener('click', ev => {
-      ev.stopPropagation();
-      pickerEl.hidden = !pickerEl.hidden;
-      if (!pickerEl.hidden) renderPicker();
-    });
-    pickerEl.addEventListener('click', ev => ev.stopPropagation());
-    pickerEl.querySelectorAll('.picker-tabs button').forEach(b => {
-      b.addEventListener('click', () => { pickerTab = b.dataset.tab; renderPicker(); });
-    });
-    document.addEventListener('click', closePicker);
-    document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closePicker(); });
 
     async function deleteMessage(id) {
       try { await messagesRef().doc(id).delete(); }
@@ -634,7 +436,6 @@
       chatEl.style.display = isVideo ? 'none' : 'flex';
       inputAreaEl.style.display = isVideo ? 'none' : 'flex';
       videoPaneEl.style.display = isVideo ? 'flex' : 'none';
-      closePicker();
       if (isVideo) {
         videoFrameEl.src = 'https://meet.jit.si/' + videoRoomName(currentThread.id) + '#config.prejoinPageEnabled=true';
       } else {
@@ -748,30 +549,130 @@
     const logoutBtn = document.getElementById('logoutBtn');
 
     function updateAuthButtons(nickname){
-      const av = document.getElementById('navAvatar');
-      const dn = document.getElementById('displayName');
       if(nickname){
         if(loginBtn) loginBtn.style.display = 'none';
         if(logoutBtn) logoutBtn.style.display = 'inline-flex';
-        if(dn){ dn.textContent = nickname; dn.title = tr('nav.profileTip'); }
-        if(av){
-          av.src = myAvatar; av.title = nickname; av.style.display = 'block';
-          av.onerror = function(){ av.onerror = null; av.src = DEFAULT_AVATAR; };
-        }
+        paintNav(nickname);
       } else {
         if(loginBtn) loginBtn.style.display = 'inline-flex';
         if(logoutBtn) logoutBtn.style.display = 'none';
-        if(dn){ dn.textContent = ''; dn.title = ''; }
-        if(av) av.style.display = 'none';
+        const na = document.getElementById('navAvatar'); if(na) na.style.display = 'none';
       }
     }
 
     if(loginBtn){ loginBtn.addEventListener('click', () => { window.location.href = 'auth.html'; }); }
     if(logoutBtn){ logoutBtn.addEventListener('click', () => { auth.signOut().then(()=>{ localStorage.removeItem('chat_username'); window.location.href = 'auth.html'; }); }); }
-    const displayNameEl = document.getElementById('displayName');
-    const navAvatarEl = document.getElementById('navAvatar');
-    if(navAvatarEl){ navAvatarEl.addEventListener('click', ()=>{ if(username) window.location.href = 'profile.html?user=' + encodeURIComponent(username); }); }
-    if(displayNameEl){ displayNameEl.addEventListener('click', ()=>{ if(username) window.location.href = 'profile.html?user=' + encodeURIComponent(username); }); }
+
+    // ---------- Avatarlar: rasm bo'lmasa — ismning bosh harflari va rangli fon ----------
+    const PHOTO_RE = /^data:image\/(jpeg|png|webp|gif);base64,[A-Za-z0-9+\/=]+$/;
+    function avatarHue(s){ let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) % 360; return h; }
+    function paintAvatar(el, nick, photo){
+      el.style.backgroundColor = 'hsl(' + avatarHue(nick) + ' 55% 42%)';
+      if (photo && PHOTO_RE.test(photo)) { el.style.backgroundImage = 'url("' + photo + '")'; el.textContent = ''; }
+      else { el.style.backgroundImage = ''; el.textContent = String(nick || '?').trim().slice(0, 2).toUpperCase(); }
+    }
+    function paintNav(nick){
+      const a = document.getElementById('navAvatar'); if (!a) return;
+      a.style.display = 'inline-flex'; a.href = 'profile.html?user=' + encodeURIComponent(nick); a.title = nick;
+      paintAvatar(a, nick, myPhoto);
+    }
+    const userCache = {};
+    function userInfo(uid){
+      if (uid === myUid) return Promise.resolve({ photo: myPhoto });
+      if (!userCache[uid]) userCache[uid] = db.collection('users').doc(uid).get().then(s => s.exists ? s.data() : {}).catch(() => ({}));
+      return userCache[uid];
+    }
+
+    // ---------- Emoji / Stiker / GIF ----------
+    // GIF qidiruvi uchun bepul Giphy kalit oling (developers.giphy.com) va shu yerga yozing. Bo'sh bo'lsa — havola qo'yish ishlaydi.
+    const GIPHY_KEY = '';
+    const EMOJIS = ("😀 😃 😄 😁 😆 😅 😂 🤣 🙂 😉 😊 😇 🥰 😍 🤩 😘 😋 😛 😜 🤪 😎 🤓 🥳 😏 😒 😞 😔 😟 😕 🙁 😣 😖 😫 😩 🥺 😢 😭 😤 😠 😡 🤬 🤯 😳 🥵 🥶 😱 😨 😰 😥 😓 🤗 🤔 🫡 🤭 🤫 🙄 😬 😴 😷 🤒 🤕 🤢 🤮 🥴 😵 🤠 😈 👻 💀 🤖 💩 " +
+      "👍 👎 👌 ✌️ 🤞 🤟 🤘 🤙 👈 👉 👆 👇 ☝️ ✋ 👋 🤚 🖖 👏 🙌 🤝 🙏 💪 🫶 👀 🧠 " +
+      "❤️ 🧡 💛 💚 💙 💜 🖤 🤍 💔 💕 💞 💓 💗 💖 💘 💝 ⭐ 🌟 ✨ ⚡ 🔥 💥 💯 ✅ ❌ ❓ ❗ 🎉 🎊 🎁 🏆 🥇 " +
+      "🐶 🐱 🐭 🐹 🐰 🦊 🐻 🐼 🐨 🐯 🦁 🐮 🐷 🐸 🐵 🐔 🐧 🦄 🐝 🦋 🍎 🍌 🍉 🍓 🍕 🍔 🍟 🌭 🍿 🍩 🍪 🎂 ☕ 🍵 🥤 🍜 🍣 " +
+      "💻 🖥️ ⌨️ 🖱️ 📱 🎧 🎮 🕹️ 📷 🎬 🎵 🎶 📚 ✏️ 📌 🔑 🔒 💡 🚀 ✈️ 🚗 ⚽ 🏀 🎯 🧩 🌍 🌈 ☀️ 🌙 ⛄").split(' ');
+    const STICKERS = "🥳 😎 😂 🤣 😭 😡 🥰 😍 🤯 🫡 🤝 👍 🔥 💯 ❤️ 🎉 🚀 💻 🤖 👀 🙏 😴 🤔 😱 🏆 ☕ 🍕 🎮 ✅ 💀 🫶 👋".split(' ');
+
+    // Faqat Giphy/Tenor https havolalariga ruxsat (xavfsizlik); Giphy sahifa havolasi to'g'ridan-to'g'ri .gif ga aylantiriladi
+    function okGif(raw){
+      try {
+        const u = new URL(String(raw).trim());
+        if (u.protocol !== 'https:') return null;
+        const h = u.hostname.toLowerCase();
+        if (h === 'giphy.com' || h === 'www.giphy.com') {
+          const m = u.pathname.match(/^\/gifs\/(?:.*-)?([A-Za-z0-9]+)\/?$/);
+          return m ? 'https://media.giphy.com/media/' + m[1] + '/giphy.gif' : null;
+        }
+        return (h.endsWith('.giphy.com') || h.endsWith('.tenor.com')) ? u.href : null;
+      } catch (e) { return null; }
+    }
+    function insertAtCursor(text){
+      const s = inputEl.selectionStart == null ? inputEl.value.length : inputEl.selectionStart;
+      const e = inputEl.selectionEnd == null ? s : inputEl.selectionEnd;
+      inputEl.value = inputEl.value.slice(0, s) + text + inputEl.value.slice(e);
+      const p = s + text.length; inputEl.setSelectionRange(p, p); inputEl.focus();
+    }
+    const pickerEl = document.getElementById('picker');
+    const pBody = document.getElementById('pBody');
+    const pickerBtn = document.getElementById('pickerBtn');
+    let pTab = 'emoji', gifTimer = null;
+    function openPicker(open){ pickerEl.classList.toggle('open', open); if (open) renderPicker(); }
+    function sendMedia(extra, preview){ openPicker(false); sendPayload(extra, preview); }
+    function gridOf(cls, items, onPick){
+      const g = document.createElement('div'); g.className = cls;
+      items.forEach(it => { const b = document.createElement('button'); b.type = 'button'; b.textContent = it; b.onclick = () => onPick(it); g.appendChild(b); });
+      return g;
+    }
+    async function loadGifs(q, box){
+      box.innerHTML = '<p class="p-note">' + tr('chat.loading') + '</p>';
+      try {
+        const url = 'https://api.giphy.com/v1/gifs/' + (q ? 'search' : 'trending') + '?api_key=' + encodeURIComponent(GIPHY_KEY) + '&limit=24&rating=g' + (q ? '&q=' + encodeURIComponent(q) : '');
+        const res = await fetch(url); const data = await res.json();
+        box.innerHTML = '';
+        (data.data || []).forEach(it => {
+          const img = document.createElement('img'); img.src = it.images.fixed_height_small.url; img.alt = 'GIF'; img.loading = 'lazy';
+          img.onclick = () => sendMedia({ type: 'gif', gif: it.images.fixed_height.url }, tr('chat.gifLabel'));
+          box.appendChild(img);
+        });
+      } catch (e) { box.innerHTML = '<p class="p-note">' + tr('gif.loadFail') + '</p>'; }
+    }
+    function renderPicker(){
+      document.querySelectorAll('#picker .p-tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === pTab));
+      pBody.innerHTML = '';
+      if (pTab === 'emoji') pBody.appendChild(gridOf('emoji-grid', EMOJIS, e => insertAtCursor(e)));
+      else if (pTab === 'sticker') pBody.appendChild(gridOf('sticker-grid', STICKERS, e => sendMedia({ type: 'sticker', sticker: e }, e)));
+      else {
+        const bar = document.createElement('div'); bar.className = 'gif-bar';
+        const inp = document.createElement('input'); inp.type = 'text';
+        bar.appendChild(inp); pBody.appendChild(bar);
+        if (GIPHY_KEY) {
+          inp.placeholder = tr('gif.search');
+          const box = document.createElement('div'); box.className = 'gif-grid'; pBody.appendChild(box);
+          inp.addEventListener('input', () => { clearTimeout(gifTimer); gifTimer = setTimeout(() => loadGifs(inp.value.trim(), box), 400); });
+          loadGifs('', box);
+        } else {
+          inp.placeholder = tr('gif.urlHint');
+          const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'btn primary'; btn.textContent = tr('chat.send');
+          const note = document.createElement('p'); note.className = 'p-note';
+          const go = () => { const u = okGif(inp.value); if (!u) { note.textContent = tr('gif.bad'); return; } sendMedia({ type: 'gif', gif: u }, tr('chat.gifLabel')); };
+          btn.onclick = go; inp.addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+          bar.appendChild(btn); pBody.appendChild(note);
+        }
+      }
+    }
+    pickerBtn.addEventListener('click', e => { e.stopPropagation(); openPicker(!pickerEl.classList.contains('open')); });
+    document.addEventListener('click', e => { if (!pickerEl.contains(e.target) && e.target !== pickerBtn) openPicker(false); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') openPicker(false); });
+    document.querySelectorAll('#picker .p-tabs button').forEach(b => b.addEventListener('click', () => { pTab = b.dataset.tab; renderPicker(); }));
+
+    IC.extend({
+      uz: { 'chat.today': "Bugun", 'chat.yesterday': "Kecha", 'chat.gifLabel': "🎞 GIF",
+            'gif.search': "GIF qidirish...", 'gif.urlHint': "GIF havolasini qo'ying (Giphy yoki Tenor)",
+            'gif.bad': "Faqat Giphy yoki Tenor havolasi mumkin (to'g'ridan-to'g'ri .gif).", 'gif.loadFail': "GIF'lar yuklanmadi." },
+      en: { 'chat.today': "Today", 'chat.yesterday': "Yesterday", 'chat.gifLabel': "🎞 GIF",
+            'gif.search': "Search GIFs...", 'gif.urlHint': "Paste a GIF link (Giphy or Tenor)",
+            'gif.bad': "Only Giphy or Tenor links are allowed (direct .gif).", 'gif.loadFail': "Could not load GIFs." }
+    });
 
     // Til almashganda JS yaratgan matnlarni yangilaymiz
     window.addEventListener('ic:lang', function(){
@@ -783,7 +684,8 @@
         if (b) b.classList.add('active');
       }
       updateAuthButtons(username);
-      if (lastMessages && lastMessages.length === 0) renderMessages(lastMessages);
+      if (lastMessages) renderMessages(lastMessages);
+      if (pickerEl.classList.contains('open')) renderPicker();
     });
 
     // ---- Firebase auth guard: faqat ro'yxatdan o'tib, sohasini tanlagan foydalanuvchi chatga kira oladi ----
@@ -803,8 +705,7 @@
         myUid = user.uid;
         isAdmin = (data.role === 'admin');
         localStorage.setItem('chat_username', username);
-        myAvatar = avatarOf(data);
-        userCache[user.uid] = { avatar: myAvatar };
+        myPhoto = data.photo || '';
         updateAuthButtons(username);
         currentField = data.field;
         renderSidebar(data.field);
